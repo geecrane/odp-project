@@ -30,7 +30,7 @@ public class Main extends Application{
         
         primaryStage.setTitle("Hello World!");
         Button btn = new Button();
-        btn.setText("Say 'Hello World'");
+        btn.setText("Say 'Hello World' and start using ZooDB");
         btn.setOnAction(new EventHandler<ActionEvent>() {
  
             @Override
