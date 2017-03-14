@@ -1,5 +1,6 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
+import java.net.URL;
 import java.util.Collection;
 
 import javax.jdo.Extent;
@@ -9,6 +10,8 @@ import javax.jdo.Query;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
@@ -27,11 +30,23 @@ public class Main extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		FXMLLoader loader = new FXMLLoader();
+		URL url = getClass().getResource("/first-prototype.fxml");
+		loader.setLocation(url);
+		Parent root = loader.load(); 
+	    
+		
+        Scene scene = new Scene (root, 1024, 786);
+    
+        primaryStage.setTitle("FXML based prototype");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+		
+		
         
-        primaryStage.setTitle("Hello World!");
-        Button btn = new Button();
-        btn.setText("Say 'Hello World' and start using ZooDB");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
+        
+        /*
+         
  
             @Override
             public void handle(ActionEvent event) {
@@ -47,6 +62,7 @@ public class Main extends Application{
         root.getChildren().add(btn);
         primaryStage.setScene(new Scene(root, 300, 250));
         primaryStage.show();
+        */
         
 		
 	}
