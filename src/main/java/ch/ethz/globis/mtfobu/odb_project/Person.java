@@ -1,75 +1,51 @@
-/*
- * Copyright 2009-2016 Tilmann Zaeschke. All rights reserved.
- * 
- * This file is part of ZooDB.
- * 
- * ZooDB is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ZooDB is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ZooDB.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * See the README and COPYING files for further information. 
- */
 package ch.ethz.globis.mtfobu.odb_project;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
-import org.zoodb.api.impl.ZooPC;
-
 /**
- * Simple example for a persistent class.
- * 
- * @author ztilmann
+ * Represents a person. The person can have the role of an author
+ * or of an editor for some publications.
  */
-public class Person extends ZooPC {
+public class Person implements DomainObject {
 
-    private String name;
-    private Set<Person> friends = new HashSet<>();
-    
-    @SuppressWarnings("unused")
-    private Person() {
-        // All persistent classes need a no-args constructor. 
-        // The no-args constructor can be private.
+    public String getName()
+    {
+    	return name;
     }
     
-    public Person(String name) {
-        // no activation required
-        this.name = name;
+    public void setName(String name){
+    	this.name = name;
     }
 
-    public void setName(String name) {
-        //activate and flag as dirty
-        zooActivateWrite();
-        this.name = name;
+    public Set<Publication> getAuthoredPublications(){
+    	return this.authoredPublications;
     }
-    
-    public String getName() {
-        //activate
-        zooActivateRead();
-        return this.name;
+
+    public void setAuthoredPublications(Set<Publication> authoredPublications){
+    	this.authoredPublications = authoredPublications;
     }
-    
-    public void addFriend(Person p) {
-        //activate and flag as dirty
-        zooActivateWrite();
-        this.friends.add(p);
+
+    public Set<Publication> getEditedPublications(){
+    	return editedPublications;
     }
-    
-    public Collection<Person> getFriends() {
-        //activate
-        zooActivateRead();
-        //prevent callers from modifying the set.
-        return Collections.unmodifiableSet(friends);
+
+    public void setEditedPublications(Set<Publication> editedPublications){
+    	this.editedPublications = editedPublications;
+    }
+
+	@Override
+	public String getId() {
+		// TODO Auto-generated method stub
+		return null;
 	}
+
+	@Override
+	public void setId(String id) {
+		// TODO Auto-generated method stub
+		
+	}
+	private String name;
+	private Set<Publication> authoredPublications;
+	private Set<Publication> editedPublications;
+
 }
