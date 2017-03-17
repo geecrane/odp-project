@@ -11,7 +11,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111">
+<TabPane fx:controller="ch.ethz.globis.mtfobu.odb_project.Controller" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
   <tabs>
       <Tab text="People">
          <content>
@@ -25,23 +25,23 @@
                             <TableColumn minWidth="0.0" prefWidth="685.0" text="Authored / Edited" />
                           </columns>
                         </TableView>
-                      <Button layoutX="901.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="95.0" text="Delete Person" />
-                        <TextField layoutX="550.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button layoutX="937.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Search" />
+                      <Button layoutX="888.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Person" onAction="#handleDeletePersonAction" />
+                        <TextField layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
+                        <Button layoutX="934.0" mnemonicParsing="false" text="Search" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="401.0">
                      <children>
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Name" />
-                        <Button layoutX="209.0" layoutY="42.0" mnemonicParsing="false" text="Change Name" />
+                        <Button layoutX="190.0" layoutY="43.0" mnemonicParsing="false" text="Change Name" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="469.0">
                      <children>
                         <Label layoutX="2.0" text="Proceeding" />
-                        <ChoiceBox layoutY="42.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button layoutX="214.0" layoutY="67.0" mnemonicParsing="false" text="Add as Editor" />
+                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button layoutX="195.0" layoutY="69.0" mnemonicParsing="false" text="Add as Editor" />
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
@@ -54,27 +54,27 @@
                           </columns>
                         </TableView>
                         <Label text="Edited Proceedings" />
-                        <Button layoutX="193.0" layoutY="295.0" mnemonicParsing="false" text="Remove Proceeding" />
+                        <Button layoutX="167.0" layoutY="296.0" mnemonicParsing="false" text="Remove Proceeding" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="562.0">
                      <children>
                         <Label layoutX="2.0" text="InProceeding" />
-                        <ChoiceBox layoutY="42.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button layoutX="208.0" layoutY="67.0" mnemonicParsing="false" text="Add as Author" />
+                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button layoutX="190.0" layoutY="69.0" mnemonicParsing="false" text="Add as Author" />
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
                   <Group layoutX="695.0" layoutY="401.0">
                      <children>
                         <Label text="Authored InProceedings" />
-                        <TableView layoutY="16.0" prefHeight="279.0" prefWidth="315.0">
+                        <TableView layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
                           <columns>
                             <TableColumn prefWidth="153.0" text="Title" />
                             <TableColumn prefWidth="161.0" text="Proceedings" />
                           </columns>
                         </TableView>
-                        <Button layoutX="183.0" layoutY="295.0" mnemonicParsing="false" text="Remove InProceeding" />
+                        <Button layoutX="155.0" layoutY="296.0" mnemonicParsing="false" text="Remove InProceeding" />
                      </children>
                   </Group>
                </children>
@@ -98,31 +98,31 @@
                               <TableColumn prefWidth="179.0" text="Editors" />
                            </columns>
                         </TableView>
-                        <TextField layoutX="550.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button layoutX="937.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Search" />
-                        <Button layoutX="883.0" layoutY="362.0" mnemonicParsing="false" text="Delete Proceeding" />
+                        <TextField layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
+                        <Button layoutX="934.0" mnemonicParsing="false" text="Search" />
+                        <Button layoutX="860.0" layoutY="362.0" mnemonicParsing="false" text="Delete Proceeding" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="401.0">
                      <children>
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Title" />
-                        <Button layoutX="217.0" layoutY="42.0" mnemonicParsing="false" text="Change Title" />
+                        <Button layoutX="200.0" layoutY="43.0" mnemonicParsing="false" text="Change Title" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="469.0">
                      <children>
                         <Label text="Publisher" />
-                        <ChoiceBox layoutY="42.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button layoutX="186.0" layoutY="67.0" mnemonicParsing="false" text="Change Pusblisher" />
+                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button layoutX="161.0" layoutY="69.0" mnemonicParsing="false" text="Change Pusblisher" />
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
                   <Group layoutX="362.0" layoutY="494.0">
                      <children>
                         <Label text="Series" />
-                        <ChoiceBox layoutY="42.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button layoutX="209.0" layoutY="67.0" mnemonicParsing="false" text="Change Series" />
+                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button layoutX="188.0" layoutY="69.0" mnemonicParsing="false" text="Change Series" />
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
@@ -130,22 +130,22 @@
                      <children>
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="ISBN" />
-                        <Button layoutX="214.0" layoutY="42.0" mnemonicParsing="false" text="Change ISBN" />
+                        <Button layoutX="197.0" layoutY="43.0" mnemonicParsing="false" text="Change ISBN" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="630.0">
                      <children>
                         <Label text="Conference" />
-                        <ChoiceBox layoutY="42.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button layoutX="179.0" layoutY="67.0" mnemonicParsing="false" text="Change Conference" />
+                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button layoutX="154.0" layoutY="69.0" mnemonicParsing="false" text="Change Conference" />
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
                   <Group layoutX="362.0" layoutY="401.0">
                      <children>
                         <Label text="Edition" />
-                        <ChoiceBox layoutY="42.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button layoutX="203.0" layoutY="67.0" mnemonicParsing="false" text="Change Edition" />
+                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button layoutX="183.0" layoutY="69.0" mnemonicParsing="false" text="Change Edition" />
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
@@ -157,14 +157,14 @@
                            </columns>
                         </TableView>
                         <Label text="Editors" />
-                        <Button layoutX="221.0" layoutY="295.0" mnemonicParsing="false" text="Remove Editor" />
+                        <Button layoutX="201.0" layoutY="296.0" mnemonicParsing="false" text="Remove Editor" />
                      </children>
                   </Group>
                   <Group layoutX="363.0" layoutY="584.0">
                      <children>
                         <Label text="Editor" />
-                        <ChoiceBox layoutY="42.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button layoutX="227.0" layoutY="67.0" mnemonicParsing="false" text="Add Editor" />
+                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button layoutX="214.0" layoutY="69.0" mnemonicParsing="false" text="Add Editor" />
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
@@ -186,31 +186,31 @@
                               <TableColumn prefWidth="342.0" text="Authors" />
                            </columns>
                         </TableView>
-                        <TextField layoutX="550.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button layoutX="937.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Search" />
-                        <Button layoutX="872.0" layoutY="362.0" mnemonicParsing="false" text="Delete InProceeding" />
+                        <TextField layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
+                        <Button layoutX="934.0" mnemonicParsing="false" text="Search" />
+                        <Button layoutX="847.0" layoutY="362.0" mnemonicParsing="false" text="Delete InProceeding" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="469.0">
                      <children>
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Pages" />
-                        <Button layoutX="208.0" layoutY="42.0" mnemonicParsing="false" text="Change Pages" />
+                        <Button layoutX="189.0" layoutY="43.0" mnemonicParsing="false" text="Change Pages" />
                      </children>
                   </Group>
                   <Group layoutX="362.0" layoutY="401.0">
                      <children>
                         <Label text="Proceeding" />
-                        <ChoiceBox layoutY="42.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button layoutX="180.0" layoutY="67.0" mnemonicParsing="false" text="Change Proceeding" />
+                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button layoutX="155.0" layoutY="69.0" mnemonicParsing="false" text="Change Proceeding" />
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
                   <Group layoutX="362.0" layoutY="494.0">
                      <children>
                         <Label text="Author" />
-                        <ChoiceBox layoutY="42.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button layoutX="222.0" layoutY="67.0" mnemonicParsing="false" text="Add Author" />
+                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button layoutX="209.0" layoutY="69.0" mnemonicParsing="false" text="Add Author" />
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
@@ -222,21 +222,21 @@
                            </columns>
                         </TableView>
                         <Label text="Authors" />
-                        <Button layoutX="211.0" layoutY="295.0" mnemonicParsing="false" text="Remove Authors" />
+                        <Button layoutX="189.0" layoutY="296.0" mnemonicParsing="false" text="Remove Authors" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="401.0">
                      <children>
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Title" />
-                        <Button layoutX="217.0" layoutY="42.0" mnemonicParsing="false" text="Change Title" />
+                        <Button layoutX="200.0" layoutY="43.0" mnemonicParsing="false" text="Change Title" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="537.0">
                      <children>
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Year" />
-                        <Button layoutX="217.0" layoutY="42.0" mnemonicParsing="false" text="Change Year" />
+                        <Button layoutX="199.0" layoutY="43.0" mnemonicParsing="false" text="Change Year" />
                      </children>
                   </Group>
                </children>
@@ -253,9 +253,9 @@
                         <TableColumn prefWidth="536.0" text="Authors / Editors" />
                      </columns>
                   </TableView>
-                  <TextField layoutX="564.0" layoutY="14.0" prefHeight="25.0" prefWidth="387.0" />
-                  <Button layoutX="951.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Search" />
-                  <Button layoutX="898.0" layoutY="700.0" mnemonicParsing="false" text="Delete Publication" />
+                  <TextField layoutX="561.0" layoutY="14.0" prefHeight="25.0" prefWidth="387.0" />
+                  <Button layoutX="948.0" layoutY="14.0" mnemonicParsing="false" text="Search" />
+                  <Button layoutX="874.0" layoutY="700.0" mnemonicParsing="false" text="Delete Publication" />
                </children>
             </AnchorPane>
          </content>
@@ -272,31 +272,31 @@
                               <TableColumn minWidth="0.0" prefWidth="685.0" text="Published" />
                            </columns>
                         </TableView>
-                        <Button layoutX="894.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Publisher" />
-                        <TextField layoutX="550.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button layoutX="937.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Search" />
+                        <Button layoutX="872.0" layoutY="362.0" mnemonicParsing="false" text="Delete Publisher" />
+                        <TextField layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
+                        <Button layoutX="934.0" mnemonicParsing="false" text="Search" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="401.0">
                      <children>
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Name" />
-                        <Button layoutX="209.0" layoutY="42.0" mnemonicParsing="false" text="Change Name" />
+                        <Button layoutX="190.0" layoutY="43.0" mnemonicParsing="false" text="Change Name" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="469.0">
                      <children>
                         <Label layoutX="2.0" text="Proceeding" />
-                        <ChoiceBox layoutY="42.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button layoutX="198.0" layoutY="67.0" mnemonicParsing="false" text="Add Proceeding" />
+                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button layoutX="180.0" layoutY="69.0" mnemonicParsing="false" text="Add Proceeding" />
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="562.0">
                      <children>
                         <Label layoutX="2.0" text="InProceeding" />
-                        <ChoiceBox layoutY="42.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button layoutX="189.0" layoutY="67.0" mnemonicParsing="false" text="Add InProceeding" />
+                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button layoutX="168.0" layoutY="69.0" mnemonicParsing="false" text="Add InProceeding" />
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
@@ -309,7 +309,7 @@
                            </columns>
                         </TableView>
                         <Label text="Published Proceedings" />
-                        <Button layoutX="193.0" layoutY="295.0" mnemonicParsing="false" text="Remove Proceeding" />
+                        <Button layoutX="167.0" layoutY="296.0" mnemonicParsing="false" text="Remove Proceeding" />
                      </children>
                   </Group>
                   <Group layoutX="695.0" layoutY="401.0">
@@ -321,7 +321,7 @@
                               <TableColumn prefWidth="161.0" text="Proceedings" />
                            </columns>
                         </TableView>
-                        <Button layoutX="183.0" layoutY="295.0" mnemonicParsing="false" text="Remove InProceeding" />
+                        <Button layoutX="155.0" layoutY="295.0" mnemonicParsing="false" text="Remove InProceeding" />
                      </children>
                   </Group>
                </children>
@@ -340,23 +340,23 @@
                               <TableColumn minWidth="0.0" prefWidth="469.0" text="Editions" />
                            </columns>
                         </TableView>
-                        <Button layoutX="883.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Conference" />
-                        <TextField layoutX="550.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button layoutX="937.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Search" />
+                        <Button layoutX="858.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Conference" />
+                        <TextField layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
+                        <Button layoutX="934.0" mnemonicParsing="false" text="Search" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="401.0">
                      <children>
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Name" />
-                        <Button layoutX="209.0" layoutY="42.0" mnemonicParsing="false" text="Change Name" />
+                        <Button layoutX="190.0" layoutY="43.0" mnemonicParsing="false" text="Change Name" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="469.0">
                      <children>
                         <Label layoutX="2.0" text="Edition" />
-                        <ChoiceBox layoutY="42.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button layoutX="222.0" layoutY="67.0" mnemonicParsing="false" text="Add Edition" />
+                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button layoutX="207.0" layoutY="69.0" mnemonicParsing="false" text="Add Edition" />
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
@@ -368,7 +368,7 @@
                            </columns>
                         </TableView>
                         <Label text="Editions" />
-                        <Button layoutX="216.0" layoutY="295.0" mnemonicParsing="false" text="Remove Edition" />
+                        <Button layoutX="195.0" layoutY="296.0" mnemonicParsing="false" text="Remove Edition" />
                      </children>
                   </Group>
                </children>
@@ -388,23 +388,23 @@
                               <TableColumn prefWidth="553.0" text="Proceedings" />
                            </columns>
                         </TableView>
-                        <Button layoutX="883.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Conference" />
-                        <TextField layoutX="550.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button layoutX="937.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Search" />
+                        <Button layoutX="858.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Conference" />
+                        <TextField layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
+                        <Button layoutX="934.0" mnemonicParsing="false" text="Search" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="401.0">
                      <children>
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Name" />
-                        <Button layoutX="209.0" layoutY="42.0" mnemonicParsing="false" text="Change Name" />
+                        <Button layoutX="190.0" layoutY="43.0" mnemonicParsing="false" text="Change Name" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="469.0">
                      <children>
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Edition" />
-                        <Button layoutX="203.0" layoutY="42.0" mnemonicParsing="false" text="Change Edition" />
+                        <Button layoutX="183.0" layoutY="43.0" mnemonicParsing="false" text="Change Edition" />
                      </children>
                   </Group>
                   <Group layoutX="355.0" layoutY="401.0">
@@ -415,7 +415,7 @@
                            </columns>
                         </TableView>
                         <Label text="Proceedings" />
-                        <Button layoutX="193.0" layoutY="295.0" mnemonicParsing="false" text="Remove Proceeding" />
+                        <Button layoutX="167.0" layoutY="296.0" mnemonicParsing="false" text="Remove Proceeding" />
                      </children>
                   </Group>
                </children>
@@ -434,23 +434,23 @@
                               <TableColumn minWidth="0.0" prefWidth="503.0" text="Publications" />
                            </columns>
                         </TableView>
-                        <Button layoutX="912.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Series" />
-                        <TextField layoutX="550.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button layoutX="937.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="60.0" text="Search" />
+                        <Button layoutX="892.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Series" />
+                        <TextField layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
+                        <Button layoutX="934.0" mnemonicParsing="false" text="Search" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="401.0">
                      <children>
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Name" />
-                        <Button layoutX="209.0" layoutY="42.0" mnemonicParsing="false" text="Change Name" />
+                        <Button layoutX="190.0" layoutY="43.0" mnemonicParsing="false" text="Change Name" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="469.0">
                      <children>
                         <TextField layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Proceedings" />
-                        <Button layoutX="193.0" layoutY="42.0" mnemonicParsing="false" text="Add Proceedings" />
+                        <Button layoutX="173.0" layoutY="43.0" mnemonicParsing="false" text="Add Proceedings" />
                      </children>
                   </Group>
                   <Group layoutX="355.0" layoutY="401.0">
@@ -461,7 +461,7 @@
                            </columns>
                         </TableView>
                         <Label text="Proceedings" />
-                        <Button layoutX="193.0" layoutY="295.0" mnemonicParsing="false" text="Remove Proceeding" />
+                        <Button layoutX="167.0" layoutY="296.0" mnemonicParsing="false" text="Remove Proceeding" />
                      </children>
                   </Group>
                </children>
