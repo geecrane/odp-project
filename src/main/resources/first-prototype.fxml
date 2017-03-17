@@ -19,7 +19,7 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
+                        <TableView fx:id="personMainTable" layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
                           <columns>
                             <TableColumn prefWidth="311.0" text="Name" />
                             <TableColumn minWidth="0.0" prefWidth="685.0" text="Authored / Edited" />
@@ -87,7 +87,7 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
+                        <TableView fx:id="proceedingMainTable" layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
                            <columns>
                               <TableColumn prefWidth="283.0" text="Title" />
                               <TableColumn minWidth="0.0" prefWidth="126.0" text="Publisher" />
@@ -177,7 +177,7 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
+                        <TableView fx:id="inProceedingMainTable" layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
                            <columns>
                               <TableColumn prefWidth="283.0" text="Title" />
                               <TableColumn prefWidth="75.0" text="Pages" />
@@ -247,7 +247,7 @@
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <TableView layoutX="14.0" layoutY="43.0" prefHeight="657.0" prefWidth="997.0">
+                  <TableView fx:id="publicationMainTable" layoutX="14.0" layoutY="43.0" prefHeight="657.0" prefWidth="997.0">
                      <columns>
                         <TableColumn prefWidth="460.0" text="Title" />
                         <TableColumn prefWidth="536.0" text="Authors / Editors" />
@@ -266,7 +266,7 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
+                        <TableView fx:id="publisherMainTable" layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
                            <columns>
                               <TableColumn prefWidth="311.0" text="Name" />
                               <TableColumn minWidth="0.0" prefWidth="685.0" text="Published" />
@@ -334,7 +334,7 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
+                        <TableView fx:id="conferenceMainTable" layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
                            <columns>
                               <TableColumn prefWidth="527.0" text="Name" />
                               <TableColumn minWidth="0.0" prefWidth="469.0" text="Editions" />
@@ -381,7 +381,7 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
+                        <TableView fx:id="conferenceEditionMainTable" layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
                            <columns>
                               <TableColumn prefWidth="354.0" text="Name" />
                               <TableColumn minWidth="0.0" prefWidth="89.0" text="Edition" />
@@ -428,7 +428,7 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
+                        <TableView fx:id="serieMainTable" layoutY="29.0" prefHeight="333.0" prefWidth="997.0">
                            <columns>
                               <TableColumn prefWidth="493.0" text="Name" />
                               <TableColumn minWidth="0.0" prefWidth="503.0" text="Publications" />
