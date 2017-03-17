@@ -24,25 +24,25 @@ public class DBExample {
 
         //Extents are one way to get objects from a database:
         System.out.println("Person extent: ");
-        Extent<Person> ext = pm.getExtent(Person.class);
-        for (Person p: ext) {
+        Extent<Person_old> ext = pm.getExtent(Person_old.class);
+        for (Person_old p: ext) {
             System.out.println("Person found: " + p.getName());
         }
         ext.closeAll();
         
         //Queries are more powerful:
         System.out.println("Queries: ");
-        Query query = pm.newQuery(Person.class, "name == 'Bart'");
-        Collection<Person> barts = (Collection<Person>) query.execute();
-        for (Person p: barts) {
+        Query query = pm.newQuery(Person_old.class, "name == 'Bart'");
+        Collection<Person_old> barts = (Collection<Person_old>) query.execute();
+        for (Person_old p: barts) {
             System.out.println("Person found called 'Bart': " + p.getName());
         }
         query.closeAll();
         
         //Once an object is loaded, normal method calls can be used to traverse the object graph.
-        Person bart = barts.iterator().next();
+        Person_old bart = barts.iterator().next();
         System.out.println(bart.getName() + " has " + bart.getFriends().size() + " friend(s):");
-        for (Person p: bart.getFriends()) {
+        for (Person_old p: bart.getFriends()) {
             System.out.println(p.getName() + " is a friend of " + bart.getName());
         }
         
@@ -68,18 +68,18 @@ public class DBExample {
         pm.currentTransaction().begin();
         
         // create instances
-        Person lisa = new Person("Lisa");
+        Person_old lisa = new Person_old("Lisa");
         //make Lisa persistent. 
         pm.makePersistent(lisa);
 
         //add Bart to Lisa's friends
-        Person bart = new Person("Bart");
+        Person_old bart = new Person_old("Bart");
         lisa.addFriend(bart);
         
         pm.currentTransaction().commit();
         pm.currentTransaction().begin();
         
-        bart.addFriend(new Person("Maggie"));
+        bart.addFriend(new Person_old("Maggie"));
         
         pm.currentTransaction().commit();
         closeDB(pm);
