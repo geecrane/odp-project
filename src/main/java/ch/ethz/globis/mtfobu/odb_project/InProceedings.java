@@ -3,7 +3,7 @@ package ch.ethz.globis.mtfobu.odb_project;
 /**
  * A type of article that was published as part of a conference proceedings.
  */
-public abstract class InProceedings extends Publication {
+public abstract class InProceedings implements Publication {
 
     public  abstract String getNote();
 

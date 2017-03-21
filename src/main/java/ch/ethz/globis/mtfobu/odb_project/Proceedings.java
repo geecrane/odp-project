@@ -7,38 +7,38 @@ import java.util.Set;
  * a certain conference edition. The proceedings contains all the articles published
  * at that conference edition.
  */
-public abstract class Proceedings extends Publication {
+public interface Proceedings extends Publication {
 
-    public abstract String getNote();
+    public String getNote();
 
-    public abstract void setNote(String note);
+    public void setNote(String note);
 
-    public abstract int getNumber();
+    public int getNumber();
 
-    public abstract void setNumber(int number);
+    public void setNumber(int number);
 
-    public abstract Publisher getPublisher();
+    public Publisher getPublisher();
 
-    public abstract void setPublisher(Publisher publisher);
+    public void setPublisher(Publisher publisher);
 
-    public abstract String getVolume();
+    public String getVolume();
 
-    public abstract void setVolume(String volume);
+    public void setVolume(String volume);
 
-    public abstract String getIsbn();
+    public String getIsbn();
 
-    public abstract void setIsbn(String isbn);
+    public void setIsbn(String isbn);
 
-    public abstract Series getSeries();
+    public Series getSeries();
 
-    public abstract void setSeries(Series series);
+    public void setSeries(Series series);
 
-    public abstract ConferenceEdition getConferenceEdition();
+    public ConferenceEdition getConferenceEdition();
 
-    public abstract void setConferenceEdition(ConferenceEdition conferenceEdition);
+    public void setConferenceEdition(ConferenceEdition conferenceEdition);
 
-    public abstract Set<InProceedings> getPublications();
+    public Set<InProceedings> getPublications();
 
-    public abstract void setPublications(Set<InProceedings> publications);
+    public void setPublications(Set<InProceedings> publications);
 
 }

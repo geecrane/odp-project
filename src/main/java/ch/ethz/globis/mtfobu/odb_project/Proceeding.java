@@ -3,170 +3,213 @@ package ch.ethz.globis.mtfobu.odb_project;
 import java.util.List;
 import java.util.Set;
 
-public class Proceeding extends Proceedings {
+import org.zoodb.api.impl.ZooPC;
+
+public class Proceeding extends ZooPC implements Proceedings {
+	//George: NOTE that most attributes DO NOT always exist. Check first if xml has that attribute.
+	
+	private void Proceeding() {
+		// nothing to do here!
+	}
 
 	@Override
 	public String getTitle() {
-		// TODO Auto-generated method stub
-		return null;
+		zooActivateRead();
+		return title;
 	}
 
 	@Override
 	public void setTitle(String title) {
-		// TODO Auto-generated method stub
-		
+		zooActivateWrite();
+		this.title = title;
 	}
 
 	@Override
 	public List<Person> getAuthors() {
-		return this.editors;
+		//George: These are actually editors (no authors in proceedings)
+		zooActivateRead();
+		return editors;
 	}
 
 	@Override
 	public void setAuthors(List<Person> authors) {
+		//George: These are actually editors (no authors in proceedings)
+		zooActivateWrite();
 		this.editors = authors;
 		
 	}
 
 	@Override
 	public int getYear() {
-		// TODO Auto-generated method stub
-		return 0;
+		//George: Note that the Year defines the Conference Edition
+		zooActivateRead();
+		return year;
 	}
 
 	@Override
 	public void setYear(int year) {
-		// TODO Auto-generated method stub
+		//George: Note that the Year defines the Conference Edition
+		zooActivateWrite();
+		this.year = year;
 		
 	}
 
 	@Override
 	public String getElectronicEdition() {
-		// TODO Auto-generated method stub
-		return null;
+		//George: Does NOT always exist!
+		zooActivateRead();
+		return electronicEdition;
 	}
 
 	@Override
 	public void setElectronicEdition(String electronicEdition) {
-		// TODO Auto-generated method stub
+		//George: Does NOT always exist!
+		zooActivateWrite();
+		this.electronicEdition = electronicEdition;
 		
 	}
 
 	@Override
 	public String getId() {
-		// TODO Auto-generated method stub
-		return null;
+		//George: May be the key attribute in xml
+		zooActivateRead();
+		return id;
 	}
 
 	@Override
 	public void setId(String id) {
-		// TODO Auto-generated method stub
+		//George: May be the key attribute found in xml
+		zooActivateWrite();
+		this.id = id;
 		
 	}
 
 	@Override
 	public String getNote() {
-		// TODO Auto-generated method stub
-		return null;
+		//George: Does NOT always exist!
+		zooActivateRead();
+		return note;
 	}
 
 	@Override
 	public void setNote(String note) {
-		// TODO Auto-generated method stub
+		//George: Does NOT always exist!
+		zooActivateWrite();
+		this.note = note;
 		
 	}
 
 	@Override
 	public int getNumber() {
-		// TODO Auto-generated method stub
-		return 0;
+		//George: Does NOT always exist!
+		zooActivateRead();
+		return number;
 	}
 
 	@Override
 	public void setNumber(int number) {
-		// TODO Auto-generated method stub
+		//George: Does NOT always exist!
+		zooActivateWrite();
+		this.number = number;
 		
 	}
 
 	@Override
 	public Publisher getPublisher() {
-		// TODO Auto-generated method stub
-		return null;
+		zooActivateRead();
+		return publisher;
 	}
 
 	@Override
 	public void setPublisher(Publisher publisher) {
-
+		zooActivateWrite();
+		this.publisher = publisher;
 		
 	}
 
 	@Override
 	public String getVolume() {
-		// TODO Auto-generated method stub
-		return null;
+		//George: Does NOT always exist!
+		zooActivateRead();
+		return volume;
 	}
 
 	@Override
 	public void setVolume(String volume) {
-		// TODO Auto-generated method stub
+		//George: Does NOT always exist!
+		zooActivateWrite();
+		this.volume = volume;
 		
 	}
 
 	@Override
 	public String getIsbn() {
-		// TODO Auto-generated method stub
-		return null;
+		zooActivateRead();
+		return isbn;
 	}
 
 	@Override
 	public void setIsbn(String isbn) {
-		// TODO Auto-generated method stub
-		
+		zooActivateWrite();
+		this.isbn = isbn;		
 	}
 
 	@Override
 	public Series getSeries() {
-		// TODO Auto-generated method stub
-		return null;
+		//George: Does NOT always exist!
+		zooActivateRead();
+		return series;
 	}
 
 	@Override
 	public void setSeries(Series series) {
-		// TODO Auto-generated method stub
+		//George: Does NOT always exist!
+		zooActivateWrite();
+		this.series = series;
 		
 	}
 
 	@Override
 	public ConferenceEdition getConferenceEdition() {
-		// TODO Auto-generated method stub
-		return null;
+		zooActivateRead();
+		return confEdition;
 	}
 
 	@Override
 	public void setConferenceEdition(ConferenceEdition conferenceEdition) {
-		// TODO Auto-generated method stub
+		zooActivateWrite();
+		this.confEdition = conferenceEdition;
 		
 	}
 
 	@Override
 	public Set<InProceedings> getPublications() {
-		// TODO Auto-generated method stub
-		return null;
+		//George: A Proceeding can have multiple inProceedings
+		zooActivateRead();
+		return inProceedings;
 	}
 
 	@Override
 	public void setPublications(Set<InProceedings> publications) {
-		// TODO Auto-generated method stub
+		//George: A Proceeding can have multiple inProceedings
+		zooActivateWrite();
+		this.inProceedings = publications;
 		
 	}
 	private List<Person> editors;
 	private String title;
-	private String booktitle;
+	private String booktitle;//George: This is Conference name (use it as foreign key)
 	private Series series;
 	private int year;
 	private String isbn;
-	private String url;
-	private ConferenceEdition confEdit;
+	private ConferenceEdition confEdition;
+	private String id;
+	private Publisher publisher;
+	Set<InProceedings> inProceedings;
+	private String volume;
+	private String note;
+	private String electronicEdition;
+	private int number;
 	
 
 }

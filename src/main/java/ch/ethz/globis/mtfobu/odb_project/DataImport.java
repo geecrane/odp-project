@@ -26,7 +26,7 @@ public class DataImport {
 		db = database;
 	}
 	@SuppressWarnings("unchecked")
-	public int ImoprtFormXML(String filename) throws UnexpectedContent{
+	public int ImportFromXML(String filename) throws UnexpectedContent{
 		SAXBuilder builder = new SAXBuilder();
 		Document doc;
 		try{
@@ -50,7 +50,8 @@ public class DataImport {
 	private int classifyProceedings(List<Element> proceedings) throws UnexpectedContent{
 		for( Element prcd: proceedings){
 			Proceeding proceeding = new Proceeding();
-
+			List<Element> publisherElements = prcd.getChildren("publisher");
+			
 			//Set editor
 			{
 				List<Person> editors = new Vector<Person>();
@@ -129,7 +130,7 @@ public class DataImport {
 			
 			//Set Publisher
 			{
-				List<Element> publisherElements = prcd.getChildren("publisher");
+				
 				if (publisherElements.size() > 1){
 					throw new UnexpectedContent("Proceeding has multiple publishers");
 				}

@@ -6,22 +6,22 @@ import java.util.List;
  * Defines the base state for a publication. Is inherited by all specialized
  * types of publications.
  */
-public abstract class Publication implements DomainObject {
+public interface Publication extends DomainObject {
 
-    public abstract String getTitle();
+    public String getTitle();
 
-    public abstract void setTitle(String title);
+    public void setTitle(String title);
 
-    public abstract List<Person> getAuthors();
+    public List<Person> getAuthors();
 
-    public abstract void setAuthors(List<Person> authors);
+    public void setAuthors(List<Person> authors);
 
-    public abstract int getYear();
+    public int getYear();
 
-    public abstract void setYear(int year);
+    public void setYear(int year);
 
-    public abstract String getElectronicEdition();
+    public String getElectronicEdition();
 
-    public abstract void setElectronicEdition(String electronicEdition);
+    public void setElectronicEdition(String electronicEdition);
     
 }
