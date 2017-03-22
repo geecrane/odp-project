@@ -11,7 +11,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<TabPane fx:controller="ch.ethz.globis.mtfobu.odb_project.Controller" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.ethz.globis.mtfobu.odb_project.Controller">
   <tabs>
       <Tab text="People">
          <content>
@@ -25,7 +25,7 @@
                             <TableColumn minWidth="0.0" prefWidth="685.0" text="Authored / Edited" />
                           </columns>
                         </TableView>
-                      <Button layoutX="888.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Person" onAction="#handleDeletePersonAction" />
+                      <Button layoutX="888.0" layoutY="362.0" mnemonicParsing="false" onAction="#handleDeletePersonAction" prefHeight="25.0" text="Delete Person" />
                         <TextField layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
                         <Button layoutX="934.0" mnemonicParsing="false" text="Search" />
                      </children>
@@ -467,6 +467,17 @@
                </children>
             </AnchorPane>
          </content>
+      </Tab>
+      <Tab text="Import">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Button fx:id="btnImport" layoutX="481.0" layoutY="143.0" mnemonicParsing="false" text="Import" />
+                  <Label fx:id="lblStatus" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="353.0" layoutY="176.0" prefHeight="272.0" prefWidth="319.0" text="Click to start import. This might take a while." textAlignment="CENTER" textFill="#0846f2" />
+                  
+               </children>
+            </AnchorPane>
+        </content>
       </Tab>
   </tabs>
 </TabPane>

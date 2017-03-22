@@ -11,6 +11,8 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
+import javafx.application.Platform;
+
 public class XmlImport {
 	
 	//George: I implemented this class from scratch to replace DataImport class.
@@ -30,26 +32,32 @@ public class XmlImport {
 	private HashMap<String, Publisher> publishers = new HashMap<>();
 	private HashMap<Integer, Person> people = new HashMap<>();
 	private HashMap<Integer, Series> seriesList = new HashMap<>();
+
 	
-	
-	public XmlImport(Database database){
+	private final Controller c ;
+	public XmlImport(Database database, Controller c){
 		this.database = database;	
+		this.c = c;
 	}
 	
-	public void ImportFromXML(String filename) throws UnexpectedContent{
+	public void ImportFromXML(String filename) {
+		
+		setStatus("Loading XML...");
 		Document doc = openXML(filename);
 		
 		if(doc != null){
 			//parser
 			parseXml(doc);
+		
+			//commit to database
+			setStatus("Commiting to Database...");
+			database.importData(proceedingsList, inProceedingsList);
 			
-			System.out.printf("\nImported succesfully:\n%s proceedings \n%s inProceedings \n%s editors \n%s publishers \n"
+			//Done!
+			String output = String.format("Import Complete!\nImported succesfully:\n%s proceedings \n%s inProceedings \n%s editors \n%s publishers \n"
 					+ "%s conferences \n%s conference editions \n%s series!", proceedingsList.size(), inProceedingsList.size(), people.size(),
 					publishers.size(), conferences.size(), conferenceEditions.size(), seriesList.size());
-			
-			//commit to database
-			database.importData(proceedingsList, inProceedingsList);
-			System.out.printf("\nSuccessfully commited!");
+			setStatus(output);
 			
 		}
 	}
@@ -75,12 +83,17 @@ public class XmlImport {
 	@SuppressWarnings("unchecked")
 	private void parseXml(Document doc){
 		Element root = doc.getRootElement();
+		
+		
+		List<Element> proceedingsNodes = root.getChildren("proceedings");
+		List<Element> inProceedingsNodes = root.getChildren("inproceedings");
+		
 		//importing proceedings
-		List<Element> proceedingsNodes = root.getChildren("proceedings");	
+		setStatus("Importing Proceedings...");
 		importProceedings(proceedingsNodes);
 		
 		//importing inProceedings
-		List<Element> inProceedingsNodes = root.getChildren("inproceedings");
+		setStatus("Importing InProceedings...");
 		importInProceedings(inProceedingsNodes);
 		
 	}
@@ -158,8 +171,6 @@ public class XmlImport {
 		
 		
 	}
-
-	
 
 	//import all proceedings
 	@SuppressWarnings("unchecked")
@@ -337,5 +348,15 @@ public class XmlImport {
 		}
 		return conference;
 	}
+	
+	//for status updates
+	void setStatus(String text){
+		Platform.runLater(new Runnable() {
+	        @Override public void run() {
+	        	c.lblStatus.setText(text);
+	        }
+	    });
+	}
+	
 
 }

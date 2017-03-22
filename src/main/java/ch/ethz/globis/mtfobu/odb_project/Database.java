@@ -2,8 +2,6 @@ package ch.ethz.globis.mtfobu.odb_project;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -43,12 +41,13 @@ public class Database {
 		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
 		pm.currentTransaction().begin();
 		
-		//commit proceedings
+		//George: commit proceedings
 	    for (Proceedings proceedings : proceedingsList.values()) {
 	    	pm.makePersistent(proceedings);
 	    }
 	    
-	    //commit inProceedings
+	    //George: commit inProceedings too. Because cannot rely on transitivity.
+	    //Some inProceedings have no proceedings. Probably because the XML provided is not complete.
 	    for (InProceedings inProceedings : inProceedingsList.values()) {
 	    	pm.makePersistent(inProceedings);
 	    }
