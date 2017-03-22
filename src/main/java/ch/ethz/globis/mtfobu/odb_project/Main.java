@@ -43,6 +43,12 @@ public class Main extends Application{
         primaryStage.setTitle("FXML based prototype");
         primaryStage.setScene(scene);
         primaryStage.show();
+        
+        //George: only for testing purposes
+        //of course will have to run on a separate thread!
+        Database db = new Database("myDB");
+        XmlImport xim = new XmlImport(db);
+        xim.ImportFromXML("src/main/resources/dblp_filtered.xml");
 		
 		
         

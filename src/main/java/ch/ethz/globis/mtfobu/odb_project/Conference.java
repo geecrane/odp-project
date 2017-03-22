@@ -1,42 +1,56 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
-import java.util.HashSet;
 import java.util.Set;
+
+import org.zoodb.api.impl.ZooPC;
 
 /**
  * Represents a certain conference. A conference has more conference editions,
  * usually one edition per year.
  */
-public class Conference implements DomainObject {
+public class Conference extends ZooPC implements DomainObject {
 
-    public String getName(){
-    	return this.name;
-    }
 
-    public void setName(String name){
-    	this.name = name;
-    }
+	private String name;
+	private String id;
+	private Set<ConferenceEdition> conferences;
+	
+	public Conference() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public String getName() {
+		zooActivateRead();
+		return this.name;
+	}
 
-    public Set<ConferenceEdition> getEditions(){
-    	return new HashSet<ConferenceEdition>(this.conferences);
-    }
+	public void setName(String name) {
+		zooActivateWrite();
+		this.name = name;
 
-    public void setEditions(Set<ConferenceEdition> editions){
-    	this.conferences = editions;
-    }
+	}
 
-	@Override
+	public Set<ConferenceEdition> getEditions() {
+		zooActivateRead();
+		return conferences;
+	}
+
+	public void setEditions(Set<ConferenceEdition> editions) {
+		zooActivateWrite();
+		this.conferences = editions;
+
+	}
+
 	public String getId() {
-		// TODO Auto-generated method stub
-		return null;
+		zooActivateRead();
+		return id;
 	}
 
 	@Override
 	public void setId(String id) {
-		// TODO Auto-generated method stub
-		
+		zooActivateWrite();
+		this.id = id;
+
 	}
-	private String name;
-	private Set<ConferenceEdition> conferences;
-    
+
 }

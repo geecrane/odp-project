@@ -49,7 +49,7 @@ public class DataImport {
 	@SuppressWarnings("unchecked")
 	private int classifyProceedings(List<Element> proceedings) throws UnexpectedContent{
 		for( Element prcd: proceedings){
-			Proceeding proceeding = new Proceeding();
+			Proceedings proceeding = new Proceedings();
 			List<Element> publisherElements = prcd.getChildren("publisher");
 			
 			//Set editor

@@ -1,44 +1,204 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
+import java.util.List;
 import java.util.Set;
+
+import org.zoodb.api.impl.ZooPC;
 
 /**
  * A specialized type of publications, represents the proceedings released at
  * a certain conference edition. The proceedings contains all the articles published
  * at that conference edition.
  */
-public interface Proceedings extends Publication {
+public class Proceedings extends ZooPC implements Publication {
+	//George: NOTE that most attributes DO NOT always exist. Check first if xml has that attribute.
+	
+	public Proceedings() {
+		// nothing to do here!
+	}
 
-    public String getNote();
+	@Override
+	public String getTitle() {
+		zooActivateRead();
+		return title;
+	}
 
-    public void setNote(String note);
+	@Override
+	public void setTitle(String title) {
+		zooActivateWrite();
+		this.title = title;
+	}
 
-    public int getNumber();
+	@Override
+	public List<Person> getAuthors() {
+		//George: These are actually editors (no authors in proceedings)
+		zooActivateRead();
+		return editors;
+	}
 
-    public void setNumber(int number);
+	@Override
+	public void setAuthors(List<Person> authors) {
+		//George: These are actually editors (no authors in proceedings)
+		zooActivateWrite();
+		this.editors = authors;
+		
+	}
 
-    public Publisher getPublisher();
+	@Override
+	public int getYear() {
+		//George: Note that the Year defines the Conference Edition
+		zooActivateRead();
+		return year;
+	}
 
-    public void setPublisher(Publisher publisher);
+	@Override
+	public void setYear(int year) {
+		//George: Note that the Year defines the Conference Edition
+		zooActivateWrite();
+		this.year = year;
+		
+	}
 
-    public String getVolume();
+	@Override
+	public String getElectronicEdition() {
+		//George: Does NOT always exist!
+		zooActivateRead();
+		return electronicEdition;
+	}
 
-    public void setVolume(String volume);
+	@Override
+	public void setElectronicEdition(String electronicEdition) {
+		//George: Does NOT always exist!
+		zooActivateWrite();
+		this.electronicEdition = electronicEdition;
+		
+	}
 
-    public String getIsbn();
+	@Override
+	public String getId() {
+		//George: May be the key attribute in xml
+		zooActivateRead();
+		return id;
+	}
 
-    public void setIsbn(String isbn);
+	@Override
+	public void setId(String id) {
+		//George: May be the key attribute found in xml
+		zooActivateWrite();
+		this.id = id;
+		
+	}
 
-    public Series getSeries();
+	public String getNote() {
+		//George: Does NOT always exist!
+		zooActivateRead();
+		return note;
+	}
 
-    public void setSeries(Series series);
+	public void setNote(String note) {
+		//George: Does NOT always exist!
+		zooActivateWrite();
+		this.note = note;
+		
+	}
 
-    public ConferenceEdition getConferenceEdition();
+	public int getNumber() {
+		//George: Does NOT always exist!
+		zooActivateRead();
+		return number;
+	}
 
-    public void setConferenceEdition(ConferenceEdition conferenceEdition);
+	public void setNumber(int number) {
+		//George: Does NOT always exist!
+		zooActivateWrite();
+		this.number = number;
+		
+	}
 
-    public Set<InProceedings> getPublications();
+	public Publisher getPublisher() {
+		zooActivateRead();
+		return publisher;
+	}
 
-    public void setPublications(Set<InProceedings> publications);
+	public void setPublisher(Publisher publisher) {
+		zooActivateWrite();
+		this.publisher = publisher;
+		
+	}
+
+	public String getVolume() {
+		//George: Does NOT always exist!
+		zooActivateRead();
+		return volume;
+	}
+
+	public void setVolume(String volume) {
+		//George: Does NOT always exist!
+		zooActivateWrite();
+		this.volume = volume;
+		
+	}
+
+	public String getIsbn() {
+		zooActivateRead();
+		return isbn;
+	}
+
+	public void setIsbn(String isbn) {
+		zooActivateWrite();
+		this.isbn = isbn;		
+	}
+
+	public Series getSeries() {
+		//George: Does NOT always exist!
+		zooActivateRead();
+		return series;
+	}
+
+	public void setSeries(Series series) {
+		//George: Does NOT always exist!
+		zooActivateWrite();
+		this.series = series;
+		
+	}
+
+	public ConferenceEdition getConferenceEdition() {
+		zooActivateRead();
+		return confEdition;
+	}
+
+	public void setConferenceEdition(ConferenceEdition conferenceEdition) {
+		zooActivateWrite();
+		this.confEdition = conferenceEdition;
+		
+	}
+
+	public Set<InProceedings> getPublications() {
+		//George: A Proceeding can have multiple inProceedings
+		zooActivateRead();
+		return inProceedings;
+	}
+
+	public void setPublications(Set<InProceedings> publications) {
+		//George: A Proceeding can have multiple inProceedings
+		zooActivateWrite();
+		this.inProceedings = publications;
+		
+	}
+	private List<Person> editors;
+	private String title;
+	private String booktitle;//George: This is Conference name (use it as foreign key)
+	private Series series;
+	private int year;
+	private String isbn;
+	private ConferenceEdition confEdition;
+	private String id;
+	private Publisher publisher;
+	Set<InProceedings> inProceedings;
+	private String volume;
+	private String note;
+	private String electronicEdition;
+	private int number;
+	
 
 }
