@@ -1,7 +1,9 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import org.zoodb.api.impl.ZooPC;
 
@@ -13,8 +15,11 @@ import org.zoodb.api.impl.ZooPC;
 public class Proceedings extends ZooPC implements Publication {
 	//George: NOTE that most attributes DO NOT always exist. Check first if xml has that attribute.
 	
-	public Proceedings() {
-		// nothing to do here!
+	private Proceedings() {
+		// for ZooDB
+	}
+	public Proceedings(String id){
+		this.id = id;
 	}
 
 	@Override
@@ -185,16 +190,15 @@ public class Proceedings extends ZooPC implements Publication {
 		this.inProceedings = publications;
 		
 	}
-	private List<Person> editors;
+	private List<Person> editors = new Vector<>();
 	private String title;
-	private String booktitle;//George: This is Conference name (use it as foreign key)
 	private Series series;
 	private int year;
 	private String isbn;
 	private ConferenceEdition confEdition;
 	private String id;
 	private Publisher publisher;
-	Set<InProceedings> inProceedings;
+	private Set<InProceedings> inProceedings = new HashSet<>();
 	private String volume;
 	private String note;
 	private String electronicEdition;

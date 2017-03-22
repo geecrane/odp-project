@@ -1,7 +1,9 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -10,26 +12,63 @@ import org.zoodb.jdo.ZooJdoHelper;
 import org.zoodb.tools.ZooHelper;
 
 public class Database {
-	public Database(String dbName) throws DatabaseNameCollisionException{
-		// remove database if it exists
-		if (ZooHelper.dbExists(dbName)) {
-			throw new DatabaseNameCollisionException("There already exists a database called: " + dbName);
-
+	
+	public Database(String dbName){
+		this.dbName = dbName;
+		
+		//George: only creates a database automatically if it doesn't already exist.
+		//Does not automatically delete existing database!
+		if (!ZooHelper.dbExists(dbName)) {
+			create();
 		}
-		else{
-			this.dbName = dbName;
-			// create database
-			// By default, all database files will be created in %USER_HOME%/zoodb
-			ZooHelper.createDb(dbName);
-		}
-
-
-
-		ZooHelper.removeDb(dbName);
 	}
+	
+	//George: Enables creation/deletion of database on demand.
+	public void create() {
+		//George: Remove the database if it exists
+		if (ZooHelper.dbExists(dbName))
+			ZooHelper.removeDb(dbName);
+
+		// By default, all database files will be created in %USER_HOME%/zoodb
+		ZooHelper.createDb(dbName);
+	}
+	
 	public String getName(){
 		return dbName;
 	}
+	
+	
+	//George: commits the imported XML data to ZooDB
+	public void importData(HashMap<String, Proceedings> proceedingsList, HashMap<String, InProceedings> inProceedingsList){
+		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+		pm.currentTransaction().begin();
+		
+		//commit proceedings
+	    for (Proceedings proceedings : proceedingsList.values()) {
+	    	pm.makePersistent(proceedings);
+	    }
+	    
+	    //commit inProceedings
+	    for (InProceedings inProceedings : inProceedingsList.values()) {
+	    	pm.makePersistent(inProceedings);
+	    }
+		
+		//defining some indexes
+		ZooJdoHelper.createIndex(pm, Person.class, "name", false);
+		ZooJdoHelper.createIndex(pm, Proceedings.class, "id", true);
+		ZooJdoHelper.createIndex(pm, Proceedings.class, "title", false);
+		ZooJdoHelper.createIndex(pm, InProceedings.class, "id", true);
+		ZooJdoHelper.createIndex(pm, InProceedings.class, "title", false);
+		ZooJdoHelper.createIndex(pm, Publisher.class, "id", true);
+		ZooJdoHelper.createIndex(pm, Series.class, "name", false);
+		ZooJdoHelper.createIndex(pm, Conference.class, "id", true);
+		ZooJdoHelper.createIndex(pm, ConferenceEdition.class, "id", true);
+		
+		pm.currentTransaction().commit();
+		closeDB(pm);
+	}
+	
+	//George: didn't implement and haven't checked the functions below. Not sure if they work.
 	@SuppressWarnings("unchecked")
 	public Collection<Person> getPeopleByName (String name){
 		Collection<Person> foundPeople = null;
@@ -87,27 +126,4 @@ public class Database {
 	private final String dbName;
 
 
-}
-
-class DatabaseNameCollisionException extends Exception{
-	private static final long serialVersionUID = -86080104427990869L;
-
-	//Parameterless Constructor
-	public DatabaseNameCollisionException() {}
-
-	//Constructor that accepts a message
-	public DatabaseNameCollisionException(String message)
-	{
-		super(message);
-	}
-}
-class DatabaseUnexpectedEntry extends Exception{
-	//Parameterless Constructor
-	public DatabaseUnexpectedEntry() {}
-
-	//Constructor that accepts a message
-	public DatabaseUnexpectedEntry(String message)
-	{
-		super(message);
-	}
 }

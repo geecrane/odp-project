@@ -46,7 +46,8 @@ public class Main extends Application{
         
         //George: only for testing purposes
         //of course will have to run on a separate thread!
-        Database db = new Database("myDB");
+        Database db = new Database(Config.DATABASE_NAME);
+        db.create();
         XmlImport xim = new XmlImport(db);
         xim.ImportFromXML("src/main/resources/dblp_filtered.xml");
 		

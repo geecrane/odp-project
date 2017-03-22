@@ -1,5 +1,6 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.zoodb.api.impl.ZooPC;
@@ -11,10 +12,14 @@ import org.zoodb.api.impl.ZooPC;
 public class Publisher extends ZooPC implements DomainObject {
 	private String name;
 	private String id;
-	private Set<Publication> publications;
+	private Set<Publication> publications = new HashSet<>();
 	
-	public Publisher() {
-		// TODO Auto-generated constructor stub
+	private Publisher() {
+		// For ZooDB
+	}
+	public Publisher(String name) {
+		this.name = name;
+		this.id = name;
 	}
 	
 	public void addPublication(Publication pub){

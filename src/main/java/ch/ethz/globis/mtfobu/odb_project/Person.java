@@ -1,5 +1,6 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.zoodb.api.impl.ZooPC;
@@ -10,8 +11,13 @@ import org.zoodb.api.impl.ZooPC;
  */
 public class Person extends ZooPC implements DomainObject {
 
-	public Person() {
-		// TODO Auto-generated constructor stub
+	private Person() {
+		// ZooDB
+	}
+	
+	public Person(String name) {
+		this.name = name;
+		this.id = String.valueOf(name.hashCode());
 	}
 	
     public String getName()
@@ -60,7 +66,7 @@ public class Person extends ZooPC implements DomainObject {
 	
 	private String id;
 	private String name;
-	private Set<Publication> authoredPublications;
-	private Set<Publication> editedPublications;
+	private Set<Publication> authoredPublications = new HashSet<>();
+	private Set<Publication> editedPublications = new HashSet<>();
 
 }

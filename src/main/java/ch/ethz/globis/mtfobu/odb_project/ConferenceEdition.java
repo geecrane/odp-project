@@ -12,9 +12,18 @@ public class ConferenceEdition extends ZooPC implements DomainObject {
 	private int year;
 	private Proceedings proceedings;
 	
-	public ConferenceEdition() {
-		// TODO Auto-generated constructor stub
+	private ConferenceEdition(){
+		//for ZooDB
 	}
+	
+	public ConferenceEdition(String id, Conference conference, int year, Proceedings proceedings) {
+		this.id = id;
+		this.conference = conference;
+		this.year = year;
+		this.proceedings = proceedings;
+	}
+	
+	
 	
 	@Override
 	public String getId() {

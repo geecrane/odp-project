@@ -1,6 +1,7 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
 import java.util.List;
+import java.util.Vector;
 
 import org.zoodb.api.impl.ZooPC;
 
@@ -11,7 +12,7 @@ import org.zoodb.api.impl.ZooPC;
 public class InProceedings extends ZooPC implements Publication {
 
 	private String title;
-	private List<Person> authors;
+	private List<Person> authors = new Vector<>();
 	private int year;
 	private String electronicEdition;
 	private String id;
@@ -19,9 +20,13 @@ public class InProceedings extends ZooPC implements Publication {
 	private String pages;
 	private Proceedings proceedings;
 	
-	//George: See comments I wrote in class Proceeding. Same comments apply here
-	public InProceedings() {
-		// TODO Auto-generated constructor stub
+	//George: See comments I wrote in class Proceeding. Similar comments apply here
+	
+	private InProceedings() {
+		//for ZooDB
+	}
+	public InProceedings(String id){
+		this.id = id;
 	}
 	
 	@Override
@@ -117,9 +122,9 @@ public class InProceedings extends ZooPC implements Publication {
 	}
 
 
-	public void setProceedings(Proceedings proceeding) {
+	public void setProceedings(Proceedings proceedings) {
 		zooActivateWrite();
-		this.proceedings = proceeding;
+		this.proceedings = proceedings;
 
 	}
 

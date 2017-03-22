@@ -1,5 +1,6 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.zoodb.api.impl.ZooPC;
@@ -13,10 +14,14 @@ public class Conference extends ZooPC implements DomainObject {
 
 	private String name;
 	private String id;
-	private Set<ConferenceEdition> conferences;
+	private Set<ConferenceEdition> conferences = new HashSet<>();
 	
-	public Conference() {
-		// TODO Auto-generated constructor stub
+	private Conference() {
+		// For ZooDB
+	}
+	public Conference(String name) {
+		this.name = name;
+		this.id = name;
 	}
 	
 	public String getName() {
