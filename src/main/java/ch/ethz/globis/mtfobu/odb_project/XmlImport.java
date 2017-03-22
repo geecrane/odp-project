@@ -28,7 +28,8 @@ public class XmlImport {
 	public void ImportFromXML(String filename) throws UnexpectedContent{
 		Document doc = openXML(filename);
 		
-		parseXml(doc);
+		if(doc != null)
+			parseXml(doc);
 	}
 	
 	public Document openXML(String filename){
