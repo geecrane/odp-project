@@ -11,9 +11,9 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.ethz.globis.mtfobu.odb_project.Controller">
+<TabPane fx:id="tabPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.ethz.globis.mtfobu.odb_project.Controller">
   <tabs>
-      <Tab text="People">
+    <Tab fx:id="tabPeople" text="People">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -81,7 +81,7 @@
             </AnchorPane>
          </content>
       </Tab>
-    <Tab text="Proceedings">
+    <Tab fx:id="tabProceedings" text="Proceedings">
       <content>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -171,7 +171,7 @@
                </children></AnchorPane>
       </content>
     </Tab>
-      <Tab text="InProceedings">
+    <Tab fx:id="tabInProceedings" text="InProceedings">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -243,7 +243,7 @@
             </AnchorPane>
          </content>
       </Tab>
-      <Tab text="Publications">
+    <Tab fx:id="tabPublications" text="Publications">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -260,7 +260,7 @@
             </AnchorPane>
          </content>
       </Tab>
-      <Tab text="Publishers">
+    <Tab fx:id="tabPublishers" text="Publishers">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -328,7 +328,7 @@
             </AnchorPane>
          </content>
       </Tab>
-      <Tab text="Conferences">
+    <Tab fx:id="tabConferences" text="Conferences">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -375,7 +375,7 @@
             </AnchorPane>
          </content>
       </Tab>
-      <Tab text="Conference Editions">
+    <Tab fx:id="tabConferenceEditions" text="Conference Editions">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -422,7 +422,7 @@
             </AnchorPane>
          </content>
       </Tab>
-      <Tab text="Series">
+    <Tab fx:id="tabSeries" text="Series">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -468,7 +468,7 @@
             </AnchorPane>
          </content>
       </Tab>
-      <Tab text="Import">
+    <Tab fx:id="tabImport" text="Import">
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
