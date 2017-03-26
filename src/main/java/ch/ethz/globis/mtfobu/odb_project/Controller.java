@@ -65,7 +65,7 @@ public class Controller {
 	            	loadDataPersonTab();
 	            }
 	            if (newTab == proceedingTab) {
-	            	
+	            	loadDataProceedingTab();
 	            }
 	            if (newTab == inProceedingTab) {
 	            	
@@ -92,6 +92,12 @@ public class Controller {
 	    });
 		
     	setUpPersonTab();
+    	setUpProceedingTab();
+    	
+    	
+    	
+    	
+    	
 		loadDataPersonTab();
     }
     
@@ -99,7 +105,7 @@ public class Controller {
     private ObservableList<PersonTableEntry> personMainTableList = FXCollections.observableArrayList();
     private ObservableList<SecondaryProceedingTableEntry> personProceedingTableList = FXCollections.observableArrayList();
     private ObservableList<SecondaryInProceedingTableEntry> personInProceedingTableList = FXCollections.observableArrayList();
-    private int[] personQueryPage = new int[1]; // Looks dumb but I need this to be able to pass a reference
+    private int[] personQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
     
     private void setUpPersonTab() {
     	
@@ -119,8 +125,6 @@ public class Controller {
 				return new ReadOnlyObjectWrapper<String>(p.getValue().authoredEdited);
 			}
 		});
-		
-		personQueryPage[0] = 1;
 		
 		personMainTable.setRowFactory(new MyRowFactory<PersonTableEntry>(this::showPerson));
 		
@@ -178,10 +182,8 @@ public class Controller {
     
 	private void loadDataPersonTab () {
 		personMainTableList.clear();
-		
 		pm.currentTransaction().begin();
-        
-        System.out.println("Querying for people: ");
+
         Query query = pm.newQuery(Person.class);
         query.setRange((personQueryPage[0]-1)*20, personQueryPage[0]*20);;
         Collection<Person> people = (Collection<Person>) query.execute();
@@ -189,8 +191,6 @@ public class Controller {
         for (Person person: people) {
         	personMainTableList.add(new PersonTableEntry(person));
         }
-        
-        personCurrentPageField.setText(Integer.toString(personQueryPage[0]));
         
         query.closeAll();
         pm.currentTransaction().commit();
@@ -202,11 +202,13 @@ public class Controller {
 		
 		personNameField.setText(person.getName());
 		
+		personProceedingFilterField.setText("");
 		personProceedingTableList.clear();
 		for (Publication proc : person.getEditedPublications()) {
         	personProceedingTableList.add(new SecondaryProceedingTableEntry((Proceedings) proc));
         }
 		
+		personInProceedingFilterField.setText("");
 		personInProceedingTableList.clear();
 		for (Publication inProc : person.getAuthoredPublications()) {
         	personInProceedingTableList.add(new SecondaryInProceedingTableEntry((InProceedings) inProc));
@@ -222,7 +224,7 @@ public class Controller {
 	// START section for proceeding tab
 	private ObservableList<ProceedingTableEntry> proceedingMainTableList = FXCollections.observableArrayList();
 	private ObservableList<SecondaryPersonTableEntry> proceedingEditorTableList = FXCollections.observableArrayList();
-	private int[] proceedingQueryPage = new int[1]; // Looks dumb but I need this to be able to pass a reference
+	private int[] proceedingQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
     
 	private void setUpProceedingTab() {
 		//TODO
@@ -251,20 +253,47 @@ public class Controller {
 			}
 		});
 		
-		proceedingQueryPage[0] = 1;
-		
 		proceedingMainTable.setRowFactory(new MyRowFactory<ProceedingTableEntry>(this::showProceeding));
 		
 		proceedingNextPageButton.setOnAction(new PagingHandler(proceedingQueryPage, proceedingCurrentPageField, 1, this::loadDataProceedingTab));
 		proceedingPreviousPageButton.setOnAction(new PagingHandler(proceedingQueryPage, proceedingCurrentPageField, -1, this::loadDataProceedingTab));
 		proceedingCurrentPageField.setOnAction(new PagingHandler(proceedingQueryPage, proceedingCurrentPageField, 0, this::loadDataProceedingTab));
 		
+		proceedingMainTable.setItems(proceedingMainTableList);
+		// END main table stuff
+		
+		// START editor table stuff
+		ObservableList<TableColumn<SecondaryPersonTableEntry, ?>> proceedingEditorTableColumns = proceedingEditorTable.getColumns();
+		TableColumn<SecondaryPersonTableEntry,String> proceedingEditorNameCol = (TableColumn<SecondaryPersonTableEntry,String>) proceedingEditorTableColumns.get(0);
+		
+		proceedingEditorNameCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryPersonTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<SecondaryPersonTableEntry, String> p) {
+				return new ReadOnlyObjectWrapper<String>(p.getValue().name);
+			}
+		});
+		
+		
+		proceedingEditorTable.setRowFactory(new MyRowFactory<SecondaryPersonTableEntry>(this::showPerson));
+		
+		proceedingEditorTable.setItems(proceedingEditorTableList);
+		// END editor table stuff
+		
 	}
 	
-	
-	
 	private void loadDataProceedingTab() {
-		//TODO
+		proceedingMainTableList.clear();
+		pm.currentTransaction().begin();
+
+        Query query = pm.newQuery(Proceedings.class);
+        query.setRange((proceedingQueryPage[0]-1)*20, proceedingQueryPage[0]*20);;
+        Collection<Proceedings> proceedings = (Collection<Proceedings>) query.execute();
+
+        for (Proceedings proc: proceedings) {
+        	proceedingMainTableList.add(new ProceedingTableEntry(proc));
+        }
+        
+        query.closeAll();
+        pm.currentTransaction().commit();
 	}
 	
 	private void showProceeding(long objectId) {
@@ -470,6 +499,9 @@ public class Controller {
 			try {
 				int t = Integer.parseInt(currentPageField.getText()) + direction;
 				if (t >= 1) {
+					if (0 != direction) {
+						currentPageField.setText(Integer.toString(t));
+					}
 					pageCounter[0] = t;
 					loadData.run();
 				}
@@ -550,7 +582,7 @@ public class Controller {
     @FXML    private ChoiceBox<?> proceedingEditionDropdown;
     @FXML    private Button proceedingChangeEditionButton;
     @FXML    private TextField proceedingEditorFilterField;
-    @FXML    private TableView<?> proceedingEditorTable;
+    @FXML    private TableView<SecondaryPersonTableEntry> proceedingEditorTable;
     @FXML    private Button proceedingRemoveEditorButton;
     @FXML    private ChoiceBox<?> proceedingEditorDropdown;
     @FXML    private Button proceedingAddEditorButton;
