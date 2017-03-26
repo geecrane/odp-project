@@ -353,7 +353,7 @@ public class XmlImport {
 	void setStatus(String text){
 		Platform.runLater(new Runnable() {
 	        @Override public void run() {
-	        	c.lblStatus.setText(text);
+	        	c.setImportStatus(text);
 	        }
 	    });
 	}
