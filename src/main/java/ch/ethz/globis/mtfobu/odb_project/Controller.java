@@ -2,6 +2,7 @@ package ch.ethz.globis.mtfobu.odb_project;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.jdo.Extent;
 import javax.jdo.PersistenceManager;
@@ -98,7 +99,7 @@ public class Controller {
     private ObservableList<PersonTableEntry> personMainTableList = FXCollections.observableArrayList();
     private ObservableList<SecondaryProceedingTableEntry> personProceedingTableList = FXCollections.observableArrayList();
     private ObservableList<SecondaryInProceedingTableEntry> personInProceedingTableList = FXCollections.observableArrayList();
-    private int personQueryPage = 1;
+    private int[] personQueryPage = new int[1]; // Looks dumb but I need this to be able to pass a reference
     
     private void setUpPersonTab() {
     	
@@ -119,53 +120,13 @@ public class Controller {
 			}
 		});
 		
-		personMainTable.setRowFactory(tv -> {
-		    TableRow<PersonTableEntry> row = new TableRow<>();
-		    row.setOnMouseClicked(event -> {
-		        if (! row.isEmpty() && event.getButton()==MouseButton.PRIMARY 
-		             && event.getClickCount() == 2) {
-
-		        	PersonTableEntry pte = row.getItem();
-		            showPerson(pte.objectId);
-		            
-		        }
-		    });
-		    return row ;
-		});
+		personQueryPage[0] = 1;
 		
-		personNextPageButton.setOnAction(event -> {
-			try {
-				personQueryPage = Integer.parseInt(personCurrentPageField.getText()) + 1;
-				loadDataPersonTab();
-			} catch (NumberFormatException e) {
-				// Do nothing
-			}
-			
-		});
+		personMainTable.setRowFactory(new MyRowFactory<PersonTableEntry>(this::showPerson));
 		
-		personPreviousPageButton.setOnAction(event -> {
-			try {
-				int t = Integer.parseInt(personCurrentPageField.getText()) - 1;
-				if (t >= 1) {
-					personQueryPage = t;
-					loadDataPersonTab();
-				}
-			} catch (NumberFormatException e) {
-				// Do nothing
-			}
-		});
-		
-		personCurrentPageField.setOnAction(event -> {
-			try {
-				int t = Integer.parseInt(personCurrentPageField.getText());
-				if (t >= 1) {
-					personQueryPage = t;
-					loadDataPersonTab();
-				}
-			} catch (NumberFormatException e) {
-				// Do nothing
-			}
-		});
+		personNextPageButton.setOnAction(new PagingHandler(personQueryPage, personCurrentPageField, 1, this::loadDataPersonTab));
+		personPreviousPageButton.setOnAction(new PagingHandler(personQueryPage, personCurrentPageField, -1, this::loadDataPersonTab));
+		personCurrentPageField.setOnAction(new PagingHandler(personQueryPage, personCurrentPageField, 0, this::loadDataPersonTab));
 		
 		personMainTable.setItems(personMainTableList);
     	// END main table stuff
@@ -187,19 +148,7 @@ public class Controller {
 			}
 		});
 		
-		personProceedingTable.setRowFactory(tv -> {
-		    TableRow<SecondaryProceedingTableEntry> row = new TableRow<>();
-		    row.setOnMouseClicked(event -> {
-		        if (! row.isEmpty() && event.getButton()==MouseButton.PRIMARY 
-		             && event.getClickCount() == 2) {
-
-		        	SecondaryProceedingTableEntry proc = row.getItem();
-		            showProceeding(proc.objectId);
-		            
-		        }
-		    });
-		    return row ;
-		});	
+		personProceedingTable.setRowFactory(new MyRowFactory<SecondaryProceedingTableEntry>(this::showProceeding));
 		
 		personProceedingTable.setItems(personProceedingTableList);
 		// END proceeding table stuff
@@ -221,19 +170,7 @@ public class Controller {
 			}
 		});
 		
-		personInProceedingTable.setRowFactory(tv -> {
-		    TableRow<SecondaryInProceedingTableEntry> row = new TableRow<>();
-		    row.setOnMouseClicked(event -> {
-		        if (! row.isEmpty() && event.getButton()==MouseButton.PRIMARY 
-		             && event.getClickCount() == 2) {
-
-		        	SecondaryInProceedingTableEntry inProc = row.getItem();
-		            showInProceeding(inProc.objectId);
-		            
-		        }
-		    });
-		    return row ;
-		});	
+		personInProceedingTable.setRowFactory(new MyRowFactory<SecondaryInProceedingTableEntry>(this::showInProceeding));
 		
 		personInProceedingTable.setItems(personInProceedingTableList);
 		// END inproceeding table stuff
@@ -246,14 +183,14 @@ public class Controller {
         
         System.out.println("Querying for people: ");
         Query query = pm.newQuery(Person.class);
-        query.setRange((personQueryPage-1)*20, personQueryPage*20);;
+        query.setRange((personQueryPage[0]-1)*20, personQueryPage[0]*20);;
         Collection<Person> people = (Collection<Person>) query.execute();
 
         for (Person person: people) {
         	personMainTableList.add(new PersonTableEntry(person));
         }
         
-        personCurrentPageField.setText(Integer.toString(personQueryPage));
+        personCurrentPageField.setText(Integer.toString(personQueryPage[0]));
         
         query.closeAll();
         pm.currentTransaction().commit();
@@ -283,11 +220,48 @@ public class Controller {
 	
 	
 	// START section for proceeding tab
+	private ObservableList<ProceedingTableEntry> proceedingMainTableList = FXCollections.observableArrayList();
 	private ObservableList<SecondaryPersonTableEntry> proceedingEditorTableList = FXCollections.observableArrayList();
+	private int[] proceedingQueryPage = new int[1]; // Looks dumb but I need this to be able to pass a reference
     
 	private void setUpProceedingTab() {
 		//TODO
+		
+		// START main table stuff
+    	ObservableList<TableColumn<ProceedingTableEntry, ?>> mainTableColumns = proceedingMainTable.getColumns();
+		TableColumn<ProceedingTableEntry,String> mainTitleCol = (TableColumn<ProceedingTableEntry,String>) mainTableColumns.get(0);
+		TableColumn<ProceedingTableEntry,String> mainPublisherCol = (TableColumn<ProceedingTableEntry,String>) mainTableColumns.get(1);
+		TableColumn<ProceedingTableEntry,String> mainConferenceCol = (TableColumn<ProceedingTableEntry,String>) mainTableColumns.get(2);
+		
+		mainTitleCol.setCellValueFactory(new Callback<CellDataFeatures<ProceedingTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<ProceedingTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().title);
+			}
+		});
+		
+		mainPublisherCol.setCellValueFactory(new Callback<CellDataFeatures<ProceedingTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<ProceedingTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().publisher);
+			}
+		});
+		
+		mainConferenceCol.setCellValueFactory(new Callback<CellDataFeatures<ProceedingTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<ProceedingTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().conference);
+			}
+		});
+		
+		proceedingQueryPage[0] = 1;
+		
+		proceedingMainTable.setRowFactory(new MyRowFactory<ProceedingTableEntry>(this::showProceeding));
+		
+		proceedingNextPageButton.setOnAction(new PagingHandler(proceedingQueryPage, proceedingCurrentPageField, 1, this::loadDataProceedingTab));
+		proceedingPreviousPageButton.setOnAction(new PagingHandler(proceedingQueryPage, proceedingCurrentPageField, -1, this::loadDataProceedingTab));
+		proceedingCurrentPageField.setOnAction(new PagingHandler(proceedingQueryPage, proceedingCurrentPageField, 0, this::loadDataProceedingTab));
+		
 	}
+	
+	
 	
 	private void loadDataProceedingTab() {
 		//TODO
@@ -390,8 +364,11 @@ public class Controller {
     }
     
     // START section for table entry data types
-    class PersonTableEntry {
+    private abstract class TableEntry {
     	public long objectId;
+    }
+    
+    private class PersonTableEntry extends TableEntry{
     	public String name;
     	public String authoredEdited;
     	public PersonTableEntry(Person person) {
@@ -412,9 +389,37 @@ public class Controller {
         	authoredEdited = builder.substring(0, builder.length() - 2);
     	}
     }
+       
+    private class ProceedingTableEntry extends TableEntry{
+    	public String title;
+    	public String publisher;
+    	public String conference;
+    	public ProceedingTableEntry(Proceedings proc) {
+    		title = proc.getTitle();
+    		Publisher pub = proc.getPublisher();
+    		if (null != pub) {
+    			publisher = pub.getName();
+    		} else {
+    			publisher = "";
+    		}
+    		ConferenceEdition confEd = proc.getConferenceEdition();
+    		if (null != confEd) {
+    			Conference conf = confEd.getConference();
+    			if (null != conf) {
+    				conference = conf.getName();
+    			} else {
+    				conference = "";
+    			}
+    		} else {
+    			conference = "";
+    		}
+    		
+        	
+        	objectId = proc.jdoZooGetOid();
+    	}
+    }
     
-    class SecondaryPersonTableEntry {
-    	public long objectId;
+    private class SecondaryPersonTableEntry extends TableEntry {
     	public String name;
     	public SecondaryPersonTableEntry(Person person) {
     		objectId = person.jdoZooGetOid();
@@ -422,8 +427,7 @@ public class Controller {
     	}
     }
     
-    class SecondaryProceedingTableEntry {
-    	public long objectId;
+    private class SecondaryProceedingTableEntry extends TableEntry {
     	public String title;
     	public String conference;
     	public SecondaryProceedingTableEntry(Proceedings proc) {
@@ -433,8 +437,7 @@ public class Controller {
     	}
     }
     
-    class SecondaryInProceedingTableEntry {
-    	public long objectId;
+    private class SecondaryInProceedingTableEntry extends TableEntry {
     	public String title;
     	public String proceeding;
     	public SecondaryInProceedingTableEntry(InProceedings inProc) {
@@ -445,7 +448,58 @@ public class Controller {
     		if (null != proc) proceeding = proc.getTitle();
     	}
     }
-    // END section for table entry dara types
+    // END section for table entry data types
+    
+    // an abstract paging handler that can be reused for all tabs and directions, by giving 
+    // the constructor the specific text field, counter, function and paging direction
+    private class PagingHandler implements EventHandler{
+		private int[] pageCounter;
+		private TextField currentPageField;
+		private int direction;
+		private Runnable loadData;
+		
+		public PagingHandler(int[] pc, TextField cp, int dir, Runnable ld) {
+			pageCounter = pc;
+			currentPageField = cp;
+			direction = dir;
+			loadData = ld;
+		}
+		
+		@Override
+		public void handle(Event event) {
+			try {
+				int t = Integer.parseInt(currentPageField.getText()) + direction;
+				if (t >= 1) {
+					pageCounter[0] = t;
+					loadData.run();
+				}
+			} catch (NumberFormatException e) {
+				// Do nothing
+			}
+		}
+	}
+    
+    // much the same for the row factory an abstract type that should work for all tabs
+    private class MyRowFactory<T extends TableEntry> implements Callback<TableView<T>, TableRow<T>> {
+    	Consumer<Long> show;
+    	
+    	public MyRowFactory(Consumer<Long> s) {
+    		show = s;
+    	}
+    	
+		@Override
+		public TableRow<T> call(TableView<T> tv) {
+			TableRow<T> row = new TableRow<>();
+		    row.setOnMouseClicked(event -> {
+		        if (! row.isEmpty() && event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 2) {
+		        	T item = row.getItem();
+		            show.accept(item.objectId);
+		        }
+		    });
+		    return row ;
+		}
+		
+	}
     
     
     // START section for fields that reference FXML
@@ -471,7 +525,7 @@ public class Controller {
     @FXML    private TableView<SecondaryInProceedingTableEntry> personInProceedingTable;
     @FXML    private Button personRemoveInProceedingButton;
     @FXML    private Tab proceedingTab;
-    @FXML    private TableView<?> proceedingMainTable;
+    @FXML    private TableView<ProceedingTableEntry> proceedingMainTable;
     @FXML    private TextField proceedingSearchField;
     @FXML    private Button proceedingSearchButton;
     @FXML    private Button proceedingDeleteButton;
