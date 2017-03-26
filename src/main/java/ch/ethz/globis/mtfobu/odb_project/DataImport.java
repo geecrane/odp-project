@@ -22,9 +22,11 @@ import org.jdom.input.SAXBuilder;
 
 
 public class DataImport {
+	/*
 	DataImport(Database database){
 		db = database;
 	}
+	
 	@SuppressWarnings("unchecked")
 	public int ImportFromXML(String filename) throws UnexpectedContent{
 		SAXBuilder builder = new SAXBuilder();
@@ -46,6 +48,7 @@ public class DataImport {
 		classifyProceedings(root.getChildren("proceedings"));
 		return 0;
 	}
+	
 	@SuppressWarnings("unchecked")
 	private int classifyProceedings(List<Element> proceedings) throws UnexpectedContent{
 		for( Element prcd: proceedings){
@@ -95,7 +98,7 @@ public class DataImport {
 			}
 			//set corresponding Conference
 			{
-				/**Page 3 of the exercise sheet dictates the use of the tag:"<booktitle>" in order to determine the conference name*/
+				//Page 3 of the exercise sheet dictates the use of the tag:"<booktitle>" in order to determine the conference name
 				List<Element> booktitleElements = prcd.getChildren("booktitle");
 				if (booktitleElements.size() > 1){
 					throw new UnexpectedContent("Proceeding has multiple booktitle tags and therefore multiple conferece names. This was not expected by the developper.");
@@ -201,7 +204,9 @@ public class DataImport {
 
 		return 0;
 	}
+	
 	private Database db;
+	*/
 }
 class UnexpectedContent extends Exception{
 

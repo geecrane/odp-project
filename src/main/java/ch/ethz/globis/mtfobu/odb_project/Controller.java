@@ -10,6 +10,7 @@ import javax.jdo.Query;
 import org.zoodb.jdo.ZooJdoHelper;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,6 +29,8 @@ public class Controller {
 	public PersistenceManager pm;
 	
     public void initialize() {
+    	pm = ZooJdoHelper.openDB(Config.DATABASE_NAME);
+    	
     	
     	importButton.setOnAction((event) -> {
 			//George: only for testing purposes
@@ -53,28 +56,48 @@ public class Controller {
 	        
 		});
 		
-		personTab.setOnSelectionChanged(new EventHandler<Event>() {
+    	tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
 	        @Override
-	        public void handle(Event t) {
-	            if (personTab.isSelected()) {
-	            	System.out.println("tabPeople was selected");
-	            	loadPersonMainTable();
+	        public void changed(ObservableValue<? extends Tab> observable, Tab oldTab, Tab newTab) {
+	        	
+	            if (newTab == personTab) {
+	            	loadMainTab();
+	            }
+	            if (newTab == proceedingTab) {
+	            	
+	            }
+	            if (newTab == inProceedingTab) {
+	            	
+	            }
+	            if (newTab == publicationTab) {
+	            	
+	            }
+	            if (newTab == publisherTab) {
+	            	
+	            }
+	            if (newTab == conferenceTab) {
+	            	
+	            }
+	            if (newTab == conferenceEditionTab) {
+	            	
+	            }
+	            if (newTab == seriesTab) {
+	            	
+	            }
+	            if (newTab == importTab) {
+	            	
 	            }
 	        }
 	    });
 		
-		loadPersonMainTable ();
-		
-		
+    	
+		loadMainTab ();
     }
     
     
 	
-	public void loadPersonMainTable () {
+	public void loadMainTab () {
 		
-		
-		
-		pm = ZooJdoHelper.openDB(Config.DATABASE_NAME);
 		pm.currentTransaction().begin();
         
         System.out.println("Querying for people: ");
@@ -82,6 +105,8 @@ public class Controller {
         Collection<Person> people = (Collection<Person>) query.execute();
         
         ObservableList<PersonTableEntry> observableList = FXCollections.observableArrayList();
+        
+        
         
         for (Person p: people) {
         	StringBuilder builder = new StringBuilder();
@@ -104,7 +129,7 @@ public class Controller {
         query.closeAll();
         pm.currentTransaction().commit();
 		
-		ObservableList<TableColumn> columns = personMainTable.getColumns();
+		ObservableList<TableColumn<PersonTableEntry, ?>> columns = personMainTable.getColumns();
 		TableColumn<PersonTableEntry,String> nameCol = (TableColumn<PersonTableEntry,String>) columns.get(0);
 		TableColumn<PersonTableEntry,String> authEditCol = (TableColumn<PersonTableEntry,String>) columns.get(1);
 		
@@ -159,7 +184,7 @@ public class Controller {
     private Tab personTab;
 
     @FXML
-    private TableView personMainTable;
+    private TableView<PersonTableEntry> personMainTable;
 
     @FXML
     private Button personDeleteButton;
