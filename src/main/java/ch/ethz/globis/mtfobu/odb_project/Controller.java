@@ -99,6 +99,7 @@ public class Controller {
     private ObservableList<PersonTableEntry> personMainTableList = FXCollections.observableArrayList();
     private ObservableList<SecondaryProceedingTableEntry> personProceedingTableList = FXCollections.observableArrayList();
     private ObservableList<SecondaryInProceedingTableEntry> personInProceedingTableList = FXCollections.observableArrayList();
+    private ObservableList<SecondaryPersonTableEntry> proceedingEditorTableList = FXCollections.observableArrayList();
     
     private void setUpPersonTab() {
     	ObservableList<TableColumn<PersonTableEntry, ?>> mainTableColumns = personMainTable.getColumns();
@@ -124,7 +125,7 @@ public class Controller {
 		             && event.getClickCount() == 2) {
 
 		        	PersonTableEntry pte = row.getItem();
-		            loadPersonIntoView(pte.objectId);
+		            showPerson(pte.objectId);
 		            
 		        }
 		    });
@@ -151,6 +152,20 @@ public class Controller {
 			}
 		});
 		
+		personProceedingTable.setRowFactory(tv -> {
+		    TableRow<SecondaryProceedingTableEntry> row = new TableRow<>();
+		    row.setOnMouseClicked(event -> {
+		        if (! row.isEmpty() && event.getButton()==MouseButton.PRIMARY 
+		             && event.getClickCount() == 2) {
+
+		        	SecondaryProceedingTableEntry proc = row.getItem();
+		            showProceeding(proc.objectId);
+		            
+		        }
+		    });
+		    return row ;
+		});	
+		
 		personProceedingTable.setItems(personProceedingTableList);
 		
 		
@@ -170,6 +185,20 @@ public class Controller {
 				return new ReadOnlyObjectWrapper<String>(p.getValue().proceeding);
 			}
 		});
+		
+		personInProceedingTable.setRowFactory(tv -> {
+		    TableRow<SecondaryInProceedingTableEntry> row = new TableRow<>();
+		    row.setOnMouseClicked(event -> {
+		        if (! row.isEmpty() && event.getButton()==MouseButton.PRIMARY 
+		             && event.getClickCount() == 2) {
+
+		        	SecondaryInProceedingTableEntry inProc = row.getItem();
+		            showInProceeding(inProc.objectId);
+		            
+		        }
+		    });
+		    return row ;
+		});	
 		
 		personInProceedingTable.setItems(personInProceedingTableList);
     }
@@ -192,7 +221,7 @@ public class Controller {
         pm.currentTransaction().commit();
 	}
 	
-	private void loadPersonIntoView(long objectId) {
+	private void showPerson(long objectId) {
 		pm.currentTransaction().begin();
 		Person person = (Person) pm.getObjectById(objectId);
 		
@@ -208,8 +237,60 @@ public class Controller {
         	personInProceedingTableList.add(new SecondaryInProceedingTableEntry((InProceedings) inProc));
         }
 		
-		System.out.println(person.getName());
 		pm.currentTransaction().commit();
+		
+		tabPane.getSelectionModel().select(personTab);
+	}
+	
+	private void showProceeding(long objectId) {
+		pm.currentTransaction().begin();
+		Proceedings proc = (Proceedings) pm.getObjectById(objectId);
+		
+		proceedingTitleField.setText(proc.getTitle());
+		proceedingIsbnField.setText(proc.getIsbn());
+		
+		Publisher pub = proc.getPublisher();
+		if (null != pub) {
+			proceedingPublisherFilterField.setText(pub.getName());
+		} else {
+			proceedingPublisherFilterField.setText("");
+		}
+		
+		ConferenceEdition edi = proc.getConferenceEdition();
+		if (null != edi) {
+			proceedingEditonFilterField.setText(Integer.toString(edi.getYear()));
+			
+			Conference conf = edi.getConference();
+			if (null != conf) {
+				proceedingConferenceFilterField.setText(conf.getName());
+			} else {
+				proceedingConferenceFilterField.setText("");
+			}
+			
+		} else {
+			proceedingEditonFilterField.setText("");
+		}
+		
+		Series ser = proc.getSeries();
+		if (null != ser) {
+			proceedingSeriesFilterField.setText(ser.getName());
+		} else {
+			proceedingSeriesFilterField.setText("");
+		}
+		
+		proceedingEditorFilterField.setText("");
+		proceedingEditorTableList.clear();
+		for (Person person : proc.getAuthors()) {
+			proceedingEditorTableList.add(new SecondaryPersonTableEntry(person));
+        }
+		
+		pm.currentTransaction().commit();
+		tabPane.getSelectionModel().select(proceedingTab);
+	}
+	
+	private void showInProceeding(long objectId) {
+		//TODO
+		tabPane.getSelectionModel().select(inProceedingTab);
 	}
 	
 	
@@ -235,12 +316,6 @@ public class Controller {
     	public long objectId;
     	public String name;
     	public String authoredEdited;
-    	/*public PersonTableEntry(long o, String n, String a) {
-    		objectId = o;
-    		name = n;
-    		authoredEdited = a;
-    	}*/
-    	
     	public PersonTableEntry(Person person) {
         	StringBuilder builder = new StringBuilder();
         	
@@ -260,16 +335,19 @@ public class Controller {
     	}
     }
     
+    class SecondaryPersonTableEntry {
+    	public long objectId;
+    	public String name;
+    	public SecondaryPersonTableEntry(Person person) {
+    		objectId = person.jdoZooGetOid();
+        	name = person.getName();
+    	}
+    }
+    
     class SecondaryProceedingTableEntry {
     	public long objectId;
     	public String title;
     	public String conference;
-    	/*public SecondaryProceedingTableEntry(long o, String t, String c) {
-    		objectId = o;
-    		title = t;
-    		conference = c;
-    	}*/
-    	
     	public SecondaryProceedingTableEntry(Proceedings proc) {
     		objectId = proc.jdoZooGetOid();
     		title = proc.getTitle();
@@ -281,12 +359,6 @@ public class Controller {
     	public long objectId;
     	public String title;
     	public String proceeding;
-    	/*public SecondaryInProceedingTableEntry(long o, String t, String p) {
-    		objectId = o;
-    		title = t;
-    		proceeding = p;
-    	}*/
-    	
     	public SecondaryInProceedingTableEntry(InProceedings inProc) {
     		objectId = inProc.jdoZooGetOid();
     		title = inProc.getTitle();
@@ -340,6 +412,7 @@ public class Controller {
     @FXML    private ChoiceBox<?> proceedingConferenceDropdown;
     @FXML    private Button proceedingChangeConferenceButton;
     @FXML    private TextField proceedingConferenceFilterField;
+    @FXML    private TextField proceedingEditonFilterField;
     @FXML    private ChoiceBox<?> proceedingEditionDropdown;
     @FXML    private Button proceedingChangeEditionButton;
     @FXML    private TextField proceedingEditorFilterField;
