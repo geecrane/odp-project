@@ -25,14 +25,15 @@
                             <TableColumn minWidth="0.0" prefWidth="676.0" text="Authored / Edited" />
                           </columns>
                         </TableView>
-                      <Button fx:id="personDeleteButton" layoutX="96.0" layoutY="341.0" mnemonicParsing="false" onAction="#handleDeletePersonAction" prefHeight="25.0" text="Delete Person" />
+                      <Button fx:id="personDeleteButton" layoutX="96.0" layoutY="341.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Person" />
                         <TextField fx:id="personSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
                         <Button fx:id="personSearchButton" layoutX="934.0" mnemonicParsing="false" text="Search" />
                         <Group layoutX="677.0" layoutY="341.0">
                            <children>
                               <Button fx:id="personNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
                               <Button fx:id="personPreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Label fx:id="personCurrentPageLabel" alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="120.0" text="Page 100" />
+                              <Label alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
+                              <TextField fx:id="personCurrentPageField" layoutX="154.0" prefHeight="26.0" prefWidth="80.0" />
                            </children>
                         </Group>
                         <Button fx:id="personNewButton" layoutY="341.0" mnemonicParsing="false" text="New Person" />
@@ -114,7 +115,12 @@
                            <children>
                               <Button fx:id="proceedingNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
                               <Button fx:id="proceedingPreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Label fx:id="proceedingCurrentPageLabel" alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="120.0" text="Page 100" />
+                              <Group layoutX="112.0">
+                                 <children>
+                                    <Label alignment="CENTER" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
+                                    <TextField fx:id="proceedingCurrentPageField" layoutX="42.0" prefHeight="26.0" prefWidth="80.0" />
+                                 </children>
+                              </Group>
                            </children>
                         </Group>
                      </children>
@@ -162,7 +168,7 @@
                         <Label text="Edition" />
                         <ChoiceBox fx:id="proceedingEditionDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
                         <Button fx:id="proceedingChangeEditionButton" layoutX="183.0" layoutY="69.0" mnemonicParsing="false" text="Change Edition" />
-                        <TextField fx:id="proceedingEditonFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                        <TextField fx:id="proceedingEditionFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
                   <Group layoutX="695.0" layoutY="401.0">
@@ -209,7 +215,8 @@
                            <children>
                               <Button fx:id="inProceedingNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
                               <Button fx:id="inProceedingPreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Label fx:id="inProceedingCurrentPageLabel" alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="120.0" text="Page 100" />
+                              <Label alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
+                              <TextField fx:id="inProceedingCurrentPageField" layoutX="154.0" prefHeight="26.0" prefWidth="80.0" />
                            </children>
                         </Group>
                         <Button fx:id="inProceedingCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create InProceeding" />
@@ -225,9 +232,9 @@
                   <Group layoutX="362.0" layoutY="401.0">
                      <children>
                         <Label text="Proceeding" />
-                        <ChoiceBox fx:id="inProceedingFilterDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <ChoiceBox fx:id="inProceedingProceedingDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
                         <Button fx:id="inProceedingChangeProceedingButton" layoutX="155.0" layoutY="69.0" mnemonicParsing="false" text="Change Proceeding" />
-                        <TextField fx:id="inProceedingFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                        <TextField fx:id="inProceedingProceedingFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
                   <Group layoutX="362.0" layoutY="494.0">
@@ -286,7 +293,8 @@
                            <children>
                               <Button fx:id="publicationNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
                               <Button fx:id="publicationPreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Label fx:id="publicationCurrentPageLabel" alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="120.0" text="Page 100" />
+                              <Label alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
+                              <TextField fx:id="publicationCurrentPageField" layoutX="154.0" prefHeight="26.0" prefWidth="80.0" />
                            </children>
                         </Group>
                      </children>
@@ -311,11 +319,12 @@
                         <TextField fx:id="publisherSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
                         <Button fx:id="publisherSearchButton" layoutX="934.0" mnemonicParsing="false" text="Search" />
                         <Button fx:id="publisherCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create Publisher" />
-                        <Group layoutX="677.0" layoutY="342.0">
+                        <Group layoutX="677.0" layoutY="341.0">
                            <children>
                               <Button fx:id="publisherNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
                               <Button fx:id="publisherPreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Label fx:id="publisherCurrentPageLabel" alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="120.0" text="Page 100" />
+                              <Label alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
+                              <TextField fx:id="publisherCurrentPageField" layoutX="154.0" prefHeight="26.0" prefWidth="80.0" />
                            </children>
                         </Group>
                      </children>
@@ -391,7 +400,8 @@
                            <children>
                               <Button fx:id="conferenceNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
                               <Button fx:id="conferencePreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Label fx:id="conferenceCurrentPageLabel" alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="120.0" text="Page 100" />
+                              <Label alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
+                              <TextField fx:id="conferenceCurrentPageField" layoutX="154.0" prefHeight="26.0" prefWidth="80.0" />
                            </children>
                         </Group>
                      </children>
@@ -447,7 +457,8 @@
                            <children>
                               <Button fx:id="conferenceEditionNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
                               <Button fx:id="conferenceEditionPreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Label fx:id="conferenceEditionCurrentPageLabel" alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="120.0" text="Page 100" />
+                              <Label alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
+                              <TextField fx:id="conferenceEditionCurrentPageField" layoutX="154.0" prefHeight="26.0" prefWidth="80.0" />
                            </children>
                         </Group>
                      </children>
@@ -502,7 +513,8 @@
                            <children>
                               <Button fx:id="seriesNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
                               <Button fx:id="seriesPreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Label fx:id="seriesCurrentPageLabel" alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="120.0" text="Page 100" />
+                              <Label alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
+                              <TextField fx:id="seriesCurrentPageField" layoutX="154.0" prefHeight="26.0" prefWidth="80.0" />
                            </children>
                         </Group>
                      </children>

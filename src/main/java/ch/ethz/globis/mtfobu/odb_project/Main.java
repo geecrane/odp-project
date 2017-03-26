@@ -44,37 +44,6 @@ public class Main extends Application{
         primaryStage.setScene(scene);
         primaryStage.show();
         
-        //George: only for testing purposes
-        //of course will have to run on a separate thread!
-//        Database db = new Database(Config.DATABASE_NAME);
-//        db.create();
-//        XmlImport xim = new XmlImport(db);
-//        xim.ImportFromXML("src/main/resources/dblp_filtered.xml");
-//		
-//		
-        
-        
-        /*
-         
- 
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
-                String dbName = "ExampleDB.zdb";
-                createDB(dbName);
-                populateDB(dbName);
-                readDB(dbName);
-            }
-        });
-        
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
-        primaryStage.setScene(new Scene(root, 300, 250));
-        primaryStage.show();
-        */
-        
-		
 	}
 	
-
 }

@@ -25,7 +25,6 @@ import javafx.scene.input.MouseButton;
 import javafx.util.Callback;
  
 public class Controller {
-
 	
 	public PersistenceManager pm;
 	
@@ -95,13 +94,15 @@ public class Controller {
 		loadDataPersonTab();
     }
     
-    
+    // START section for person tab
     private ObservableList<PersonTableEntry> personMainTableList = FXCollections.observableArrayList();
     private ObservableList<SecondaryProceedingTableEntry> personProceedingTableList = FXCollections.observableArrayList();
     private ObservableList<SecondaryInProceedingTableEntry> personInProceedingTableList = FXCollections.observableArrayList();
-    private ObservableList<SecondaryPersonTableEntry> proceedingEditorTableList = FXCollections.observableArrayList();
+    private int personQueryPage = 1;
     
     private void setUpPersonTab() {
+    	
+    	// START main table stuff
     	ObservableList<TableColumn<PersonTableEntry, ?>> mainTableColumns = personMainTable.getColumns();
 		TableColumn<PersonTableEntry,String> mainNameCol = (TableColumn<PersonTableEntry,String>) mainTableColumns.get(0);
 		TableColumn<PersonTableEntry,String> mainAuthEditCol = (TableColumn<PersonTableEntry,String>) mainTableColumns.get(1);
@@ -132,10 +133,44 @@ public class Controller {
 		    return row ;
 		});
 		
+		personNextPageButton.setOnAction(event -> {
+			try {
+				personQueryPage = Integer.parseInt(personCurrentPageField.getText()) + 1;
+				loadDataPersonTab();
+			} catch (NumberFormatException e) {
+				// Do nothing
+			}
+			
+		});
+		
+		personPreviousPageButton.setOnAction(event -> {
+			try {
+				int t = Integer.parseInt(personCurrentPageField.getText()) - 1;
+				if (t >= 1) {
+					personQueryPage = t;
+					loadDataPersonTab();
+				}
+			} catch (NumberFormatException e) {
+				// Do nothing
+			}
+		});
+		
+		personCurrentPageField.setOnAction(event -> {
+			try {
+				int t = Integer.parseInt(personCurrentPageField.getText());
+				if (t >= 1) {
+					personQueryPage = t;
+					loadDataPersonTab();
+				}
+			} catch (NumberFormatException e) {
+				// Do nothing
+			}
+		});
+		
 		personMainTable.setItems(personMainTableList);
-    	
+    	// END main table stuff
 		
-		
+		// START proceeding table stuff
 		ObservableList<TableColumn<SecondaryProceedingTableEntry, ?>> proceedingTableColumns = personProceedingTable.getColumns();
 		TableColumn<SecondaryProceedingTableEntry,String> proceedingTitleCol = (TableColumn<SecondaryProceedingTableEntry,String>) proceedingTableColumns.get(0);
 		TableColumn<SecondaryProceedingTableEntry,String> proceedingConferenceCol = (TableColumn<SecondaryProceedingTableEntry,String>) proceedingTableColumns.get(1);
@@ -167,9 +202,9 @@ public class Controller {
 		});	
 		
 		personProceedingTable.setItems(personProceedingTableList);
+		// END proceeding table stuff
 		
-		
-		
+		// START inproceeding table stuff
 		ObservableList<TableColumn<SecondaryInProceedingTableEntry, ?>> inProceedingTableColumns = personInProceedingTable.getColumns();
 		TableColumn<SecondaryInProceedingTableEntry,String> inProceedingTitleCol = (TableColumn<SecondaryInProceedingTableEntry,String>) inProceedingTableColumns.get(0);
 		TableColumn<SecondaryInProceedingTableEntry,String> inProceedingProceedingCol = (TableColumn<SecondaryInProceedingTableEntry,String>) inProceedingTableColumns.get(1);
@@ -201,9 +236,9 @@ public class Controller {
 		});	
 		
 		personInProceedingTable.setItems(personInProceedingTableList);
+		// END inproceeding table stuff
     }
     
-	
 	private void loadDataPersonTab () {
 		personMainTableList.clear();
 		
@@ -211,11 +246,14 @@ public class Controller {
         
         System.out.println("Querying for people: ");
         Query query = pm.newQuery(Person.class);
+        query.setRange((personQueryPage-1)*20, personQueryPage*20);;
         Collection<Person> people = (Collection<Person>) query.execute();
 
         for (Person person: people) {
         	personMainTableList.add(new PersonTableEntry(person));
         }
+        
+        personCurrentPageField.setText(Integer.toString(personQueryPage));
         
         query.closeAll();
         pm.currentTransaction().commit();
@@ -241,6 +279,19 @@ public class Controller {
 		
 		tabPane.getSelectionModel().select(personTab);
 	}
+	// END section for person tab
+	
+	
+	// START section for proceeding tab
+	private ObservableList<SecondaryPersonTableEntry> proceedingEditorTableList = FXCollections.observableArrayList();
+    
+	private void setUpProceedingTab() {
+		//TODO
+	}
+	
+	private void loadDataProceedingTab() {
+		//TODO
+	}
 	
 	private void showProceeding(long objectId) {
 		pm.currentTransaction().begin();
@@ -258,7 +309,7 @@ public class Controller {
 		
 		ConferenceEdition edi = proc.getConferenceEdition();
 		if (null != edi) {
-			proceedingEditonFilterField.setText(Integer.toString(edi.getYear()));
+			proceedingEditionFilterField.setText(Integer.toString(edi.getYear()));
 			
 			Conference conf = edi.getConference();
 			if (null != conf) {
@@ -268,7 +319,7 @@ public class Controller {
 			}
 			
 		} else {
-			proceedingEditonFilterField.setText("");
+			proceedingEditionFilterField.setText("");
 		}
 		
 		Series ser = proc.getSeries();
@@ -287,21 +338,48 @@ public class Controller {
 		pm.currentTransaction().commit();
 		tabPane.getSelectionModel().select(proceedingTab);
 	}
+	// END section for proceeding tab
 	
-	private void showInProceeding(long objectId) {
+	// START section for inproceeding tab
+	private ObservableList<SecondaryPersonTableEntry> inProceedingAuthorTableList = FXCollections.observableArrayList();
+	
+	private void setUpInProceedingTab() {
 		//TODO
-		tabPane.getSelectionModel().select(inProceedingTab);
 	}
 	
+	private void loadDataInProceedingTab() {
+		//TODO
+	}
 	
-    @FXML protected void handleDeletePersonAction(ActionEvent event) {
-    	System.out.println("Hello World!");
-        String dbName = "ExampleDB.zdb";
-        DBExample.createDB(dbName);
-        DBExample.populateDB(dbName);
-        DBExample.readDB(dbName);
-    }
-    
+	private void showInProceeding(long objectId) {
+		pm.currentTransaction().begin();
+		InProceedings inProc = (InProceedings) pm.getObjectById(objectId);
+		
+		inProceedingTitleField.setText(inProc.getTitle());
+		inProceedingPagesField.setText(inProc.getPages());
+		inProceedingYearField.setText(Integer.toString(inProc.getYear()));
+		
+		Proceedings proc = inProc.getProceedings();
+		if(null != proc) {
+			inProceedingProceedingFilterField.setText(proc.getTitle());
+		}
+		
+		inProceedingAuthorFilterField.setText("");
+		inProceedingAuthorTableList.clear();
+		for (Person person : inProc.getAuthors()) {
+			inProceedingAuthorTableList.add(new SecondaryPersonTableEntry(person));
+        }
+		
+		pm.currentTransaction().commit();
+		tabPane.getSelectionModel().select(inProceedingTab);
+	}
+    // END section for inproceeding tab
+	
+	
+	
+	
+	
+	
     protected void onImport(ActionEvent event){
     	System.out.printf("Test");
     }
@@ -311,7 +389,7 @@ public class Controller {
     	importStatusLabel.setText(text);
     }
     
-    
+    // START section for table entry data types
     class PersonTableEntry {
     	public long objectId;
     	public String name;
@@ -367,8 +445,10 @@ public class Controller {
     		if (null != proc) proceeding = proc.getTitle();
     	}
     }
+    // END section for table entry dara types
     
-
+    
+    // START section for fields that reference FXML
     @FXML    private TabPane tabPane;
     @FXML    private Tab personTab;
     @FXML    private TableView<PersonTableEntry> personMainTable;
@@ -377,7 +457,7 @@ public class Controller {
     @FXML    private Button personSearchButton;
     @FXML    private Button personNextPageButton;
     @FXML    private Button personPreviousPageButton;
-    @FXML    private Label personCurrentPageLabel;
+    @FXML    private TextField personCurrentPageField;
     @FXML    private Button personNewButton;
     @FXML    private TextField personNameField;
     @FXML    private Button personChangeNameButton;
@@ -398,7 +478,7 @@ public class Controller {
     @FXML    private Button proceedingNewButton;
     @FXML    private Button proceedingNextPageButton;
     @FXML    private Button proceedingPreviousPageButton;
-    @FXML    private Label proceedingCurrentPageLabel;
+    @FXML    private TextField proceedingCurrentPageField;
     @FXML    private TextField proceedingTitleField;
     @FXML    private Button proceedingChangeTitleButton;
     @FXML    private ChoiceBox<?> proceedingPublisherDropdown;
@@ -412,7 +492,7 @@ public class Controller {
     @FXML    private ChoiceBox<?> proceedingConferenceDropdown;
     @FXML    private Button proceedingChangeConferenceButton;
     @FXML    private TextField proceedingConferenceFilterField;
-    @FXML    private TextField proceedingEditonFilterField;
+    @FXML    private TextField proceedingEditionFilterField;
     @FXML    private ChoiceBox<?> proceedingEditionDropdown;
     @FXML    private Button proceedingChangeEditionButton;
     @FXML    private TextField proceedingEditorFilterField;
@@ -422,16 +502,16 @@ public class Controller {
     @FXML    private Button proceedingAddEditorButton;
     @FXML    private Tab inProceedingTab;
     @FXML    private TableView<?> inProceedingMainTable;
-    @FXML    private TextField inProceedingFilterField;
+    @FXML    private TextField inProceedingProceedingFilterField;
     @FXML    private Button inProceedingSearchButton;
     @FXML    private Button inProceedingDeleteButton;
     @FXML    private Button inProceedingNextPageButton;
     @FXML    private Button inProceedingPreviousPageButton;
-    @FXML    private Label inProceedingCurrentPageLabel;
+    @FXML    private TextField inProceedingCurrentPageField;
     @FXML    private Button inProceedingCreateButton;
     @FXML    private TextField inProceedingPagesField;
     @FXML    private Button inProceedingChangePagesButton;
-    @FXML    private ChoiceBox<?> inProceedingFilterDropdown;
+    @FXML    private ChoiceBox<?> inProceedingProceedingDropdown;
     @FXML    private Button inProceedingChangeProceedingButton;
     @FXML    private ChoiceBox<?> inProceedingAuthorDropdown;
     @FXML    private Button inProceedingAddAuthorButton;
@@ -449,7 +529,7 @@ public class Controller {
     @FXML    private Button publicationDeleteButton;
     @FXML    private Button publicationNextPageButton;
     @FXML    private Button publicationPreviousPageButton;
-    @FXML    private Label publicationCurrentPageLabel;
+    @FXML    private TextField publicationCurrentPageField;
     @FXML    private Tab publisherTab;
     @FXML    private TableView<?> publisherMainTable;
     @FXML    private Button publisherDeleteButton;
@@ -458,7 +538,7 @@ public class Controller {
     @FXML    private Button publisherCreateButton;
     @FXML    private Button publisherNextPageButton;
     @FXML    private Button publisherPreviousPageButton;
-    @FXML    private Label publisherCurrentPageLabel;
+    @FXML    private TextField publisherCurrentPageField;
     @FXML    private TextField publisherNameField;
     @FXML    private Button publisherChangeNameButton;
     @FXML    private ChoiceBox<?> publisherProceedingDropdown;
@@ -479,7 +559,7 @@ public class Controller {
     @FXML    private Button conferenceCreateButton;
     @FXML    private Button conferenceNextPageButton;
     @FXML    private Button conferencePreviousPageButton;
-    @FXML    private Label conferenceCurrentPageLabel;
+    @FXML    private TextField conferenceCurrentPageField;
     @FXML    private TextField conferenceNameField;
     @FXML    private Button conferenceChangeNameButton;
     @FXML    private ChoiceBox<?> conferenceEditionDropdown;
@@ -495,7 +575,7 @@ public class Controller {
     @FXML    private Button conferenceEditionCreateButton;
     @FXML    private Button conferenceEditionNextPageButton;
     @FXML    private Button conferenceEditionPreviousPageButton;
-    @FXML    private Label conferenceEditionCurrentPageLabel;
+    @FXML    private TextField conferenceEditionCurrentPageField;
     @FXML    private TextField conferenceEditionNameField;
     @FXML    private Button conferenceEditionChangeNameButton;
     @FXML    private TextField conferenceEditionEditionField;
@@ -510,7 +590,7 @@ public class Controller {
     @FXML    private Button seriesCreateButton;
     @FXML    private Button seriesNextPageButton;
     @FXML    private Button seriesPreviousPageButton;
-    @FXML    private Label seriesCurrentPageLabel;
+    @FXML    private TextField seriesCurrentPageField;
     @FXML    private TextField seriesNameField;
     @FXML    private Button seriesChangeNameButton;
     @FXML    private TextField seriesProceedingFilterField;
@@ -521,4 +601,5 @@ public class Controller {
     @FXML    private Tab importTab;
     @FXML    private Button importButton;
     @FXML    private Label importStatusLabel;
+    // END section for fields that reference FXML
 }
