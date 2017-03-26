@@ -26,7 +26,7 @@ import javafx.scene.input.MouseButton;
 import javafx.util.Callback;
  
 public class Controller {
-	
+	private final int PAGE_SIZE = 20;
 	public PersistenceManager pm;
 	
     public void initialize() {
@@ -68,10 +68,10 @@ public class Controller {
 	            	loadDataProceedingTab();
 	            }
 	            if (newTab == inProceedingTab) {
-	            	
+	            	loadDataInProceedingTab();
 	            }
 	            if (newTab == publicationTab) {
-	            	
+	            	loadDataPublicationTab();
 	            }
 	            if (newTab == publisherTab) {
 	            	
@@ -93,8 +93,8 @@ public class Controller {
 		
     	setUpPersonTab();
     	setUpProceedingTab();
-    	
-    	
+    	setUpInProceedingTab();
+    	setUpPublicationTab();
     	
     	
     	
@@ -185,7 +185,7 @@ public class Controller {
 		pm.currentTransaction().begin();
 
         Query query = pm.newQuery(Person.class);
-        query.setRange((personQueryPage[0]-1)*20, personQueryPage[0]*20);;
+        query.setRange((personQueryPage[0]-1)*PAGE_SIZE, personQueryPage[0]*PAGE_SIZE);
         Collection<Person> people = (Collection<Person>) query.execute();
 
         for (Person person: people) {
@@ -227,7 +227,6 @@ public class Controller {
 	private int[] proceedingQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
     
 	private void setUpProceedingTab() {
-		//TODO
 		
 		// START main table stuff
     	ObservableList<TableColumn<ProceedingTableEntry, ?>> mainTableColumns = proceedingMainTable.getColumns();
@@ -263,10 +262,10 @@ public class Controller {
 		// END main table stuff
 		
 		// START editor table stuff
-		ObservableList<TableColumn<SecondaryPersonTableEntry, ?>> proceedingEditorTableColumns = proceedingEditorTable.getColumns();
-		TableColumn<SecondaryPersonTableEntry,String> proceedingEditorNameCol = (TableColumn<SecondaryPersonTableEntry,String>) proceedingEditorTableColumns.get(0);
+		ObservableList<TableColumn<SecondaryPersonTableEntry, ?>> editorTableColumns = proceedingEditorTable.getColumns();
+		TableColumn<SecondaryPersonTableEntry,String> editorNameCol = (TableColumn<SecondaryPersonTableEntry,String>) editorTableColumns.get(0);
 		
-		proceedingEditorNameCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryPersonTableEntry, String>, ObservableValue<String>>() {
+		editorNameCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryPersonTableEntry, String>, ObservableValue<String>>() {
 			public ObservableValue<String> call(CellDataFeatures<SecondaryPersonTableEntry, String> p) {
 				return new ReadOnlyObjectWrapper<String>(p.getValue().name);
 			}
@@ -277,7 +276,6 @@ public class Controller {
 		
 		proceedingEditorTable.setItems(proceedingEditorTableList);
 		// END editor table stuff
-		
 	}
 	
 	private void loadDataProceedingTab() {
@@ -285,7 +283,7 @@ public class Controller {
 		pm.currentTransaction().begin();
 
         Query query = pm.newQuery(Proceedings.class);
-        query.setRange((proceedingQueryPage[0]-1)*20, proceedingQueryPage[0]*20);;
+        query.setRange((proceedingQueryPage[0]-1)*PAGE_SIZE, proceedingQueryPage[0]*PAGE_SIZE);
         Collection<Proceedings> proceedings = (Collection<Proceedings>) query.execute();
 
         for (Proceedings proc: proceedings) {
@@ -343,15 +341,78 @@ public class Controller {
 	}
 	// END section for proceeding tab
 	
+	
 	// START section for inproceeding tab
+	private ObservableList<InProceedingTableEntry> inProceedingMainTableList = FXCollections.observableArrayList();
 	private ObservableList<SecondaryPersonTableEntry> inProceedingAuthorTableList = FXCollections.observableArrayList();
+	private int[] inProceedingQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
 	
 	private void setUpInProceedingTab() {
-		//TODO
+		
+		// START main table stuff
+    	ObservableList<TableColumn<InProceedingTableEntry, ?>> mainTableColumns = inProceedingMainTable.getColumns();
+		TableColumn<InProceedingTableEntry,String> mainTitleCol = (TableColumn<InProceedingTableEntry,String>) mainTableColumns.get(0);
+		TableColumn<InProceedingTableEntry,String> mainYearCol = (TableColumn<InProceedingTableEntry,String>) mainTableColumns.get(1);
+		TableColumn<InProceedingTableEntry,String> mainProceedingCol = (TableColumn<InProceedingTableEntry,String>) mainTableColumns.get(2);
+		
+		mainTitleCol.setCellValueFactory(new Callback<CellDataFeatures<InProceedingTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<InProceedingTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().title);
+			}
+		});
+		
+		mainYearCol.setCellValueFactory(new Callback<CellDataFeatures<InProceedingTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<InProceedingTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().year);
+			}
+		});
+		
+		mainProceedingCol.setCellValueFactory(new Callback<CellDataFeatures<InProceedingTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<InProceedingTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().proceeding);
+			}
+		});
+		
+		inProceedingMainTable.setRowFactory(new MyRowFactory<InProceedingTableEntry>(this::showInProceeding));
+		
+		inProceedingNextPageButton.setOnAction(new PagingHandler(inProceedingQueryPage, inProceedingCurrentPageField, 1, this::loadDataInProceedingTab));
+		inProceedingPreviousPageButton.setOnAction(new PagingHandler(inProceedingQueryPage, inProceedingCurrentPageField, -1, this::loadDataInProceedingTab));
+		inProceedingCurrentPageField.setOnAction(new PagingHandler(inProceedingQueryPage, inProceedingCurrentPageField, 0, this::loadDataInProceedingTab));
+		
+		inProceedingMainTable.setItems(inProceedingMainTableList);
+		// END main table stuff
+		
+		// START author table stuff
+		ObservableList<TableColumn<SecondaryPersonTableEntry, ?>> authorTableColumns = inProceedingAuthorTable.getColumns();
+		TableColumn<SecondaryPersonTableEntry,String> authorNameCol = (TableColumn<SecondaryPersonTableEntry,String>) authorTableColumns.get(0);
+		
+		authorNameCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryPersonTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<SecondaryPersonTableEntry, String> p) {
+				return new ReadOnlyObjectWrapper<String>(p.getValue().name);
+			}
+		});
+		
+		
+		inProceedingAuthorTable.setRowFactory(new MyRowFactory<SecondaryPersonTableEntry>(this::showPerson));
+		
+		inProceedingAuthorTable.setItems(inProceedingAuthorTableList);
+		// END author table stuff
 	}
 	
 	private void loadDataInProceedingTab() {
-		//TODO
+		inProceedingMainTableList.clear();
+		pm.currentTransaction().begin();
+
+        Query query = pm.newQuery(InProceedings.class);
+        query.setRange((inProceedingQueryPage[0]-1)*PAGE_SIZE, inProceedingQueryPage[0]*PAGE_SIZE);
+        Collection<InProceedings> inProceedings = (Collection<InProceedings>) query.execute();
+
+        for (InProceedings inProc: inProceedings) {
+        	inProceedingMainTableList.add(new InProceedingTableEntry(inProc));
+        }
+        
+        query.closeAll();
+        pm.currentTransaction().commit();
 	}
 	
 	private void showInProceeding(long objectId) {
@@ -379,9 +440,80 @@ public class Controller {
     // END section for inproceeding tab
 	
 	
+	// START section for publication tab
+	private ObservableList<PublicationTableEntry> publicationMainTableList = FXCollections.observableArrayList();
+	private int[] publicationQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
 	
+	private void setUpPublicationTab() {
+		// START main table stuff
+    	ObservableList<TableColumn<PublicationTableEntry, ?>> mainTableColumns = publicationMainTable.getColumns();
+		TableColumn<PublicationTableEntry,String> mainTitleCol = (TableColumn<PublicationTableEntry,String>) mainTableColumns.get(0);
+		TableColumn<PublicationTableEntry,String> mainAuthEditCol = (TableColumn<PublicationTableEntry,String>) mainTableColumns.get(1);
+		
+		mainTitleCol.setCellValueFactory(new Callback<CellDataFeatures<PublicationTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<PublicationTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().title);
+			}
+		});
+		
+		mainAuthEditCol.setCellValueFactory(new Callback<CellDataFeatures<PublicationTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<PublicationTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().authorsEditors);
+			}
+		});
+		
+		
+		
+		publicationMainTable.setRowFactory(new MyRowFactory<PublicationTableEntry>(this::showPublication));
+		
+		publicationNextPageButton.setOnAction(new PagingHandler(publicationQueryPage, publicationCurrentPageField, 1, this::loadDataPublicationTab));
+		publicationPreviousPageButton.setOnAction(new PagingHandler(publicationQueryPage, publicationCurrentPageField, -1, this::loadDataPublicationTab));
+		publicationCurrentPageField.setOnAction(new PagingHandler(publicationQueryPage, publicationCurrentPageField, 0, this::loadDataPublicationTab));
+		
+		publicationMainTable.setItems(publicationMainTableList);
+		// END main table stuff
+	}
 	
+	private void loadDataPublicationTab() {
+		publicationMainTableList.clear();
+		pm.currentTransaction().begin();
+
+        Query query = pm.newQuery(Proceedings.class);
+        query.setRange((publicationQueryPage[0]-1)*PAGE_SIZE, publicationQueryPage[0]*PAGE_SIZE);
+        Collection<Publication> publications = (Collection<Publication>) query.execute();
+
+        for (Publication proc: publications) {
+        	publicationMainTableList.add(new PublicationTableEntry(proc));
+        }
+        
+        query.closeAll();
+        
+        query = pm.newQuery(InProceedings.class);
+        query.setRange((publicationQueryPage[0]-1)*PAGE_SIZE, publicationQueryPage[0]*PAGE_SIZE);
+        publications = (Collection<Publication>) query.execute();
+        
+        for (Publication inProc: publications) {
+        	publicationMainTableList.add(new PublicationTableEntry(inProc));
+        }
+        
+        query.closeAll();
+        pm.currentTransaction().commit();
+	}
 	
+	private void showPublication(long objectId) {
+		boolean isProceeding = false;
+		pm.currentTransaction().begin();
+		Publication pub = (Publication) pm.getObjectById(objectId);
+		isProceeding = pub instanceof Proceedings;
+		pm.currentTransaction().commit();
+		
+		if (isProceeding) {
+			showProceeding(objectId);
+		} else {
+			showInProceeding(objectId);
+		}
+	}
+	// End section for publication tab
 	
     protected void onImport(ActionEvent event){
     	System.out.printf("Test");
@@ -415,10 +547,46 @@ public class Controller {
         	
         	objectId = person.jdoZooGetOid();
         	name = person.getName();
-        	authoredEdited = builder.substring(0, builder.length() - 2);
+        	
+        	int end = builder.length() - 2;
+        	if (0 < end) {
+        		authoredEdited = builder.substring(0, end);
+        	} else {
+        		authoredEdited = "";
+        	}
+        	
     	}
     }
        
+    private class PublicationTableEntry extends TableEntry{
+    	public String title;
+    	public String authorsEditors;
+    	public PublicationTableEntry(Publication pub) {
+    		title = pub.getTitle();
+    		StringBuilder builder = new StringBuilder();
+        	
+        	for (Person pers : pub.getAuthors()) {
+        		builder.append(pers.getName());
+        		builder.append(", ");
+        	}
+        	
+        	int end = builder.length() - 2;
+        	if (0 < end) {
+        		authorsEditors = builder.substring(0, end);
+        	} else {
+        		authorsEditors = "";
+        	}
+        	
+        	if (pub instanceof Proceedings) {
+        		objectId = ((Proceedings)pub).jdoZooGetOid();
+        	} else {
+        		objectId = ((InProceedings)pub).jdoZooGetOid();
+        	}
+        	
+    	}
+    	
+    }
+    
     private class ProceedingTableEntry extends TableEntry{
     	public String title;
     	public String publisher;
@@ -448,6 +616,29 @@ public class Controller {
     	}
     }
     
+    private class InProceedingTableEntry extends TableEntry{
+    	public String title;
+    	public String year;
+    	public String proceeding;
+    	public InProceedingTableEntry(InProceedings inProc) {
+    		title = inProc.getTitle();
+    		int y = inProc.getYear();
+    		if (0 != y) {
+    			year = Integer.toString(inProc.getYear());
+    		} else {
+    			year = "";
+    		}
+    		Proceedings proc = inProc.getProceedings();
+    		if (null != proc) {
+    			proceeding = proc.getTitle();
+    		} else {
+    			proceeding = "";
+    		}
+    		
+        	objectId = inProc.jdoZooGetOid();
+    	}
+    }
+    
     private class SecondaryPersonTableEntry extends TableEntry {
     	public String name;
     	public SecondaryPersonTableEntry(Person person) {
@@ -462,7 +653,17 @@ public class Controller {
     	public SecondaryProceedingTableEntry(Proceedings proc) {
     		objectId = proc.jdoZooGetOid();
     		title = proc.getTitle();
-    		conference = proc.getConferenceEdition().getConference().getName();
+    		ConferenceEdition confEd = proc.getConferenceEdition();
+    		if (null != confEd) {
+    			Conference conf = confEd.getConference();
+    			if (null != conf) {
+    				conference = conf.getName();
+    			} else {
+    				conference = "";
+    			}
+    		} else {
+    			conference = "";
+    		}
     	}
     }
     
@@ -472,9 +673,12 @@ public class Controller {
     	public SecondaryInProceedingTableEntry(InProceedings inProc) {
     		objectId = inProc.jdoZooGetOid();
     		title = inProc.getTitle();
-    		proceeding = "";
     		Proceedings proc = inProc.getProceedings();
-    		if (null != proc) proceeding = proc.getTitle();
+    		if (null != proc) {
+    			proceeding = proc.getTitle();
+    		} else {
+    			proceeding = "";
+    		}
     	}
     }
     // END section for table entry data types
@@ -587,7 +791,7 @@ public class Controller {
     @FXML    private ChoiceBox<?> proceedingEditorDropdown;
     @FXML    private Button proceedingAddEditorButton;
     @FXML    private Tab inProceedingTab;
-    @FXML    private TableView<?> inProceedingMainTable;
+    @FXML    private TableView<InProceedingTableEntry> inProceedingMainTable;
     @FXML    private TextField inProceedingProceedingFilterField;
     @FXML    private Button inProceedingSearchButton;
     @FXML    private Button inProceedingDeleteButton;
@@ -602,14 +806,14 @@ public class Controller {
     @FXML    private ChoiceBox<?> inProceedingAuthorDropdown;
     @FXML    private Button inProceedingAddAuthorButton;
     @FXML    private TextField inProceedingAuthorFilterField;
-    @FXML    private TableView<?> inProceedingAuthorTable;
+    @FXML    private TableView<SecondaryPersonTableEntry> inProceedingAuthorTable;
     @FXML    private Button inProceedingRemoveAuthorButton;
     @FXML    private TextField inProceedingTitleField;
     @FXML    private Button inProceedingChangeTitleButton;
     @FXML    private TextField inProceedingYearField;
     @FXML    private Button inProceedingChangeYearButton;
     @FXML    private Tab publicationTab;
-    @FXML    private TableView<?> publicationMainTable;
+    @FXML    private TableView<PublicationTableEntry> publicationMainTable;
     @FXML    private TextField publicationSearchField;
     @FXML    private Button publicationSearchButton;
     @FXML    private Button publicationDeleteButton;
