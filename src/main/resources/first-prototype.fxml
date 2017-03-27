@@ -58,8 +58,8 @@
                      <children>
                         <TableView fx:id="personProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
                           <columns>
-                            <TableColumn prefWidth="183.0" text="Title" />
-                            <TableColumn minWidth="0.0" prefWidth="131.0" text="Conference" />
+                            <TableColumn prefWidth="220.0" text="Title" />
+                            <TableColumn minWidth="0.0" prefWidth="94.0" text="Conference" />
                           </columns>
                         </TableView>
                         <Label text="Edited Proceedings" />
@@ -340,14 +340,14 @@
                   </Group>
                   <Group layoutX="355.0" layoutY="401.0">
                      <children>
-                        <TableView fx:id="publisherProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
+                        <TableView fx:id="publisherProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="656.0">
                            <columns>
-                              <TableColumn prefWidth="183.0" text="Title" />
-                              <TableColumn minWidth="0.0" prefWidth="131.0" text="Conference" />
+                              <TableColumn prefWidth="450.0" text="Title" />
+                              <TableColumn minWidth="0.0" prefWidth="199.0" text="Conference" />
                            </columns>
                         </TableView>
                         <Label text="Published Proceedings" />
-                        <Button fx:id="publisherRemoveProceedingButton" layoutX="167.0" layoutY="296.0" mnemonicParsing="false" text="Remove Proceeding" />
+                        <Button fx:id="publisherRemoveProceedingButton" layoutX="507.0" layoutY="296.0" mnemonicParsing="false" text="Remove Proceeding" />
                      </children>
                   </Group>
                </children>
@@ -420,7 +420,7 @@
                            <columns>
                               <TableColumn prefWidth="354.0" text="Name" />
                               <TableColumn minWidth="0.0" prefWidth="89.0" text="Edition" />
-                              <TableColumn prefWidth="553.0" text="Proceedings" />
+                              <TableColumn prefWidth="553.0" text="Proceeding" />
                            </columns>
                         </TableView>
                         <Button fx:id="conferenceEditionDeleteButton" layoutX="141.0" layoutY="341.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Conference" />
@@ -452,17 +452,6 @@
                         <Button fx:id="conferenceEditionChangeEditionButton" layoutX="183.0" layoutY="43.0" mnemonicParsing="false" text="Change Edition" />
                      </children>
                   </Group>
-                  <Group layoutX="355.0" layoutY="401.0">
-                     <children>
-                        <TableView fx:id="conferenceEditionProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
-                           <columns>
-                              <TableColumn prefWidth="314.0" text="Title" />
-                           </columns>
-                        </TableView>
-                        <Label text="Proceedings" />
-                        <Button fx:id="conferenceEditionRemoveProceedingButton" layoutX="167.0" layoutY="296.0" mnemonicParsing="false" text="Remove Proceeding" />
-                     </children>
-                  </Group>
                </children>
             </AnchorPane>
          </content>
@@ -473,10 +462,10 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView fx:id="serieMainTable" layoutY="29.0" prefHeight="310.0" prefWidth="997.0">
+                        <TableView fx:id="seriesMainTable" layoutY="29.0" prefHeight="310.0" prefWidth="997.0">
                            <columns>
-                              <TableColumn prefWidth="493.0" text="Name" />
-                              <TableColumn minWidth="0.0" prefWidth="503.0" text="Publications" />
+                              <TableColumn prefWidth="320.0" text="Name" />
+                              <TableColumn minWidth="0.0" prefWidth="676.0" text="Proceedings" />
                            </columns>
                         </TableView>
                         <Button fx:id="seriesDeleteButton" layoutX="107.0" layoutY="341.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Series" />
@@ -510,13 +499,14 @@
                   </Group>
                   <Group layoutX="355.0" layoutY="401.0">
                      <children>
-                        <TableView fx:id="seriesProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
+                        <TableView fx:id="seriesProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="656.0">
                            <columns>
-                              <TableColumn prefWidth="314.0" text="Title" />
+                              <TableColumn prefWidth="450.0" text="Title" />
+                              <TableColumn minWidth="0.0" prefWidth="199.0" text="Conference" />
                            </columns>
                         </TableView>
                         <Label text="Proceedings" />
-                        <Button fx:id="seriesRemoveProceedingButton" layoutX="167.0" layoutY="296.0" mnemonicParsing="false" text="Remove Proceeding" />
+                        <Button fx:id="seriesRemoveProceedingButton" layoutX="507.0" layoutY="296.0" mnemonicParsing="false" text="Remove Proceeding" />
                      </children>
                   </Group>
                </children>

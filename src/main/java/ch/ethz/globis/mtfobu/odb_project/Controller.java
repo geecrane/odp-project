@@ -77,13 +77,13 @@ public class Controller {
 	            	loadDataPublisherTab();
 	            }
 	            if (newTab == conferenceTab) {
-	            	
+	            	loadDataConferenceTab();
 	            }
 	            if (newTab == conferenceEditionTab) {
-	            	
+	            	loadDataConferenceEditionTab();
 	            }
 	            if (newTab == seriesTab) {
-	            	
+	            	loadDataSeriesTab();
 	            }
 	            if (newTab == importTab) {
 	            	
@@ -96,7 +96,9 @@ public class Controller {
     	setUpInProceedingTab();
     	setUpPublicationTab();
     	setUpPublisherTab();
-    	
+    	setUpConferenceTab();
+    	setUpConferenceEditionTab();
+    	setUpSeriesTab();
     	
 		loadDataPersonTab();
     }
@@ -605,6 +607,261 @@ public class Controller {
 	}
 	// End section for publisher tab
 	
+	
+	// START section for conferences tab
+	private ObservableList<ConferenceTableEntry> conferenceMainTableList = FXCollections.observableArrayList();
+	private ObservableList<SecondaryConferenceEditionTableEntry> conferenceEditionTableList = FXCollections.observableArrayList();
+	private int[] conferenceQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
+	
+	public void setUpConferenceTab() {
+		// START main table stuff
+    	ObservableList<TableColumn<ConferenceTableEntry, ?>> mainTableColumns = conferenceMainTable.getColumns();
+		TableColumn<ConferenceTableEntry,String> mainNameCol = (TableColumn<ConferenceTableEntry,String>) mainTableColumns.get(0);
+		TableColumn<ConferenceTableEntry,String> mainEditionsCol = (TableColumn<ConferenceTableEntry,String>) mainTableColumns.get(1);
+		
+		mainNameCol.setCellValueFactory(new Callback<CellDataFeatures<ConferenceTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<ConferenceTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().name);
+			}
+		});
+		
+		mainEditionsCol.setCellValueFactory(new Callback<CellDataFeatures<ConferenceTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<ConferenceTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().editions);
+			}
+		});
+		
+		conferenceMainTable.setRowFactory(new MyRowFactory<ConferenceTableEntry>(this::showConference));
+		
+		conferenceNextPageButton.setOnAction(new PagingHandler(conferenceQueryPage, conferenceCurrentPageField, 1, this::loadDataConferenceTab));
+		conferencePreviousPageButton.setOnAction(new PagingHandler(conferenceQueryPage, conferenceCurrentPageField, -1, this::loadDataConferenceTab));
+		conferenceCurrentPageField.setOnAction(new PagingHandler(conferenceQueryPage, conferenceCurrentPageField, 0, this::loadDataConferenceTab));
+		
+		conferenceMainTable.setItems(conferenceMainTableList);
+		// END main table stuff
+		
+		// START edition table stuff
+		ObservableList<TableColumn<SecondaryConferenceEditionTableEntry, ?>> conferenceEditionTableColumns = conferenceEditionTable.getColumns();
+		TableColumn<SecondaryConferenceEditionTableEntry,String> conferenceEditionYearCol = (TableColumn<SecondaryConferenceEditionTableEntry,String>) conferenceEditionTableColumns.get(0);
+		
+		conferenceEditionYearCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryConferenceEditionTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<SecondaryConferenceEditionTableEntry, String> p) {
+				return new ReadOnlyObjectWrapper<String>(p.getValue().year);
+			}
+		});
+		
+		
+		conferenceEditionTable.setRowFactory(new MyRowFactory<SecondaryConferenceEditionTableEntry>(this::showConferenceEdition));
+		
+		conferenceEditionTable.setItems(conferenceEditionTableList);
+		// END edition table stuff
+	}
+	
+	public void loadDataConferenceTab() {
+		conferenceMainTableList.clear();
+		pm.currentTransaction().begin();
+
+        Query query = pm.newQuery(Conference.class);
+        query.setRange((conferenceQueryPage[0]-1)*PAGE_SIZE, conferenceQueryPage[0]*PAGE_SIZE);
+        Collection<Conference> conferences = (Collection<Conference>) query.execute();
+
+        for (Conference conf: conferences) {
+        	conferenceMainTableList.add(new ConferenceTableEntry(conf));
+        }
+        
+        query.closeAll();
+        pm.currentTransaction().commit();
+	}
+	
+	public void showConference(long objectId) {
+		pm.currentTransaction().begin();
+		Conference conf = (Conference) pm.getObjectById(objectId);
+		
+		conferenceNameField.setText(conf.getName());
+		
+		conferenceEditionFilterField.setText("");
+		conferenceEditionTableList.clear();
+		for (ConferenceEdition confEd : conf.getEditions()) {
+			conferenceEditionTableList.add(new SecondaryConferenceEditionTableEntry(confEd));
+		}
+		
+		pm.currentTransaction().commit();
+		tabPane.getSelectionModel().select(conferenceTab);
+	}
+	// END section for conferences tab
+	
+	
+	// START section for conference editions tab
+	private ObservableList<ConferenceEditionTableEntry> conferenceEditionMainTableList = FXCollections.observableArrayList();
+	private int[] conferenceEditionQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
+	
+	public void setUpConferenceEditionTab() {
+		// START main table stuff
+    	ObservableList<TableColumn<ConferenceEditionTableEntry, ?>> mainTableColumns = conferenceEditionMainTable.getColumns();
+		TableColumn<ConferenceEditionTableEntry,String> mainNameCol = (TableColumn<ConferenceEditionTableEntry,String>) mainTableColumns.get(0);
+		TableColumn<ConferenceEditionTableEntry,String> mainEditionCol = (TableColumn<ConferenceEditionTableEntry,String>) mainTableColumns.get(1);
+		TableColumn<ConferenceEditionTableEntry,String> mainProceedingCol = (TableColumn<ConferenceEditionTableEntry,String>) mainTableColumns.get(2);
+		
+		mainNameCol.setCellValueFactory(new Callback<CellDataFeatures<ConferenceEditionTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<ConferenceEditionTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().name);
+			}
+		});
+		
+		mainEditionCol.setCellValueFactory(new Callback<CellDataFeatures<ConferenceEditionTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<ConferenceEditionTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().edition);
+			}
+		});
+		
+		mainProceedingCol.setCellValueFactory(new Callback<CellDataFeatures<ConferenceEditionTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<ConferenceEditionTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().proceeding);
+			}
+		});
+		
+		conferenceEditionMainTable.setRowFactory(new MyRowFactory<ConferenceEditionTableEntry>(this::showConferenceEdition));
+		
+		conferenceEditionNextPageButton.setOnAction(new PagingHandler(conferenceEditionQueryPage, conferenceEditionCurrentPageField, 1, this::loadDataConferenceEditionTab));
+		conferenceEditionPreviousPageButton.setOnAction(new PagingHandler(conferenceEditionQueryPage, conferenceEditionCurrentPageField, -1, this::loadDataConferenceEditionTab));
+		conferenceEditionCurrentPageField.setOnAction(new PagingHandler(conferenceEditionQueryPage, conferenceEditionCurrentPageField, 0, this::loadDataConferenceEditionTab));
+		
+		conferenceEditionMainTable.setItems(conferenceEditionMainTableList);
+		// END main table stuff
+	}
+	
+	public void loadDataConferenceEditionTab() {
+		conferenceEditionMainTableList.clear();
+		pm.currentTransaction().begin();
+
+        Query query = pm.newQuery(ConferenceEdition.class);
+        query.setRange((conferenceEditionQueryPage[0]-1)*PAGE_SIZE, conferenceEditionQueryPage[0]*PAGE_SIZE);
+        Collection<ConferenceEdition> conferenceEditions = (Collection<ConferenceEdition>) query.execute();
+
+        for (ConferenceEdition confEd: conferenceEditions) {
+        	conferenceEditionMainTableList.add(new ConferenceEditionTableEntry(confEd));
+        }
+        
+        query.closeAll();
+        pm.currentTransaction().commit();
+	}
+	
+	public void showConferenceEdition(long objectId) {
+		pm.currentTransaction().begin();
+		ConferenceEdition confEd = (ConferenceEdition) pm.getObjectById(objectId);
+		
+		Conference conf = confEd.getConference();
+		
+		if (null != conf) {
+			conferenceNameField.setText(conf.getName());
+		} else {
+			conferenceNameField.setText("");
+		}
+		
+		int year = confEd.getYear();
+		if (0 != year) {
+			conferenceEditionEditionField.setText(Integer.toString(year));
+		} else {
+			conferenceEditionEditionField.setText("No year");
+		}
+		
+		pm.currentTransaction().commit();
+		tabPane.getSelectionModel().select(conferenceTab);
+	}
+	// END section for conference editions tab
+	
+	
+	// START section for series tab
+	private ObservableList<SeriesTableEntry> seriesMainTableList = FXCollections.observableArrayList();
+	private ObservableList<SecondaryProceedingTableEntry> seriesProceedingTableList = FXCollections.observableArrayList();
+	private int[] seriesQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
+	
+	public void setUpSeriesTab() {
+		// START main table stuff
+    	ObservableList<TableColumn<SeriesTableEntry, ?>> mainTableColumns = seriesMainTable.getColumns();
+		TableColumn<SeriesTableEntry,String> mainNameCol = (TableColumn<SeriesTableEntry,String>) mainTableColumns.get(0);
+		TableColumn<SeriesTableEntry,String> mainPublicationsCol = (TableColumn<SeriesTableEntry,String>) mainTableColumns.get(1);
+		
+		mainNameCol.setCellValueFactory(new Callback<CellDataFeatures<SeriesTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<SeriesTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().name);
+			}
+		});
+		
+		mainPublicationsCol.setCellValueFactory(new Callback<CellDataFeatures<SeriesTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<SeriesTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().publications);
+			}
+		});
+		
+		seriesMainTable.setRowFactory(new MyRowFactory<SeriesTableEntry>(this::showSeries));
+		
+		seriesNextPageButton.setOnAction(new PagingHandler(seriesQueryPage, seriesCurrentPageField, 1, this::loadDataSeriesTab));
+		seriesPreviousPageButton.setOnAction(new PagingHandler(seriesQueryPage, seriesCurrentPageField, -1, this::loadDataSeriesTab));
+		seriesCurrentPageField.setOnAction(new PagingHandler(seriesQueryPage, seriesCurrentPageField, 0, this::loadDataSeriesTab));
+		
+		seriesMainTable.setItems(seriesMainTableList);
+		// END main table stuff
+		
+		// START proceeding table stuff
+		ObservableList<TableColumn<SecondaryProceedingTableEntry, ?>> proceedingTableColumns = seriesProceedingTable.getColumns();
+		TableColumn<SecondaryProceedingTableEntry,String> proceedingTitleCol = (TableColumn<SecondaryProceedingTableEntry,String>) proceedingTableColumns.get(0);
+		TableColumn<SecondaryProceedingTableEntry,String> proceedingConferenceCol = (TableColumn<SecondaryProceedingTableEntry,String>) proceedingTableColumns.get(1);
+		
+		proceedingTitleCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryProceedingTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<SecondaryProceedingTableEntry, String> p) {
+				return new ReadOnlyObjectWrapper<String>(p.getValue().title);
+			}
+		});
+		
+		proceedingConferenceCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryProceedingTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<SecondaryProceedingTableEntry, String> p) {
+				return new ReadOnlyObjectWrapper<String>(p.getValue().conference);
+			}
+		});
+		
+		seriesProceedingTable.setRowFactory(new MyRowFactory<SecondaryProceedingTableEntry>(this::showProceeding));
+		
+		seriesProceedingTable.setItems(seriesProceedingTableList);
+		// END proceeding table stuff
+	}
+	
+	public void loadDataSeriesTab() {
+		seriesMainTableList.clear();
+		pm.currentTransaction().begin();
+
+        Query query = pm.newQuery(Series.class);
+        query.setRange((seriesQueryPage[0]-1)*PAGE_SIZE, seriesQueryPage[0]*PAGE_SIZE);
+        Collection<Series> seriesPlural = (Collection<Series>) query.execute();
+
+        for (Series series: seriesPlural) {
+        	seriesMainTableList.add(new SeriesTableEntry(series));
+        }
+        
+        query.closeAll();
+        pm.currentTransaction().commit();
+	}
+	
+	public void showSeries(long objectId) {
+		pm.currentTransaction().begin();
+		Series series = (Series) pm.getObjectById(objectId);
+		
+		seriesNameField.setText(series.getName());
+		
+		seriesProceedingFilterField.setText("");
+		seriesProceedingTableList.clear();
+		for (Publication pub : series.getPublications()) {
+			if (pub instanceof Proceedings) {
+				seriesProceedingTableList.add(new SecondaryProceedingTableEntry((Proceedings)pub));
+			}
+		}
+		
+		pm.currentTransaction().commit();
+		tabPane.getSelectionModel().select(seriesTab);
+	}
+	// END section for series tab
+	
+	
     protected void onImport(ActionEvent event){
     	System.out.printf("Test");
     }
@@ -762,6 +1019,85 @@ public class Controller {
     }
     
     
+    private class ConferenceTableEntry extends TableEntry{
+    	public String name;
+    	public String editions;
+    	public ConferenceTableEntry(Conference conf) {
+    		name = conf.getName();
+    		
+    		StringBuilder builder = new StringBuilder();
+        	
+        	for (ConferenceEdition confEdit : conf.getEditions()) {
+        		int year = confEdit.getYear();
+        		if (0 != year) {
+        			builder.append(year);
+        			builder.append(", ");
+        		}
+        	}
+        	
+        	int end = builder.length() - 2;
+        	if (0 < end) {
+        		editions = builder.substring(0, end);
+        	} else {
+        		editions = "";
+        	}
+        	
+    		objectId = conf.jdoZooGetOid();
+    	}
+    }
+    
+    private class ConferenceEditionTableEntry extends TableEntry{
+    	public String name;
+    	public String edition;
+    	public String proceeding;
+    	public ConferenceEditionTableEntry(ConferenceEdition confEd) {
+    		int year = confEd.getYear();
+    		if (0 != year) {
+    			edition = Integer.toString(year);
+    		} else {
+    			edition = "No year";
+    		}
+    		
+    		Conference conf = confEd.getConference();
+    		if (null != conf) {
+    			name = conf.getName();
+    		} else {
+    			name = "No name";
+    		}
+    		
+    		Proceedings proc = confEd.getProceedings();
+    		if (null != proc) {
+    			proceeding = proc.getTitle();
+    		}
+    		
+    		objectId = confEd.jdoZooGetOid();
+    	}
+    }
+    
+    private class SeriesTableEntry extends TableEntry{
+    	private String name;
+    	private String publications;
+    	SeriesTableEntry(Series ser) {
+    		name = ser.getName();
+    		
+    		StringBuilder builder = new StringBuilder();
+        	
+        	for (Publication pub : ser.getPublications()) {
+        		builder.append(pub.getTitle());
+        		builder.append(", ");
+        	}
+        	
+        	int end = builder.length() - 2;
+        	if (0 < end) {
+        		publications = builder.substring(0, end);
+        	} else {
+        		publications = "";
+        	}
+    		
+    		objectId = ser.jdoZooGetOid();
+    	}
+    }
+    
     private class SecondaryProceedingTableEntry extends TableEntry {
     	public String title;
     	public String conference;
@@ -794,6 +1130,18 @@ public class Controller {
     			proceeding = proc.getTitle();
     		} else {
     			proceeding = "";
+    		}
+    	}
+    }
+    
+    private class SecondaryConferenceEditionTableEntry extends TableEntry {
+    	public String year;
+    	public SecondaryConferenceEditionTableEntry(ConferenceEdition confEdit) {
+    		int y = confEdit.getYear();
+    		if (0 != y) {
+    			year = Integer.toString(y);
+    		} else {
+    			year = "No year";
     		}
     	}
     }
@@ -953,7 +1301,7 @@ public class Controller {
     @FXML    private TableView<SecondaryProceedingTableEntry> publisherProceedingTable;
     @FXML    private Button publisherRemoveProceedingButton;
     @FXML    private Tab conferenceTab;
-    @FXML    private TableView<?> conferenceMainTable;
+    @FXML    private TableView<ConferenceTableEntry> conferenceMainTable;
     @FXML    private Button conferenceDeleteButton;
     @FXML    private TextField conferenceSearchField;
     @FXML    private Button conferenceSearchButton;
@@ -966,10 +1314,10 @@ public class Controller {
     @FXML    private ChoiceBox<?> conferenceEditionDropdown;
     @FXML    private Button conferenceAddEditionButton;
     @FXML    private TextField conferenceEditionFilterField;
-    @FXML    private TableView<?> conferenceEditionTable;
+    @FXML    private TableView<SecondaryConferenceEditionTableEntry> conferenceEditionTable;
     @FXML    private Button conferenceRemoveEditionButton;
     @FXML    private Tab conferenceEditionTab;
-    @FXML    private TableView<?> conferenceEditionMainTable;
+    @FXML    private TableView<ConferenceEditionTableEntry> conferenceEditionMainTable;
     @FXML    private Button conferenceEditionDeleteButton;
     @FXML    private TextField conferenceEditionSearchField;
     @FXML    private Button conferenceEditionSearchButton;
@@ -981,10 +1329,8 @@ public class Controller {
     @FXML    private Button conferenceEditionChangeNameButton;
     @FXML    private TextField conferenceEditionEditionField;
     @FXML    private Button conferenceEditionChangeEditionButton;
-    @FXML    private TableView<?> conferenceEditionProceedingTable;
-    @FXML    private Button conferenceEditionRemoveProceedingButton;
     @FXML    private Tab seriesTab;
-    @FXML    private TableView<?> serieMainTable;
+    @FXML    private TableView<SeriesTableEntry> seriesMainTable;
     @FXML    private Button seriesDeleteButton;
     @FXML    private TextField seriesSearchField;
     @FXML    private Button seriesSearchButton;
@@ -997,7 +1343,7 @@ public class Controller {
     @FXML    private TextField seriesProceedingFilterField;
     @FXML    private Button seriesAddProceedingButton;
     @FXML    private ChoiceBox<?> seriesProceedingDropdown;
-    @FXML    private TableView<?> seriesProceedingTable;
+    @FXML    private TableView<SecondaryProceedingTableEntry> seriesProceedingTable;
     @FXML    private Button seriesRemoveProceedingButton;
     @FXML    private Tab importTab;
     @FXML    private Button importButton;
