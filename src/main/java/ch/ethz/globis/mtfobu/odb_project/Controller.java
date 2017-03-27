@@ -74,7 +74,7 @@ public class Controller {
 	            	loadDataPublicationTab();
 	            }
 	            if (newTab == publisherTab) {
-	            	
+	            	loadDataPublisherTab();
 	            }
 	            if (newTab == conferenceTab) {
 	            	
@@ -95,7 +95,7 @@ public class Controller {
     	setUpProceedingTab();
     	setUpInProceedingTab();
     	setUpPublicationTab();
-    	
+    	setUpPublisherTab();
     	
     	
 		loadDataPersonTab();
@@ -462,8 +462,6 @@ public class Controller {
 			}
 		});
 		
-		
-		
 		publicationMainTable.setRowFactory(new MyRowFactory<PublicationTableEntry>(this::showPublication));
 		
 		publicationNextPageButton.setOnAction(new PagingHandler(publicationQueryPage, publicationCurrentPageField, 1, this::loadDataPublicationTab));
@@ -514,6 +512,98 @@ public class Controller {
 		}
 	}
 	// End section for publication tab
+	
+	
+	// START section for publisher tab
+	private ObservableList<PublisherTableEntry> publisherMainTableList = FXCollections.observableArrayList();
+	private ObservableList<SecondaryProceedingTableEntry> publisherProceedingTableList = FXCollections.observableArrayList();
+    private int[] publisherQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
+	
+	private void setUpPublisherTab() {
+		// START main table stuff
+    	ObservableList<TableColumn<PublisherTableEntry, ?>> mainTableColumns = publisherMainTable.getColumns();
+		TableColumn<PublisherTableEntry,String> mainNameCol = (TableColumn<PublisherTableEntry,String>) mainTableColumns.get(0);
+		TableColumn<PublisherTableEntry,String> mainPublishedCol = (TableColumn<PublisherTableEntry,String>) mainTableColumns.get(1);
+		
+		mainNameCol.setCellValueFactory(new Callback<CellDataFeatures<PublisherTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<PublisherTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().name);
+			}
+		});
+		
+		mainPublishedCol.setCellValueFactory(new Callback<CellDataFeatures<PublisherTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<PublisherTableEntry, String> proc) {
+				return new ReadOnlyObjectWrapper<String>(proc.getValue().publications);
+			}
+		});
+		
+		publisherMainTable.setRowFactory(new MyRowFactory<PublisherTableEntry>(this::showPublisher));
+		
+		publisherNextPageButton.setOnAction(new PagingHandler(publisherQueryPage, publisherCurrentPageField, 1, this::loadDataPublisherTab));
+		publisherPreviousPageButton.setOnAction(new PagingHandler(publisherQueryPage, publisherCurrentPageField, -1, this::loadDataPublisherTab));
+		publisherCurrentPageField.setOnAction(new PagingHandler(publisherQueryPage, publisherCurrentPageField, 0, this::loadDataPublisherTab));
+		
+		publisherMainTable.setItems(publisherMainTableList);
+		// END main table stuff
+		
+		// START proceeding table stuff
+		ObservableList<TableColumn<SecondaryProceedingTableEntry, ?>> proceedingTableColumns = publisherProceedingTable.getColumns();
+		TableColumn<SecondaryProceedingTableEntry,String> proceedingTitleCol = (TableColumn<SecondaryProceedingTableEntry,String>) proceedingTableColumns.get(0);
+		TableColumn<SecondaryProceedingTableEntry,String> proceedingConferenceCol = (TableColumn<SecondaryProceedingTableEntry,String>) proceedingTableColumns.get(1);
+		
+		proceedingTitleCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryProceedingTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<SecondaryProceedingTableEntry, String> p) {
+				return new ReadOnlyObjectWrapper<String>(p.getValue().title);
+			}
+		});
+		
+		proceedingConferenceCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryProceedingTableEntry, String>, ObservableValue<String>>() {
+			public ObservableValue<String> call(CellDataFeatures<SecondaryProceedingTableEntry, String> p) {
+				return new ReadOnlyObjectWrapper<String>(p.getValue().conference);
+			}
+		});
+		
+		publisherProceedingTable.setRowFactory(new MyRowFactory<SecondaryProceedingTableEntry>(this::showProceeding));
+		
+		publisherProceedingTable.setItems(publisherProceedingTableList);
+		// END proceeding table stuff
+	}
+	
+	private void loadDataPublisherTab() {
+		publisherMainTableList.clear();
+		pm.currentTransaction().begin();
+
+        Query query = pm.newQuery(Publisher.class);
+        query.setRange((publisherQueryPage[0]-1)*PAGE_SIZE, publisherQueryPage[0]*PAGE_SIZE);
+        Collection<Publisher> publishers = (Collection<Publisher>) query.execute();
+
+        for (Publisher puber: publishers) {
+        	publisherMainTableList.add(new PublisherTableEntry(puber));
+        }
+        
+        query.closeAll();
+        pm.currentTransaction().commit();
+	}
+	
+	private void showPublisher(long objectId) {
+		pm.currentTransaction().begin();
+		Publisher puber = (Publisher) pm.getObjectById(objectId);
+		
+		publisherNameField.setText(puber.getName());
+		
+		publisherProceedingFilterField.setText("");
+		publisherProceedingTableList.clear();
+		for (Publication pub : puber.getPublications()) {
+			if (pub instanceof Proceedings) {
+				Proceedings proc = (Proceedings) pub;
+				publisherProceedingTableList.add(new SecondaryProceedingTableEntry(proc));
+			}
+        }
+		
+		pm.currentTransaction().commit();
+		tabPane.getSelectionModel().select(publisherTab);
+	}
+	// End section for publisher tab
 	
     protected void onImport(ActionEvent event){
     	System.out.printf("Test");
@@ -639,6 +729,30 @@ public class Controller {
     	}
     }
     
+    private class PublisherTableEntry extends TableEntry{
+    	public String name;
+    	public String publications;
+    	public PublisherTableEntry(Publisher puber) {
+    		name = puber.getName();
+    		
+    		StringBuilder builder = new StringBuilder();
+        	
+        	for (Publication pub : puber.getPublications()) {
+        		builder.append(pub.getTitle());
+        		builder.append(", ");
+        	}
+        	
+        	int end = builder.length() - 2;
+        	if (0 < end) {
+        		publications = builder.substring(0, end);
+        	} else {
+        		publications = "";
+        	}
+    		
+    		objectId = puber.jdoZooGetOid();
+    	}
+    }
+    
     private class SecondaryPersonTableEntry extends TableEntry {
     	public String name;
     	public SecondaryPersonTableEntry(Person person) {
@@ -646,6 +760,7 @@ public class Controller {
         	name = person.getName();
     	}
     }
+    
     
     private class SecondaryProceedingTableEntry extends TableEntry {
     	public String title;
@@ -666,6 +781,7 @@ public class Controller {
     		}
     	}
     }
+    
     
     private class SecondaryInProceedingTableEntry extends TableEntry {
     	public String title;
@@ -821,7 +937,7 @@ public class Controller {
     @FXML    private Button publicationPreviousPageButton;
     @FXML    private TextField publicationCurrentPageField;
     @FXML    private Tab publisherTab;
-    @FXML    private TableView<?> publisherMainTable;
+    @FXML    private TableView<PublisherTableEntry> publisherMainTable;
     @FXML    private Button publisherDeleteButton;
     @FXML    private TextField publisherSearchField;
     @FXML    private Button publisherSearchButton;
@@ -834,13 +950,8 @@ public class Controller {
     @FXML    private ChoiceBox<?> publisherProceedingDropdown;
     @FXML    private Button publisherAddProceedingButton;
     @FXML    private TextField publisherProceedingFilterField;
-    @FXML    private ChoiceBox<?> publisherInProceedingDropdown;
-    @FXML    private Button publisherAddInProceedingButton;
-    @FXML    private TextField publisherInProceedingFilterField;
-    @FXML    private TableView<?> publisherProdeedingTable;
+    @FXML    private TableView<SecondaryProceedingTableEntry> publisherProceedingTable;
     @FXML    private Button publisherRemoveProceedingButton;
-    @FXML    private TableView<?> publisherInProceedingTable;
-    @FXML    private Button publisherRemoveInProceedingButton;
     @FXML    private Tab conferenceTab;
     @FXML    private TableView<?> conferenceMainTable;
     @FXML    private Button conferenceDeleteButton;
