@@ -49,6 +49,12 @@ public class InProceedings extends ZooPC implements Publication {
 	}
 
 	@Override
+	public boolean removeAuthor(Person author) {
+		zooActivateWrite();
+		return this.authors.remove(author);
+	}
+	
+	@Override
 	public void setAuthors(List<Person> authors) {
 		zooActivateWrite();
 		this.authors = authors;
@@ -125,7 +131,16 @@ public class InProceedings extends ZooPC implements Publication {
 	public void setProceedings(Proceedings proceedings) {
 		zooActivateWrite();
 		this.proceedings = proceedings;
-
+	}
+	
+	public void removeReferencesFromOthers() {
+		for (Person auth : this.getAuthors()){
+			auth.removeAuthoredPublication(this);
+		}
+		Proceedings proc = this.getProceedings();
+		if (null != proc) {
+			proc.removePublications(this);
+		}
 	}
 
 }

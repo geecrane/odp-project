@@ -40,6 +40,11 @@ public class Publisher extends ZooPC implements DomainObject {
     	zooActivateRead();
     	return this.publications;
     }
+    
+    public boolean removePublications(Publication publication){
+    	zooActivateWrite();
+    	return publications.remove(publication);
+    }
 
     public void setPublications(Set<Publication> publications){
     	zooActivateWrite();

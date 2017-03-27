@@ -40,6 +40,13 @@ public class Proceedings extends ZooPC implements Publication {
 		zooActivateRead();
 		return editors;
 	}
+	
+	@Override
+	public boolean removeAuthor(Person author) {
+		//George: These are actually editors (no authors in proceedings)
+		zooActivateWrite();
+		return this.editors.remove(author);
+	}
 
 	@Override
 	public void setAuthors(List<Person> authors) {
@@ -183,6 +190,11 @@ public class Proceedings extends ZooPC implements Publication {
 		zooActivateRead();
 		return inProceedings;
 	}
+	
+	public boolean removePublications(InProceedings inProc) {
+		zooActivateWrite();
+		return inProceedings.remove(inProc);
+	}
 
 	public void setPublications(Set<InProceedings> publications) {
 		//George: A Proceeding can have multiple inProceedings
@@ -190,6 +202,34 @@ public class Proceedings extends ZooPC implements Publication {
 		this.inProceedings = publications;
 		
 	}
+	
+	public void removeReferencesFromOthers() {
+		for (Person auth : this.getAuthors()) {
+			auth.removeAuthoredPublication(this);
+			auth.removeEditedPublication(this);
+		}
+		
+		ConferenceEdition confEd = this.getConferenceEdition();
+		if (null != confEd) {
+			confEd.setConference(null);
+		}
+		
+		for (InProceedings inProc : this.getPublications()) {
+			inProc.setProceedings(null);
+		}
+		
+		Publisher puber = this.getPublisher();
+		if (null != puber) {
+			puber.removePublications(this);
+		}
+		
+		Series ser = this.getSeries();
+		if (null != ser) {
+			ser.removePublications(this);
+		}
+	}
+	
+	
 	private List<Person> editors = new Vector<>();
 	private String title;
 	private Series series;

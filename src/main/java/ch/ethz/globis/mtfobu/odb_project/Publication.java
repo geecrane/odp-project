@@ -13,6 +13,8 @@ public interface Publication extends DomainObject {
     public void setTitle(String title);
 
     public List<Person> getAuthors();
+    
+    public boolean removeAuthor(Person author);
 
     public void setAuthors(List<Person> authors);
 

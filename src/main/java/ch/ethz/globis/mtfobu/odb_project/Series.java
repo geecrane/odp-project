@@ -37,6 +37,11 @@ public class Series extends ZooPC implements DomainObject {
     	zooActivateRead();
     	return publications;
     }
+    
+    public boolean removePublications(Publication publication){
+    	zooActivateWrite();
+    	return publications.remove(publication);
+    }
 
     public void setPublications(Set<Publication> publications){
     	zooActivateWrite();

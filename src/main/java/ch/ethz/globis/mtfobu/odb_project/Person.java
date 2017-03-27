@@ -35,6 +35,11 @@ public class Person extends ZooPC implements DomainObject {
     	zooActivateRead();
     	return this.authoredPublications;
     }
+    
+    public boolean removeAuthoredPublication(Publication publication){
+    	zooActivateWrite();
+    	return authoredPublications.remove(publication);
+    }
 
     public void setAuthoredPublications(Set<Publication> authoredPublications){
     	zooActivateWrite();
@@ -45,10 +50,24 @@ public class Person extends ZooPC implements DomainObject {
     	zooActivateRead();
     	return editedPublications;
     }
+    
+    public boolean removeEditedPublication(Publication publication){
+    	zooActivateWrite();
+    	return editedPublications.remove(publication);
+    }
 
     public void setEditedPublications(Set<Publication> editedPublications){
     	zooActivateWrite();
     	this.editedPublications = editedPublications;
+    }
+    
+    public void removeReferencesFromOthers() {
+    	for (Publication pub : this.getAuthoredPublications()) {
+			pub.removeAuthor(this);
+		}
+		for (Publication pub : this.getEditedPublications()) {
+			pub.removeAuthor(this);
+		}
     }
 
 	@Override

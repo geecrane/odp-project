@@ -30,7 +30,7 @@ public class Controller {
 	public PersistenceManager pm;
 	
     public void initialize() {
-    	pm = ZooJdoHelper.openDB(Config.DATABASE_NAME);
+    	pm = ZooJdoHelper.openOrCreateDB(Config.DATABASE_NAME);
     	
     	
     	importButton.setOnAction((event) -> {
@@ -49,6 +49,7 @@ public class Controller {
 		 	        db.create();
 		 	        XmlImport xim = new XmlImport(db, c);
 		 	        xim.ImportFromXML("src/main/resources/dblp_filtered.xml");
+		 	        c.pm = ZooJdoHelper.openDB(Config.DATABASE_NAME);
 		 	        c.importButton.setDisable(false);
 		         }
 			});
@@ -63,29 +64,21 @@ public class Controller {
 	        	
 	            if (newTab == personTab) {
 	            	loadDataPersonTab();
-	            }
-	            if (newTab == proceedingTab) {
+	            } else if (newTab == proceedingTab) {
 	            	loadDataProceedingTab();
-	            }
-	            if (newTab == inProceedingTab) {
+	            } else if (newTab == inProceedingTab) {
 	            	loadDataInProceedingTab();
-	            }
-	            if (newTab == publicationTab) {
+	            } else if (newTab == publicationTab) {
 	            	loadDataPublicationTab();
-	            }
-	            if (newTab == publisherTab) {
+	            } else if (newTab == publisherTab) {
 	            	loadDataPublisherTab();
-	            }
-	            if (newTab == conferenceTab) {
+	            } else if (newTab == conferenceTab) {
 	            	loadDataConferenceTab();
-	            }
-	            if (newTab == conferenceEditionTab) {
+	            } else if (newTab == conferenceEditionTab) {
 	            	loadDataConferenceEditionTab();
-	            }
-	            if (newTab == seriesTab) {
+	            } else if (newTab == seriesTab) {
 	            	loadDataSeriesTab();
-	            }
-	            if (newTab == importTab) {
+	            } else if (newTab == importTab) {
 	            	
 	            }
 	        }
@@ -100,6 +93,7 @@ public class Controller {
     	setUpConferenceEditionTab();
     	setUpSeriesTab();
     	
+    	// Load person tab because that's the one the application starts with
 		loadDataPersonTab();
     }
     
@@ -133,6 +127,8 @@ public class Controller {
 		personNextPageButton.setOnAction(new PagingHandler(personQueryPage, personCurrentPageField, 1, this::loadDataPersonTab));
 		personPreviousPageButton.setOnAction(new PagingHandler(personQueryPage, personCurrentPageField, -1, this::loadDataPersonTab));
 		personCurrentPageField.setOnAction(new PagingHandler(personQueryPage, personCurrentPageField, 0, this::loadDataPersonTab));
+		
+		personDeleteButton.setOnAction(new DeleteHandler<PersonTableEntry>(personMainTable, this::deletePerson));
 		
 		personMainTable.setItems(personMainTableList);
     	// END main table stuff
@@ -220,6 +216,24 @@ public class Controller {
 		
 		tabPane.getSelectionModel().select(personTab);
 	}
+	
+	private void emptyPersonFields() {
+		personNameField.setText("");
+		personProceedingFilterField.setText("");
+		personProceedingTableList.clear();
+		personInProceedingFilterField.setText("");
+		personInProceedingTableList.clear();
+	}
+	
+	private void deletePerson(long objectId) {
+		pm.currentTransaction().begin();
+		Person person = (Person) pm.getObjectById(objectId);
+		person.removeReferencesFromOthers();
+		pm.deletePersistent(person);
+		pm.currentTransaction().commit();
+		loadDataPersonTab();
+		emptyPersonFields();
+	}
 	// END section for person tab
 	
 	
@@ -259,6 +273,8 @@ public class Controller {
 		proceedingNextPageButton.setOnAction(new PagingHandler(proceedingQueryPage, proceedingCurrentPageField, 1, this::loadDataProceedingTab));
 		proceedingPreviousPageButton.setOnAction(new PagingHandler(proceedingQueryPage, proceedingCurrentPageField, -1, this::loadDataProceedingTab));
 		proceedingCurrentPageField.setOnAction(new PagingHandler(proceedingQueryPage, proceedingCurrentPageField, 0, this::loadDataProceedingTab));
+		
+		proceedingDeleteButton.setOnAction(new DeleteHandler<ProceedingTableEntry>(proceedingMainTable, this::deleteProceeding));
 		
 		proceedingMainTable.setItems(proceedingMainTableList);
 		// END main table stuff
@@ -341,6 +357,27 @@ public class Controller {
 		pm.currentTransaction().commit();
 		tabPane.getSelectionModel().select(proceedingTab);
 	}
+	
+	private void emptyProceedingFields() {
+		proceedingTitleField.setText("");
+		proceedingIsbnField.setText("");
+		proceedingPublisherFilterField.setText("");
+		proceedingConferenceFilterField.setText("");
+		proceedingEditionFilterField.setText("");
+		proceedingSeriesFilterField.setText("");
+		proceedingEditorFilterField.setText("");
+		proceedingEditorTableList.clear();
+	}
+	
+	private void deleteProceeding(long objectId) {
+		pm.currentTransaction().begin();
+		Proceedings proc = (Proceedings) pm.getObjectById(objectId);
+		proc.removeReferencesFromOthers();
+		pm.deletePersistent(proc);
+		pm.currentTransaction().commit();
+		loadDataProceedingTab();
+		emptyProceedingFields();
+	}
 	// END section for proceeding tab
 	
 	
@@ -380,6 +417,8 @@ public class Controller {
 		inProceedingNextPageButton.setOnAction(new PagingHandler(inProceedingQueryPage, inProceedingCurrentPageField, 1, this::loadDataInProceedingTab));
 		inProceedingPreviousPageButton.setOnAction(new PagingHandler(inProceedingQueryPage, inProceedingCurrentPageField, -1, this::loadDataInProceedingTab));
 		inProceedingCurrentPageField.setOnAction(new PagingHandler(inProceedingQueryPage, inProceedingCurrentPageField, 0, this::loadDataInProceedingTab));
+
+		inProceedingDeleteButton.setOnAction(new DeleteHandler<InProceedingTableEntry>(inProceedingMainTable, this::deleteInProceeding));
 		
 		inProceedingMainTable.setItems(inProceedingMainTableList);
 		// END main table stuff
@@ -439,7 +478,26 @@ public class Controller {
 		pm.currentTransaction().commit();
 		tabPane.getSelectionModel().select(inProceedingTab);
 	}
-    // END section for inproceeding tab
+    
+	private void emptyInProceedingFields() {
+		inProceedingTitleField.setText("");
+		inProceedingPagesField.setText("");
+		inProceedingYearField.setText("");
+		inProceedingProceedingFilterField.setText("");
+		inProceedingAuthorFilterField.setText("");
+		inProceedingAuthorTableList.clear();
+	}
+	
+	private void deleteInProceeding(long objectId) {
+		pm.currentTransaction().begin();
+		InProceedings inProc = (InProceedings) pm.getObjectById(objectId);
+		inProc.removeReferencesFromOthers();
+		pm.deletePersistent(inProc);
+		pm.currentTransaction().commit();
+		loadDataInProceedingTab();
+		emptyInProceedingFields();
+	}
+	// END section for inproceeding tab
 	
 	
 	// START section for publication tab
@@ -469,6 +527,8 @@ public class Controller {
 		publicationNextPageButton.setOnAction(new PagingHandler(publicationQueryPage, publicationCurrentPageField, 1, this::loadDataPublicationTab));
 		publicationPreviousPageButton.setOnAction(new PagingHandler(publicationQueryPage, publicationCurrentPageField, -1, this::loadDataPublicationTab));
 		publicationCurrentPageField.setOnAction(new PagingHandler(publicationQueryPage, publicationCurrentPageField, 0, this::loadDataPublicationTab));
+
+		publicationDeleteButton.setOnAction(new DeleteHandler<PublicationTableEntry>(publicationMainTable, this::deletePublication));
 		
 		publicationMainTable.setItems(publicationMainTableList);
 		// END main table stuff
@@ -511,6 +571,20 @@ public class Controller {
 			showProceeding(objectId);
 		} else {
 			showInProceeding(objectId);
+		}
+	}
+	
+	private void deletePublication(long objectId) {
+		boolean isProceeding = false;
+		pm.currentTransaction().begin();
+		Publication pub = (Publication) pm.getObjectById(objectId);
+		isProceeding = pub instanceof Proceedings;
+		pm.currentTransaction().commit();
+		
+		if (isProceeding) {
+			deleteProceeding(objectId);
+		} else {
+			deleteInProceeding(objectId);
 		}
 	}
 	// End section for publication tab
@@ -1201,6 +1275,27 @@ public class Controller {
 		
 	}
     
+    private class DeleteHandler<T extends TableEntry> implements EventHandler<ActionEvent>{
+    	Consumer<Long> delete;
+    	TableView<T> table;
+    	
+    	public DeleteHandler(TableView<T> t, Consumer<Long> d) {
+    		delete = d;
+    		table = t;
+    	}
+    	
+		@Override
+		public void handle(ActionEvent event) {
+			T pte = table.getSelectionModel().getSelectedItem();
+			if (null != pte) {
+				delete.accept(pte.objectId);
+			} else {
+				System.err.println("cannot delete, no row selected");
+			}
+			
+		}
+		
+	}
     
     // START section for fields that reference FXML
     @FXML    private TabPane tabPane;
