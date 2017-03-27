@@ -10,6 +10,8 @@ import javax.jdo.Query;
 
 import org.zoodb.jdo.ZooJdoHelper;
 
+import ch.ethz.globis.mtfobu.odb_project.Controller.MyRowFactory;
+import ch.ethz.globis.mtfobu.odb_project.Controller.TableEntry;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -106,75 +108,18 @@ public class Controller {
     private void setUpPersonTab() {
     	
     	// START main table stuff
-    	ObservableList<TableColumn<PersonTableEntry, ?>> mainTableColumns = personMainTable.getColumns();
-		TableColumn<PersonTableEntry,String> mainNameCol = (TableColumn<PersonTableEntry,String>) mainTableColumns.get(0);
-		TableColumn<PersonTableEntry,String> mainAuthEditCol = (TableColumn<PersonTableEntry,String>) mainTableColumns.get(1);
-		
-		mainNameCol.setCellValueFactory(new Callback<CellDataFeatures<PersonTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<PersonTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().name);
-			}
-		});
-		
-		mainAuthEditCol.setCellValueFactory(new Callback<CellDataFeatures<PersonTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<PersonTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().authoredEdited);
-			}
-		});
-		
-		personMainTable.setRowFactory(new MyRowFactory<PersonTableEntry>(this::showPerson));
-		
-		personNextPageButton.setOnAction(new PagingHandler(personQueryPage, personCurrentPageField, 1, this::loadDataPersonTab));
-		personPreviousPageButton.setOnAction(new PagingHandler(personQueryPage, personCurrentPageField, -1, this::loadDataPersonTab));
-		personCurrentPageField.setOnAction(new PagingHandler(personQueryPage, personCurrentPageField, 0, this::loadDataPersonTab));
+    	new TabSetupHelper<PersonTableEntry>().setUpTable(personMainTable, personMainTableList, this::showPerson);
+		new PagingSetupHelper().setUpPaging(personNextPageButton, personPreviousPageButton, personCurrentPageField, personQueryPage, this::loadDataPersonTab);
 		
 		personDeleteButton.setOnAction(new DeleteHandler<PersonTableEntry>(personMainTable, this::deletePerson));
-		
-		personMainTable.setItems(personMainTableList);
     	// END main table stuff
 		
 		// START proceeding table stuff
-		ObservableList<TableColumn<SecondaryProceedingTableEntry, ?>> proceedingTableColumns = personProceedingTable.getColumns();
-		TableColumn<SecondaryProceedingTableEntry,String> proceedingTitleCol = (TableColumn<SecondaryProceedingTableEntry,String>) proceedingTableColumns.get(0);
-		TableColumn<SecondaryProceedingTableEntry,String> proceedingConferenceCol = (TableColumn<SecondaryProceedingTableEntry,String>) proceedingTableColumns.get(1);
-		
-		proceedingTitleCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SecondaryProceedingTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().title);
-			}
-		});
-		
-		proceedingConferenceCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SecondaryProceedingTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().conference);
-			}
-		});
-		
-		personProceedingTable.setRowFactory(new MyRowFactory<SecondaryProceedingTableEntry>(this::showProceeding));
-		
-		personProceedingTable.setItems(personProceedingTableList);
+		new TabSetupHelper<SecondaryProceedingTableEntry>().setUpTable(personProceedingTable, personProceedingTableList, this::showProceeding);
 		// END proceeding table stuff
 		
 		// START inproceeding table stuff
-		ObservableList<TableColumn<SecondaryInProceedingTableEntry, ?>> inProceedingTableColumns = personInProceedingTable.getColumns();
-		TableColumn<SecondaryInProceedingTableEntry,String> inProceedingTitleCol = (TableColumn<SecondaryInProceedingTableEntry,String>) inProceedingTableColumns.get(0);
-		TableColumn<SecondaryInProceedingTableEntry,String> inProceedingProceedingCol = (TableColumn<SecondaryInProceedingTableEntry,String>) inProceedingTableColumns.get(1);
-		
-		inProceedingTitleCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryInProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SecondaryInProceedingTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().title);
-			}
-		});
-		
-		inProceedingProceedingCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryInProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SecondaryInProceedingTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().proceeding);
-			}
-		});
-		
-		personInProceedingTable.setRowFactory(new MyRowFactory<SecondaryInProceedingTableEntry>(this::showInProceeding));
-		
-		personInProceedingTable.setItems(personInProceedingTableList);
+		new TabSetupHelper<SecondaryInProceedingTableEntry>().setUpTable(personInProceedingTable, personInProceedingTableList, this::showInProceeding);
 		// END inproceeding table stuff
     }
     
@@ -245,54 +190,14 @@ public class Controller {
 	private void setUpProceedingTab() {
 		
 		// START main table stuff
-    	ObservableList<TableColumn<ProceedingTableEntry, ?>> mainTableColumns = proceedingMainTable.getColumns();
-		TableColumn<ProceedingTableEntry,String> mainTitleCol = (TableColumn<ProceedingTableEntry,String>) mainTableColumns.get(0);
-		TableColumn<ProceedingTableEntry,String> mainPublisherCol = (TableColumn<ProceedingTableEntry,String>) mainTableColumns.get(1);
-		TableColumn<ProceedingTableEntry,String> mainConferenceCol = (TableColumn<ProceedingTableEntry,String>) mainTableColumns.get(2);
-		
-		mainTitleCol.setCellValueFactory(new Callback<CellDataFeatures<ProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<ProceedingTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().title);
-			}
-		});
-		
-		mainPublisherCol.setCellValueFactory(new Callback<CellDataFeatures<ProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<ProceedingTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().publisher);
-			}
-		});
-		
-		mainConferenceCol.setCellValueFactory(new Callback<CellDataFeatures<ProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<ProceedingTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().conference);
-			}
-		});
-		
-		proceedingMainTable.setRowFactory(new MyRowFactory<ProceedingTableEntry>(this::showProceeding));
-		
-		proceedingNextPageButton.setOnAction(new PagingHandler(proceedingQueryPage, proceedingCurrentPageField, 1, this::loadDataProceedingTab));
-		proceedingPreviousPageButton.setOnAction(new PagingHandler(proceedingQueryPage, proceedingCurrentPageField, -1, this::loadDataProceedingTab));
-		proceedingCurrentPageField.setOnAction(new PagingHandler(proceedingQueryPage, proceedingCurrentPageField, 0, this::loadDataProceedingTab));
+		new TabSetupHelper<ProceedingTableEntry>().setUpTable(proceedingMainTable, proceedingMainTableList, this::showProceeding);
+		new PagingSetupHelper().setUpPaging(proceedingNextPageButton, proceedingPreviousPageButton, proceedingCurrentPageField, proceedingQueryPage, this::loadDataProceedingTab);
 		
 		proceedingDeleteButton.setOnAction(new DeleteHandler<ProceedingTableEntry>(proceedingMainTable, this::deleteProceeding));
-		
-		proceedingMainTable.setItems(proceedingMainTableList);
 		// END main table stuff
 		
 		// START editor table stuff
-		ObservableList<TableColumn<SecondaryPersonTableEntry, ?>> editorTableColumns = proceedingEditorTable.getColumns();
-		TableColumn<SecondaryPersonTableEntry,String> editorNameCol = (TableColumn<SecondaryPersonTableEntry,String>) editorTableColumns.get(0);
-		
-		editorNameCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryPersonTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SecondaryPersonTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().name);
-			}
-		});
-		
-		
-		proceedingEditorTable.setRowFactory(new MyRowFactory<SecondaryPersonTableEntry>(this::showPerson));
-		
-		proceedingEditorTable.setItems(proceedingEditorTableList);
+		new TabSetupHelper<SecondaryPersonTableEntry>().setUpTable(proceedingEditorTable, proceedingEditorTableList, this::showPerson);
 		// END editor table stuff
 	}
 	
@@ -389,54 +294,14 @@ public class Controller {
 	private void setUpInProceedingTab() {
 		
 		// START main table stuff
-    	ObservableList<TableColumn<InProceedingTableEntry, ?>> mainTableColumns = inProceedingMainTable.getColumns();
-		TableColumn<InProceedingTableEntry,String> mainTitleCol = (TableColumn<InProceedingTableEntry,String>) mainTableColumns.get(0);
-		TableColumn<InProceedingTableEntry,String> mainYearCol = (TableColumn<InProceedingTableEntry,String>) mainTableColumns.get(1);
-		TableColumn<InProceedingTableEntry,String> mainProceedingCol = (TableColumn<InProceedingTableEntry,String>) mainTableColumns.get(2);
+		new TabSetupHelper<InProceedingTableEntry>().setUpTable(inProceedingMainTable, inProceedingMainTableList, this::showInProceeding);
+		new PagingSetupHelper().setUpPaging(inProceedingNextPageButton, inProceedingPreviousPageButton, inProceedingCurrentPageField, inProceedingQueryPage, this::loadDataInProceedingTab);
 		
-		mainTitleCol.setCellValueFactory(new Callback<CellDataFeatures<InProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<InProceedingTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().title);
-			}
-		});
-		
-		mainYearCol.setCellValueFactory(new Callback<CellDataFeatures<InProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<InProceedingTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().year);
-			}
-		});
-		
-		mainProceedingCol.setCellValueFactory(new Callback<CellDataFeatures<InProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<InProceedingTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().proceeding);
-			}
-		});
-		
-		inProceedingMainTable.setRowFactory(new MyRowFactory<InProceedingTableEntry>(this::showInProceeding));
-		
-		inProceedingNextPageButton.setOnAction(new PagingHandler(inProceedingQueryPage, inProceedingCurrentPageField, 1, this::loadDataInProceedingTab));
-		inProceedingPreviousPageButton.setOnAction(new PagingHandler(inProceedingQueryPage, inProceedingCurrentPageField, -1, this::loadDataInProceedingTab));
-		inProceedingCurrentPageField.setOnAction(new PagingHandler(inProceedingQueryPage, inProceedingCurrentPageField, 0, this::loadDataInProceedingTab));
-
 		inProceedingDeleteButton.setOnAction(new DeleteHandler<InProceedingTableEntry>(inProceedingMainTable, this::deleteInProceeding));
-		
-		inProceedingMainTable.setItems(inProceedingMainTableList);
 		// END main table stuff
 		
 		// START author table stuff
-		ObservableList<TableColumn<SecondaryPersonTableEntry, ?>> authorTableColumns = inProceedingAuthorTable.getColumns();
-		TableColumn<SecondaryPersonTableEntry,String> authorNameCol = (TableColumn<SecondaryPersonTableEntry,String>) authorTableColumns.get(0);
-		
-		authorNameCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryPersonTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SecondaryPersonTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().name);
-			}
-		});
-		
-		
-		inProceedingAuthorTable.setRowFactory(new MyRowFactory<SecondaryPersonTableEntry>(this::showPerson));
-		
-		inProceedingAuthorTable.setItems(inProceedingAuthorTableList);
+		new TabSetupHelper<SecondaryPersonTableEntry>().setUpTable(inProceedingAuthorTable, inProceedingAuthorTableList, this::showPerson);
 		// END author table stuff
 	}
 	
@@ -506,31 +371,10 @@ public class Controller {
 	
 	private void setUpPublicationTab() {
 		// START main table stuff
-    	ObservableList<TableColumn<PublicationTableEntry, ?>> mainTableColumns = publicationMainTable.getColumns();
-		TableColumn<PublicationTableEntry,String> mainTitleCol = (TableColumn<PublicationTableEntry,String>) mainTableColumns.get(0);
-		TableColumn<PublicationTableEntry,String> mainAuthEditCol = (TableColumn<PublicationTableEntry,String>) mainTableColumns.get(1);
+		new TabSetupHelper<PublicationTableEntry>().setUpTable(publicationMainTable, publicationMainTableList, this::showPublication);
+		new PagingSetupHelper().setUpPaging(publicationNextPageButton, publicationPreviousPageButton, publicationCurrentPageField, publicationQueryPage, this::loadDataPublicationTab);
 		
-		mainTitleCol.setCellValueFactory(new Callback<CellDataFeatures<PublicationTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<PublicationTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().title);
-			}
-		});
-		
-		mainAuthEditCol.setCellValueFactory(new Callback<CellDataFeatures<PublicationTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<PublicationTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().authorsEditors);
-			}
-		});
-		
-		publicationMainTable.setRowFactory(new MyRowFactory<PublicationTableEntry>(this::showPublication));
-		
-		publicationNextPageButton.setOnAction(new PagingHandler(publicationQueryPage, publicationCurrentPageField, 1, this::loadDataPublicationTab));
-		publicationPreviousPageButton.setOnAction(new PagingHandler(publicationQueryPage, publicationCurrentPageField, -1, this::loadDataPublicationTab));
-		publicationCurrentPageField.setOnAction(new PagingHandler(publicationQueryPage, publicationCurrentPageField, 0, this::loadDataPublicationTab));
-
 		publicationDeleteButton.setOnAction(new DeleteHandler<PublicationTableEntry>(publicationMainTable, this::deletePublication));
-		
-		publicationMainTable.setItems(publicationMainTableList);
 		// END main table stuff
 	}
 	
@@ -586,6 +430,7 @@ public class Controller {
 		} else {
 			deleteInProceeding(objectId);
 		}
+		loadDataPublicationTab();
 	}
 	// End section for publication tab
 	
@@ -597,51 +442,14 @@ public class Controller {
 	
 	private void setUpPublisherTab() {
 		// START main table stuff
-    	ObservableList<TableColumn<PublisherTableEntry, ?>> mainTableColumns = publisherMainTable.getColumns();
-		TableColumn<PublisherTableEntry,String> mainNameCol = (TableColumn<PublisherTableEntry,String>) mainTableColumns.get(0);
-		TableColumn<PublisherTableEntry,String> mainPublishedCol = (TableColumn<PublisherTableEntry,String>) mainTableColumns.get(1);
+		new TabSetupHelper<PublisherTableEntry>().setUpTable(publisherMainTable, publisherMainTableList, this::showPublisher);
+		new PagingSetupHelper().setUpPaging(publisherNextPageButton, publisherPreviousPageButton, publisherCurrentPageField, publisherQueryPage, this::loadDataPublisherTab);
 		
-		mainNameCol.setCellValueFactory(new Callback<CellDataFeatures<PublisherTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<PublisherTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().name);
-			}
-		});
-		
-		mainPublishedCol.setCellValueFactory(new Callback<CellDataFeatures<PublisherTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<PublisherTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().publications);
-			}
-		});
-		
-		publisherMainTable.setRowFactory(new MyRowFactory<PublisherTableEntry>(this::showPublisher));
-		
-		publisherNextPageButton.setOnAction(new PagingHandler(publisherQueryPage, publisherCurrentPageField, 1, this::loadDataPublisherTab));
-		publisherPreviousPageButton.setOnAction(new PagingHandler(publisherQueryPage, publisherCurrentPageField, -1, this::loadDataPublisherTab));
-		publisherCurrentPageField.setOnAction(new PagingHandler(publisherQueryPage, publisherCurrentPageField, 0, this::loadDataPublisherTab));
-		
-		publisherMainTable.setItems(publisherMainTableList);
+		// TODO Delete binding
 		// END main table stuff
 		
 		// START proceeding table stuff
-		ObservableList<TableColumn<SecondaryProceedingTableEntry, ?>> proceedingTableColumns = publisherProceedingTable.getColumns();
-		TableColumn<SecondaryProceedingTableEntry,String> proceedingTitleCol = (TableColumn<SecondaryProceedingTableEntry,String>) proceedingTableColumns.get(0);
-		TableColumn<SecondaryProceedingTableEntry,String> proceedingConferenceCol = (TableColumn<SecondaryProceedingTableEntry,String>) proceedingTableColumns.get(1);
-		
-		proceedingTitleCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SecondaryProceedingTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().title);
-			}
-		});
-		
-		proceedingConferenceCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SecondaryProceedingTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().conference);
-			}
-		});
-		
-		publisherProceedingTable.setRowFactory(new MyRowFactory<SecondaryProceedingTableEntry>(this::showProceeding));
-		
-		publisherProceedingTable.setItems(publisherProceedingTableList);
+		new TabSetupHelper<SecondaryProceedingTableEntry>().setUpTable(publisherProceedingTable, publisherProceedingTableList, this::showProceeding);
 		// END proceeding table stuff
 	}
 	
@@ -689,45 +497,14 @@ public class Controller {
 	
 	public void setUpConferenceTab() {
 		// START main table stuff
-    	ObservableList<TableColumn<ConferenceTableEntry, ?>> mainTableColumns = conferenceMainTable.getColumns();
-		TableColumn<ConferenceTableEntry,String> mainNameCol = (TableColumn<ConferenceTableEntry,String>) mainTableColumns.get(0);
-		TableColumn<ConferenceTableEntry,String> mainEditionsCol = (TableColumn<ConferenceTableEntry,String>) mainTableColumns.get(1);
+		new TabSetupHelper<ConferenceTableEntry>().setUpTable(conferenceMainTable, conferenceMainTableList, this::showConference);
+		new PagingSetupHelper().setUpPaging(conferenceNextPageButton, conferencePreviousPageButton, conferenceCurrentPageField, conferenceQueryPage, this::loadDataConferenceTab);
 		
-		mainNameCol.setCellValueFactory(new Callback<CellDataFeatures<ConferenceTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<ConferenceTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().name);
-			}
-		});
-		
-		mainEditionsCol.setCellValueFactory(new Callback<CellDataFeatures<ConferenceTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<ConferenceTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().editions);
-			}
-		});
-		
-		conferenceMainTable.setRowFactory(new MyRowFactory<ConferenceTableEntry>(this::showConference));
-		
-		conferenceNextPageButton.setOnAction(new PagingHandler(conferenceQueryPage, conferenceCurrentPageField, 1, this::loadDataConferenceTab));
-		conferencePreviousPageButton.setOnAction(new PagingHandler(conferenceQueryPage, conferenceCurrentPageField, -1, this::loadDataConferenceTab));
-		conferenceCurrentPageField.setOnAction(new PagingHandler(conferenceQueryPage, conferenceCurrentPageField, 0, this::loadDataConferenceTab));
-		
-		conferenceMainTable.setItems(conferenceMainTableList);
+		// TODO Delete binding
 		// END main table stuff
 		
 		// START edition table stuff
-		ObservableList<TableColumn<SecondaryConferenceEditionTableEntry, ?>> conferenceEditionTableColumns = conferenceEditionTable.getColumns();
-		TableColumn<SecondaryConferenceEditionTableEntry,String> conferenceEditionYearCol = (TableColumn<SecondaryConferenceEditionTableEntry,String>) conferenceEditionTableColumns.get(0);
-		
-		conferenceEditionYearCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryConferenceEditionTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SecondaryConferenceEditionTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().year);
-			}
-		});
-		
-		
-		conferenceEditionTable.setRowFactory(new MyRowFactory<SecondaryConferenceEditionTableEntry>(this::showConferenceEdition));
-		
-		conferenceEditionTable.setItems(conferenceEditionTableList);
+		new TabSetupHelper<SecondaryConferenceEditionTableEntry>().setUpTable(conferenceEditionTable, conferenceEditionTableList, this::showConferenceEdition);
 		// END edition table stuff
 	}
 	
@@ -771,36 +548,10 @@ public class Controller {
 	
 	public void setUpConferenceEditionTab() {
 		// START main table stuff
-    	ObservableList<TableColumn<ConferenceEditionTableEntry, ?>> mainTableColumns = conferenceEditionMainTable.getColumns();
-		TableColumn<ConferenceEditionTableEntry,String> mainNameCol = (TableColumn<ConferenceEditionTableEntry,String>) mainTableColumns.get(0);
-		TableColumn<ConferenceEditionTableEntry,String> mainEditionCol = (TableColumn<ConferenceEditionTableEntry,String>) mainTableColumns.get(1);
-		TableColumn<ConferenceEditionTableEntry,String> mainProceedingCol = (TableColumn<ConferenceEditionTableEntry,String>) mainTableColumns.get(2);
+		new TabSetupHelper<ConferenceEditionTableEntry>().setUpTable(conferenceEditionMainTable, conferenceEditionMainTableList, this::showConferenceEdition);
+		new PagingSetupHelper().setUpPaging(conferenceEditionNextPageButton, conferenceEditionPreviousPageButton, conferenceEditionCurrentPageField, conferenceEditionQueryPage, this::loadDataConferenceEditionTab);
 		
-		mainNameCol.setCellValueFactory(new Callback<CellDataFeatures<ConferenceEditionTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<ConferenceEditionTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().name);
-			}
-		});
-		
-		mainEditionCol.setCellValueFactory(new Callback<CellDataFeatures<ConferenceEditionTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<ConferenceEditionTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().edition);
-			}
-		});
-		
-		mainProceedingCol.setCellValueFactory(new Callback<CellDataFeatures<ConferenceEditionTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<ConferenceEditionTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().proceeding);
-			}
-		});
-		
-		conferenceEditionMainTable.setRowFactory(new MyRowFactory<ConferenceEditionTableEntry>(this::showConferenceEdition));
-		
-		conferenceEditionNextPageButton.setOnAction(new PagingHandler(conferenceEditionQueryPage, conferenceEditionCurrentPageField, 1, this::loadDataConferenceEditionTab));
-		conferenceEditionPreviousPageButton.setOnAction(new PagingHandler(conferenceEditionQueryPage, conferenceEditionCurrentPageField, -1, this::loadDataConferenceEditionTab));
-		conferenceEditionCurrentPageField.setOnAction(new PagingHandler(conferenceEditionQueryPage, conferenceEditionCurrentPageField, 0, this::loadDataConferenceEditionTab));
-		
-		conferenceEditionMainTable.setItems(conferenceEditionMainTableList);
+		// TODO Delete binding
 		// END main table stuff
 	}
 	
@@ -827,9 +578,9 @@ public class Controller {
 		Conference conf = confEd.getConference();
 		
 		if (null != conf) {
-			conferenceNameField.setText(conf.getName());
+			conferenceEditionNameField.setText(conf.getName());
 		} else {
-			conferenceNameField.setText("");
+			conferenceEditionNameField.setText("");
 		}
 		
 		int year = confEd.getYear();
@@ -840,7 +591,7 @@ public class Controller {
 		}
 		
 		pm.currentTransaction().commit();
-		tabPane.getSelectionModel().select(conferenceTab);
+		tabPane.getSelectionModel().select(conferenceEditionTab);
 	}
 	// END section for conference editions tab
 	
@@ -852,51 +603,14 @@ public class Controller {
 	
 	public void setUpSeriesTab() {
 		// START main table stuff
-    	ObservableList<TableColumn<SeriesTableEntry, ?>> mainTableColumns = seriesMainTable.getColumns();
-		TableColumn<SeriesTableEntry,String> mainNameCol = (TableColumn<SeriesTableEntry,String>) mainTableColumns.get(0);
-		TableColumn<SeriesTableEntry,String> mainPublicationsCol = (TableColumn<SeriesTableEntry,String>) mainTableColumns.get(1);
+		new TabSetupHelper<SeriesTableEntry>().setUpTable(seriesMainTable, seriesMainTableList, this::showSeries);
+		new PagingSetupHelper().setUpPaging(seriesNextPageButton, seriesPreviousPageButton, seriesCurrentPageField, seriesQueryPage, this::loadDataSeriesTab);
 		
-		mainNameCol.setCellValueFactory(new Callback<CellDataFeatures<SeriesTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SeriesTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().name);
-			}
-		});
-		
-		mainPublicationsCol.setCellValueFactory(new Callback<CellDataFeatures<SeriesTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SeriesTableEntry, String> proc) {
-				return new ReadOnlyObjectWrapper<String>(proc.getValue().publications);
-			}
-		});
-		
-		seriesMainTable.setRowFactory(new MyRowFactory<SeriesTableEntry>(this::showSeries));
-		
-		seriesNextPageButton.setOnAction(new PagingHandler(seriesQueryPage, seriesCurrentPageField, 1, this::loadDataSeriesTab));
-		seriesPreviousPageButton.setOnAction(new PagingHandler(seriesQueryPage, seriesCurrentPageField, -1, this::loadDataSeriesTab));
-		seriesCurrentPageField.setOnAction(new PagingHandler(seriesQueryPage, seriesCurrentPageField, 0, this::loadDataSeriesTab));
-		
-		seriesMainTable.setItems(seriesMainTableList);
+		// TODO Delete binding
 		// END main table stuff
 		
 		// START proceeding table stuff
-		ObservableList<TableColumn<SecondaryProceedingTableEntry, ?>> proceedingTableColumns = seriesProceedingTable.getColumns();
-		TableColumn<SecondaryProceedingTableEntry,String> proceedingTitleCol = (TableColumn<SecondaryProceedingTableEntry,String>) proceedingTableColumns.get(0);
-		TableColumn<SecondaryProceedingTableEntry,String> proceedingConferenceCol = (TableColumn<SecondaryProceedingTableEntry,String>) proceedingTableColumns.get(1);
-		
-		proceedingTitleCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SecondaryProceedingTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().title);
-			}
-		});
-		
-		proceedingConferenceCol.setCellValueFactory(new Callback<CellDataFeatures<SecondaryProceedingTableEntry, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<SecondaryProceedingTableEntry, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().conference);
-			}
-		});
-		
-		seriesProceedingTable.setRowFactory(new MyRowFactory<SecondaryProceedingTableEntry>(this::showProceeding));
-		
-		seriesProceedingTable.setItems(seriesProceedingTableList);
+		new TabSetupHelper<SecondaryProceedingTableEntry>().setUpTable(seriesProceedingTable, seriesProceedingTableList, this::showProceeding);
 		// END proceeding table stuff
 	}
 	
@@ -946,8 +660,11 @@ public class Controller {
     }
     
     // START section for table entry data types
-    private abstract class TableEntry {
+    protected abstract class TableEntry {
     	public long objectId;
+    	public String getColumnContent(int i) {
+    		return "";
+    	};
     }
     
     private class PersonTableEntry extends TableEntry{
@@ -977,6 +694,14 @@ public class Controller {
         	}
         	
     	}
+		@Override
+		public String getColumnContent(int i) {
+			switch (i) {
+				case 0: return name;
+				case 1: return authoredEdited;
+				default: return "";
+			}
+		}
     }
        
     private class PublicationTableEntry extends TableEntry{
@@ -1005,7 +730,14 @@ public class Controller {
         	}
         	
     	}
-    	
+    	@Override
+		public String getColumnContent(int i) {
+			switch (i) {
+				case 0: return title;
+				case 1: return authorsEditors;
+				default: return "";
+			}
+		}
     }
     
     private class ProceedingTableEntry extends TableEntry{
@@ -1035,6 +767,15 @@ public class Controller {
         	
         	objectId = proc.jdoZooGetOid();
     	}
+    	@Override
+		public String getColumnContent(int i) {
+			switch (i) {
+				case 0: return title;
+				case 1: return publisher;
+				case 2: return conference;
+				default: return "";
+			}
+		}
     }
     
     private class InProceedingTableEntry extends TableEntry{
@@ -1058,6 +799,15 @@ public class Controller {
     		
         	objectId = inProc.jdoZooGetOid();
     	}
+    	@Override
+		public String getColumnContent(int i) {
+			switch (i) {
+				case 0: return title;
+				case 1: return year;
+				case 2: return proceeding;
+				default: return "";
+			}
+		}
     }
     
     private class PublisherTableEntry extends TableEntry{
@@ -1082,6 +832,14 @@ public class Controller {
     		
     		objectId = puber.jdoZooGetOid();
     	}
+    	@Override
+		public String getColumnContent(int i) {
+			switch (i) {
+				case 0: return name;
+				case 1: return publications;
+				default: return "";
+			}
+		}
     }
     
     private class SecondaryPersonTableEntry extends TableEntry {
@@ -1090,6 +848,13 @@ public class Controller {
     		objectId = person.jdoZooGetOid();
         	name = person.getName();
     	}
+    	@Override
+		public String getColumnContent(int i) {
+			switch (i) {
+				case 0: return name;
+				default: return "";
+			}
+		}
     }
     
     
@@ -1118,6 +883,14 @@ public class Controller {
         	
     		objectId = conf.jdoZooGetOid();
     	}
+    	@Override
+		public String getColumnContent(int i) {
+			switch (i) {
+				case 0: return name;
+				case 1: return editions;
+				default: return "";
+			}
+		}
     }
     
     private class ConferenceEditionTableEntry extends TableEntry{
@@ -1146,6 +919,15 @@ public class Controller {
     		
     		objectId = confEd.jdoZooGetOid();
     	}
+    	@Override
+		public String getColumnContent(int i) {
+			switch (i) {
+				case 0: return name;
+				case 1: return edition;
+				case 2: return proceeding;
+				default: return "";
+			}
+		}
     }
     
     private class SeriesTableEntry extends TableEntry{
@@ -1170,6 +952,14 @@ public class Controller {
     		
     		objectId = ser.jdoZooGetOid();
     	}
+    	@Override
+		public String getColumnContent(int i) {
+			switch (i) {
+				case 0: return name;
+				case 1: return publications;
+				default: return "";
+			}
+		}
     }
     
     private class SecondaryProceedingTableEntry extends TableEntry {
@@ -1190,6 +980,14 @@ public class Controller {
     			conference = "";
     		}
     	}
+    	@Override
+		public String getColumnContent(int i) {
+			switch (i) {
+				case 0: return title;
+				case 1: return conference;
+				default: return "";
+			}
+		}
     }
     
     
@@ -1206,6 +1004,14 @@ public class Controller {
     			proceeding = "";
     		}
     	}
+    	@Override
+		public String getColumnContent(int i) {
+			switch (i) {
+				case 0: return title;
+				case 1: return proceeding;
+				default: return "";
+			}
+		}
     }
     
     private class SecondaryConferenceEditionTableEntry extends TableEntry {
@@ -1217,7 +1023,15 @@ public class Controller {
     		} else {
     			year = "No year";
     		}
+    		objectId = confEdit.jdoZooGetOid();
     	}
+    	@Override
+		public String getColumnContent(int i) {
+			switch (i) {
+				case 0: return year;
+				default: return "";
+			}
+		}
     }
     // END section for table entry data types
     
@@ -1254,7 +1068,7 @@ public class Controller {
 	}
     
     // much the same for the row factory an abstract type that should work for all tabs
-    private class MyRowFactory<T extends TableEntry> implements Callback<TableView<T>, TableRow<T>> {
+    protected class MyRowFactory<T extends TableEntry> implements Callback<TableView<T>, TableRow<T>> {
     	Consumer<Long> show;
     	
     	public MyRowFactory(Consumer<Long> s) {
@@ -1296,6 +1110,35 @@ public class Controller {
 		}
 		
 	}
+    
+    private class PagingSetupHelper  {
+    	public void setUpPaging(Button buttonNext, Button buttonPrevious, TextField fieldCurrent, int[] pageNumber, Runnable loader) {
+    		buttonNext.setOnAction(new PagingHandler(pageNumber, fieldCurrent, 1, loader));
+    		buttonPrevious.setOnAction(new PagingHandler(pageNumber, fieldCurrent, -1, loader));
+    		fieldCurrent.setOnAction(new PagingHandler(pageNumber, fieldCurrent, 0, loader));
+    	}
+    }
+    
+    private class TabSetupHelper<T extends TableEntry>  {
+    	
+    	public void setUpTable(TableView<T> tableView, ObservableList<T> dataList, Consumer<Long> showFunction) {
+    		
+    		ObservableList<TableColumn<T, ?>> columns = tableView.getColumns();
+    		
+    		for (int i = 0; i < columns.size(); i++) {
+    			TableColumn<T,String> column = (TableColumn<T,String>) columns.get(i);
+    			final int fin = i;
+    			column.setCellValueFactory(new Callback<CellDataFeatures<T, String>, ObservableValue<String>>() {
+    				public ObservableValue<String> call(CellDataFeatures<T, String> p) {
+    					return new ReadOnlyObjectWrapper<String>(p.getValue().getColumnContent(fin));
+    				}
+    			});
+    			
+    		}
+    		tableView.setRowFactory(new MyRowFactory<T>(showFunction));
+    		tableView.setItems(dataList);
+    	}
+    }
     
     // START section for fields that reference FXML
     @FXML    private TabPane tabPane;
