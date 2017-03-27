@@ -22,25 +22,24 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
 
 public class PersonTabController extends TabController<PersonTableEntry, SecondaryProceedingTableEntry, SecondaryInProceedingTableEntry> {
-
-	public PersonTabController(Controller c, TableView<PersonTableEntry> mainTable, Button buttonNextPage,
-			Button buttonPreviousPage, TextField fieldCurrentPage, Button btnCreateRecord, Button btnDeleteRecord,
-			TableView<SecondaryProceedingTableEntry> secondTbl, Button btnDeleteRefSecond,
-			TableView<SecondaryInProceedingTableEntry> thirdTbl, Button btnDeleteRefthird) {
-		super(c, mainTable, buttonNextPage, buttonPreviousPage, fieldCurrentPage, btnCreateRecord, btnDeleteRecord, secondTbl,
-				btnDeleteRefSecond, thirdTbl, btnDeleteRefthird);
-
-	}
 	
+	public PersonTabController(Controller c, TableView<PersonTableEntry> mainTable, TextField fieldSearch,
+			Button buttonSearch, Button buttonNextPage, Button buttonPreviousPage, TextField fieldCurrentPage,
+			Button buttonCreateRecord, Button buttonDeleteRecord, TableView<SecondaryProceedingTableEntry> secondTbl,
+			Button btnDeleteRefSecond, TableView<SecondaryInProceedingTableEntry> thirdTbl, Button btnDeleteRefthird) {
+		super(c, mainTable, fieldSearch, buttonSearch, buttonNextPage, buttonPreviousPage, fieldCurrentPage, buttonCreateRecord,
+				buttonDeleteRecord, secondTbl, btnDeleteRefSecond, thirdTbl, btnDeleteRefthird);
+	}
+
 	// person tab specific fields
-	TextField nameField;
-	Button changeNameButton;
-	TextField proceedingFilterField;
-	ChoiceBox proceedingDropdown;
-	Button addEditorButton;
-	TextField inProceedingFilterField;
-	ChoiceBox inProceedingDropdown;
-	Button addAuthorButton;
+	private TextField nameField;
+	private Button changeNameButton;
+	private TextField proceedingFilterField;
+	private ChoiceBox proceedingDropdown;
+	private Button addEditorButton;
+	private TextField inProceedingFilterField;
+	private ChoiceBox inProceedingDropdown;
+	private Button addAuthorButton;
 	
 	public void initializeTabSpecificItems(TextField nameField, Button changeNameButton,
 			TextField proceedingFilterField, ChoiceBox proceedingDropdown, Button addEditorButton,
@@ -60,11 +59,10 @@ public class PersonTabController extends TabController<PersonTableEntry, Seconda
 		this.mainShowFunction = this::showPerson;
 		this.secondShowFunction = secondShowFunction;
 		this.thirdShowFunction = thirdShowFunction;
-		this.deleteRecordFunction = this::deletePerson;
-		this.mainDataLoader = this::loadData;
 	}
 
 	// loads PAGE_SIZE number of entries in the big table
+	@Override
 	public void loadData() {
 		mainTableList.clear();
 		c.pm.currentTransaction().begin();
@@ -115,7 +113,8 @@ public class PersonTabController extends TabController<PersonTableEntry, Seconda
 	}
 	
 	// deletes a person, while first removing the references to it
-	private void deletePerson(long objectId) {
+	@Override
+	public void deleteRecord(Long objectId) {
 		c.pm.currentTransaction().begin();
 		Person person = (Person) c.pm.getObjectById(objectId);
 		person.removeReferencesFromOthers();

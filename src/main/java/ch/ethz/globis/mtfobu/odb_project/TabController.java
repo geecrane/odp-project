@@ -30,6 +30,9 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 	public TableView<TE1> mainTable;
 	public ObservableList<TE1> mainTableList;
 	
+	public TextField fieldSearch;
+	public Button buttonSearch;
+	
 	public int[] queryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
 	public long detailDisplayedId = 0L;
 	
@@ -54,6 +57,7 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 	public int numberOfTables = 0;
 	
 	public TabController(Controller c, TableView<TE1> mainTable,
+			TextField fieldSearch, Button buttonSearch,
 			Button buttonNextPage, Button buttonPreviousPage, TextField fieldCurrentPage,
 			Button buttonCreateRecord, Button buttonDeleteRecord,
 			TableView<TE2> secondTbl, Button btnDeleteRefSecond,
@@ -63,6 +67,9 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 		this.mainTable = mainTable;
 		this.mainTableList = FXCollections.observableArrayList();
 		this.numberOfTables = 1;
+		
+		this.fieldSearch = fieldSearch;
+		this.buttonSearch = buttonSearch;
 		
 		this.buttonNextPage = buttonNextPage;
 		this.buttonPreviousPage = buttonPreviousPage;
@@ -88,18 +95,14 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 	}
 	
 	public Consumer<Long> mainShowFunction;
-	public Consumer<Long> deleteRecordFunction;
 	public Consumer<Long> secondShowFunction;
 	public Consumer<Long> thirdShowFunction;
-	public Runnable mainDataLoader;
 	
-	public void initializeFunctions(Consumer<Long> mainShowFunction, Consumer<Long> deleteRecordFunction,
-			Consumer<Long> secondShowFunction, Consumer<Long> thirdShowFunction, Runnable mainDataLoader) {
+	public void initializeFunctions(Consumer<Long> mainShowFunction,
+			Consumer<Long> secondShowFunction, Consumer<Long> thirdShowFunction) {
 		this.mainShowFunction = mainShowFunction;
 		this.secondShowFunction = secondShowFunction;
 		this.thirdShowFunction = thirdShowFunction;
-		this.deleteRecordFunction = deleteRecordFunction;
-		this.mainDataLoader = mainDataLoader;
 	}
 	
 	public void setUpTables() {
@@ -121,11 +124,11 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 		mainTable.setRowFactory(c.new MyRowFactory<TE1>(mainShowFunction));
 		mainTable.setItems(mainTableList);
 		
-		buttonDeleteRecord.setOnAction(c.new DeleteHandler<TE1>(mainTable, deleteRecordFunction));
+		buttonDeleteRecord.setOnAction(c.new DeleteHandler<TE1>(mainTable, this::deleteRecord));
 		
-		buttonNextPage.setOnAction(c.new PagingHandler(queryPage, fieldCurrentPage, 1, mainDataLoader));
-		buttonPreviousPage.setOnAction(c.new PagingHandler(queryPage, fieldCurrentPage, -1, mainDataLoader));
-		fieldCurrentPage.setOnAction(c.new PagingHandler(queryPage, fieldCurrentPage, 0, mainDataLoader));
+		buttonNextPage.setOnAction(c.new PagingHandler(queryPage, fieldCurrentPage, 1, this::loadData));
+		buttonPreviousPage.setOnAction(c.new PagingHandler(queryPage, fieldCurrentPage, -1, this::loadData));
+		fieldCurrentPage.setOnAction(c.new PagingHandler(queryPage, fieldCurrentPage, 0, this::loadData));
 		
 		
 		if (numberOfTables > 1) {
@@ -172,6 +175,6 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 	
 	abstract public void loadData();
 	
-	
+	abstract public void deleteRecord(Long objectId);
 	
 }
