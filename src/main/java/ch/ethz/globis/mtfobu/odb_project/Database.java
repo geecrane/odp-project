@@ -1,6 +1,7 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 
 import javax.jdo.PersistenceManager;
@@ -54,8 +55,8 @@ public class Database {
 		
 		//defining some indexes
 		ZooJdoHelper.createIndex(pm, Person.class, "name", false);
-		ZooJdoHelper.createIndex(pm, Proceedings.class, "id", true);
-		ZooJdoHelper.createIndex(pm, Proceedings.class, "title", false);
+		ZooJdoHelper.createIndex(pm, InProceedings.class, "id", true);
+		ZooJdoHelper.createIndex(pm, InProceedings.class, "title", false);
 		ZooJdoHelper.createIndex(pm, InProceedings.class, "id", true);
 		ZooJdoHelper.createIndex(pm, InProceedings.class, "title", false);
 		ZooJdoHelper.createIndex(pm, Publisher.class, "id", true);
@@ -108,6 +109,58 @@ public class Database {
 		closeDB(pm);
 
 		return foundConferences;	
+	}
+	
+	public Collection<Person> getAllPeople(){
+		Collection<Person> people = null;
+		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+		
+		pm.currentTransaction().setNontransactionalRead(true);
+		
+		Query q = pm.newQuery(Person.class);
+		people = (Collection<Person>)q.execute(); 
+
+        closeDB(pm);
+        
+        return Collections.unmodifiableCollection(people);
+	}
+	
+	public Collection<InProceedings> getAllProceedings(){
+		Collection<InProceedings> proceedings = null;
+		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+		
+		pm.currentTransaction().setNontransactionalRead(true);
+		
+		Query q = pm.newQuery(InProceedings.class);
+		proceedings = (Collection<InProceedings>)q.execute(); 
+
+		closeDB(pm);
+        
+        return Collections.unmodifiableCollection(proceedings);
+		
+	}
+	
+	public Collection<InProceedings> getAllInProceedings(){
+		Collection<InProceedings> inproceedings = null;
+		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+		
+		pm.currentTransaction().setNontransactionalRead(true);
+		
+		Query q = pm.newQuery(InProceedings.class);
+		inproceedings = (Collection<InProceedings>)q.execute(); 
+
+		closeDB(pm);
+        
+        return Collections.unmodifiableCollection(inproceedings);
+		
+	}
+	public void removePersonByID(long objID){
+		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+		pm.currentTransaction().begin();
+		Person person = (Person) pm.getObjectById(objID);
+		person.removeReferencesFromOthers();
+		pm.deletePersistent(person);
+		closeDB(pm);
 	}
 	
 	/**
