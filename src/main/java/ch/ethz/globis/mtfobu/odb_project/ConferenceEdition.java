@@ -66,7 +66,11 @@ public class ConferenceEdition extends ZooPC implements DomainObject {
 	public void setProceedings(Proceedings proceeding) {
 		zooActivateWrite();
 		this.proceedings = proceeding;
-		
+	}
+	
+	public void removeReferencesFromOthers() {
+		this.setConference(null);
+		this.setProceedings(null);
 	}
 
 }

@@ -57,5 +57,11 @@ public class Conference extends ZooPC implements DomainObject {
 		this.id = id;
 
 	}
+	
+	public void removeReferencesFromOthers() {
+		for (ConferenceEdition confEd : this.getEditions()) {
+			confEd.setConference(null);
+		}
+	}
 
 }

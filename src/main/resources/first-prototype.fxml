@@ -69,7 +69,7 @@
                   <Group layoutX="14.0" layoutY="562.0">
                      <children>
                         <Label layoutX="2.0" text="InProceeding" />
-                        <ChoiceBox layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <ChoiceBox fx:id="personInProceedingDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
                         <Button fx:id="personAddAuthorButton" layoutX="190.0" layoutY="69.0" mnemonicParsing="false" text="Add as Author" />
                         <TextField fx:id="personInProceedingFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>

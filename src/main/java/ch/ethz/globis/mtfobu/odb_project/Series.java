@@ -60,5 +60,12 @@ public class Series extends ZooPC implements DomainObject {
 		this.id = id;
 		
 	}
+	
+	public void removeReferencesFromOthers() {
+		for (Publication pub : this.getPublications()){
+			Proceedings proc = (Proceedings) pub;
+			proc.setSeries(null);
+		}
+	}
     
 }

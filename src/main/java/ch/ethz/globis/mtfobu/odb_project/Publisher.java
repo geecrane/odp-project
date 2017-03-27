@@ -64,5 +64,11 @@ public class Publisher extends ZooPC implements DomainObject {
 		
 	}
 	
+	public void removeReferencesFromOthers() {
+		for (Publication pub : this.getPublications()) {
+			Proceedings proc = (Proceedings) pub;
+			proc.setPublisher(null);
+		}
+	}
     
 }
