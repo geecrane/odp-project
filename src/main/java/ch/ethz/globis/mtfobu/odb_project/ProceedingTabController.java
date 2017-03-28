@@ -118,7 +118,7 @@ public class ProceedingTabController extends TabController<ProceedingTableEntry,
 		c.tabPane.getSelectionModel().select(c.proceedingTab);
 	}
 	
-	private final Function<Object, Void> displayProceeding = (obj) -> {
+	private final Function<Object, Integer> displayProceeding = (obj) -> {
 		Proceedings proc = (Proceedings) obj;
 		
 		proceedingTitleField.setText(proc.getTitle());
@@ -159,7 +159,7 @@ public class ProceedingTabController extends TabController<ProceedingTableEntry,
 			secondTableList.add(c.new SecondaryPersonTableEntry(person));
         }
 		
-		return null;
+		return 0;
 	};
 	
 	@Override

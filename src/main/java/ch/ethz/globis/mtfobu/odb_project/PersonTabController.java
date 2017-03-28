@@ -89,7 +89,7 @@ public class PersonTabController extends TabController<PersonTableEntry, Seconda
 		c.tabPane.getSelectionModel().select(c.personTab);
 	}
 	
-	private final Function<Object, Void> displayPerson = ( obj) -> {
+	private final Function<Object, Integer> displayPerson = ( obj) -> {
 		Person person = (Person) obj;
 		
 		nameField.setText(person.getName());
@@ -106,7 +106,7 @@ public class PersonTabController extends TabController<PersonTableEntry, Seconda
 			thirdTableList.add(c.new SecondaryInProceedingTableEntry((InProceedings) inProc));
         }
 		
-		return null;
+		return 0;
 	};
 
 	// resets all fields in the bottom to empty

@@ -1,9 +1,11 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.Function;
@@ -167,24 +169,52 @@ public class Database {
 		pm.currentTransaction().commit();
 
 		closeDB(pm);
+	}
+	
+	/*** Seba: @param fun is the function that will treat the queried data in form of a collection. 
+	 * This function is executed during the open transaction.
+	 * @param rangeStart and @param rangeEnd are optional parameters and determine the rage of the query */
+	public void executeOnAllPublications(Function<Collection<Publication>,Void> fun, OptionalLong rangeStart, OptionalLong rangeEnd){
 		
-	}
-	public void executeOnObjectById(long objID, Function<Object,Void> fun){
-		PersistenceManager pm = ZooJdoHelper.openDB(dbName);;
-		pm.currentTransaction().begin();
-		fun.apply(pm.getObjectById(objID));
-		closeDB(pm);
-	}
-	
-	
-	public void removePersonByID(long objID){
+		//Seba: default range values in case no range has been specified.
+		long begin = rangeStart.isPresent() ? rangeStart.getAsLong() : 0;
+		long end = rangeEnd.isPresent() ? rangeEnd.getAsLong() : Long.MAX_VALUE;
+		
 		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+
 		pm.currentTransaction().begin();
-		Person person = (Person) pm.getObjectById(objID);
-		person.removeReferencesFromOthers();
-		pm.deletePersistent(person);
+		Query q = pm.newQuery(Proceedings.class);
+		q.setRange(begin, end);
+		fun.apply((Collection<Publication>) q.execute());
+		q.closeAll();
+		q = pm.newQuery(InProceedings.class);
+		q.setRange(begin, end);
+		fun.apply((Collection<Publication>) q.execute());
+		
+		pm.currentTransaction().commit();
+
 		closeDB(pm);
 	}
+	
+	
+	public long executeOnObjectById(long objID, Function<Object, Integer> fun){
+		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+		long val = 0;
+		pm.currentTransaction().begin();
+		val = fun.apply(pm.getObjectById(objID));
+		closeDB(pm);
+		return val;
+	}
+	
+	//obsolete
+//	public void removePersonByID(long objID){
+//		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+//		pm.currentTransaction().begin();
+//		Person person = (Person) pm.getObjectById(objID);
+//		person.removeReferencesFromOthers();
+//		pm.deletePersistent(person);
+//		closeDB(pm);
+//	}
 	/** Seba: Removes every object given the object ID by @param objID. 
 	 * It assumes that the object implements the DomainObject interface. 
 	 * Otherwise the object will not be removed and the incident reported in the error log */
@@ -206,6 +236,23 @@ public class Database {
 		pm.currentTransaction().commit();
 		closeDB(pm);
 	}
+	
+public void executeOnPublicationsByTitle(String title, Function<ArrayList<Publication>,Void> fun){
+			
+		ArrayList<Publication> pubs = new ArrayList();
+		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+
+		pm.currentTransaction().begin();
+		Query q = pm.newQuery(Proceedings.class, "title.indexOf('" + title + "') > -1");
+		pubs.addAll((Collection<Publication>) q.execute());
+		q.closeAll();
+		q = pm.newQuery(InProceedings.class, "title.indexOf('" + title + "') > -1");
+		pubs.addAll((Collection<Publication>) q.execute());
+		fun.apply(pubs);
+		pm.currentTransaction().commit();
+		closeDB(pm);
+	}
+	
 	
 	/**
 	 * Close the database connection.

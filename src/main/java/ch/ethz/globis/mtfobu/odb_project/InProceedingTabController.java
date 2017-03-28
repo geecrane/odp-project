@@ -86,7 +86,7 @@ public class InProceedingTabController extends TabController<InProceedingTableEn
 		c.database.executeOnObjectById(objectId, show_in_proceeding);
 		c.tabPane.getSelectionModel().select(c.inProceedingTab);
 	}
-	private final Function<Object,Void> show_in_proceeding = ( obj) -> {
+	private final Function<Object,Integer> show_in_proceeding = ( obj) -> {
 		InProceedings inProc = (InProceedings) obj;
 		this.inProceedingTitleField.setText(inProc.getTitle());
 		this.inProceedingPagesField.setText(inProc.getPages());
@@ -102,7 +102,7 @@ public class InProceedingTabController extends TabController<InProceedingTableEn
 		for (Person person : inProc.getAuthors()) {
 			secondTableList.add(c.new SecondaryPersonTableEntry(person));
         }
-		return null;
+		return 0;
     };
     
     
