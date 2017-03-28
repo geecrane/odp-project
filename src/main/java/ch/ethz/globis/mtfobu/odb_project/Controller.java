@@ -75,7 +75,7 @@ public class Controller {
 	            } else if (newTab == publisherTab) {
 	            	publisherTabController.loadData();
 	            } else if (newTab == conferenceTab) {
-	            	loadDataConferenceTab();
+	            	conferenceTabController.loadData();
 	            } else if (newTab == conferenceEditionTab) {
 	            	loadDataConferenceEditionTab();
 	            } else if (newTab == seriesTab) {
@@ -109,6 +109,7 @@ public class Controller {
     protected InProceedingTabController inProceedingTabController;
     protected PublicationTabController publicationTabController;
     protected PublisherTabController publisherTabController;
+    protected ConferenceTabController conferenceTabController;
     
     private void instantiateControllers() {
     	personTabController = new PersonTabController(this, personMainTable,
@@ -144,6 +145,13 @@ public class Controller {
     			publisherNextPageButton, publisherPreviousPageButton, publisherCurrentPageField,
     			publisherCreateButton, publisherDeleteButton,
     			publisherProceedingTable, publisherRemoveProceedingButton,
+				null, null);
+    	
+    	conferenceTabController = new ConferenceTabController(this, conferenceMainTable,
+    			conferenceSearchField, conferenceSearchButton,
+    			conferenceNextPageButton, conferencePreviousPageButton, conferenceCurrentPageField,
+    			conferenceCreateButton, conferenceDeleteButton,
+    			conferenceEditionTable, conferenceRemoveEditionButton,
 				null, null);
     }
     
@@ -268,69 +276,18 @@ public class Controller {
 	
 	
 	// START section for conferences tab
-	private ObservableList<ConferenceTableEntry> conferenceMainTableList = FXCollections.observableArrayList();
-	private ObservableList<SecondaryConferenceEditionTableEntry> conferenceEditionTableList = FXCollections.observableArrayList();
-	private int[] conferenceQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
-	
 	private void setUpConferenceTab() {
-		// START main table stuff
-		new TabSetupHelper<ConferenceTableEntry>().setUpTable(conferenceMainTable, conferenceMainTableList, this::showConference);
-		new PagingSetupHelper().setUpPaging(conferenceNextPageButton, conferencePreviousPageButton, conferenceCurrentPageField, conferenceQueryPage, this::loadDataConferenceTab);
+		conferenceTabController.initializeTabSpecificItems(
+				conferenceNameField,
+				conferenceChangeNameButton,
+				
+				conferenceEditionDropdown,
+				conferenceAddEditionButton,
+				conferenceEditionFilterField);
 		
-		conferenceDeleteButton.setOnAction(new DeleteHandler<ConferenceTableEntry>(conferenceMainTable, this::deleteConference));
-		// END main table stuff
+		conferenceTabController.initializeFunctions(this::showConferenceEdition);
 		
-		// START edition table stuff
-		new TabSetupHelper<SecondaryConferenceEditionTableEntry>().setUpTable(conferenceEditionTable, conferenceEditionTableList, this::showConferenceEdition);
-		// END edition table stuff
-	}
-	
-	private void loadDataConferenceTab() {
-		conferenceMainTableList.clear();
-		pm.currentTransaction().begin();
-
-        Query query = pm.newQuery(Conference.class);
-        query.setRange((conferenceQueryPage[0]-1)*PAGE_SIZE, conferenceQueryPage[0]*PAGE_SIZE);
-        Collection<Conference> conferences = (Collection<Conference>) query.execute();
-
-        for (Conference conf: conferences) {
-        	conferenceMainTableList.add(new ConferenceTableEntry(conf));
-        }
-        
-        query.closeAll();
-        pm.currentTransaction().commit();
-	}
-	
-	private void showConference(long objectId) {
-		pm.currentTransaction().begin();
-		Conference conf = (Conference) pm.getObjectById(objectId);
-		
-		conferenceNameField.setText(conf.getName());
-		
-		conferenceEditionFilterField.setText("");
-		conferenceEditionTableList.clear();
-		for (ConferenceEdition confEd : conf.getEditions()) {
-			conferenceEditionTableList.add(new SecondaryConferenceEditionTableEntry(confEd));
-		}
-		
-		pm.currentTransaction().commit();
-		tabPane.getSelectionModel().select(conferenceTab);
-	}
-	
-	private void emptyConferenceFields() {
-		conferenceNameField.setText("");
-		conferenceEditionFilterField.setText("");
-		conferenceEditionTableList.clear();
-	}
-	
-	private void deleteConference(long objectId) {
-		pm.currentTransaction().begin();
-		Conference conf = (Conference) pm.getObjectById(objectId);
-		conf.removeReferencesFromOthers();
-		pm.deletePersistent(conf);
-		pm.currentTransaction().commit();
-		loadDataConferenceTab();
-		emptyConferenceFields();
+		conferenceTabController.setUpTables();
 	}
 	// END section for conferences tab
 	
@@ -1064,7 +1021,7 @@ public class Controller {
     @FXML    private TextField publisherProceedingFilterField;
     @FXML    private TableView<SecondaryProceedingTableEntry> publisherProceedingTable;
     @FXML    private Button publisherRemoveProceedingButton;
-    @FXML    private Tab conferenceTab;
+    @FXML    Tab conferenceTab;
     @FXML    private TableView<ConferenceTableEntry> conferenceMainTable;
     @FXML    private Button conferenceDeleteButton;
     @FXML    private TextField conferenceSearchField;
