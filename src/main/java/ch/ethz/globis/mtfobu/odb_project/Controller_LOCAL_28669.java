@@ -71,17 +71,17 @@ public class Controller {
 	            } else if (newTab == proceedingTab) {
 	            	proceedingTabController.loadData();
 	            } else if (newTab == inProceedingTab) {
-	            	inProceedingTabController.loadData();
+	            	loadDataInProceedingTab();
 	            } else if (newTab == publicationTab) {
-	            	publicationTabController.loadData();
+	            	loadDataPublicationTab();
 	            } else if (newTab == publisherTab) {
-	            	publisherTabController.loadData();
+	            	loadDataPublisherTab();
 	            } else if (newTab == conferenceTab) {
-	            	conferenceTabController.loadData();
+	            	loadDataConferenceTab();
 	            } else if (newTab == conferenceEditionTab) {
-	            	conferenceEditionTabController.loadData();
+	            	loadDataConferenceEditionTab();
 	            } else if (newTab == seriesTab) {
-	            	seriesTabController.loadData();
+	            	loadDataSeriesTab();
 	            } else if (newTab == importTab) {
 	            	
 	            }
@@ -106,14 +106,8 @@ public class Controller {
     
     
     
-    protected PersonTabController personTabController;
-    protected ProceedingTabController proceedingTabController;
-    protected InProceedingTabController inProceedingTabController;
-    protected PublicationTabController publicationTabController;
-    protected PublisherTabController publisherTabController;
-    protected ConferenceTabController conferenceTabController;
-    protected ConferenceEditionTabController conferenceEditionTabController;
-    protected SeriesTabController seriesTabController;
+    private PersonTabController personTabController;
+    private ProceedingTabController proceedingTabController;
     
     private void instantiateControllers() {
     	personTabController = new PersonTabController(this, personMainTable,
@@ -129,52 +123,12 @@ public class Controller {
 				proceedingNewButton, proceedingDeleteButton,
 				proceedingEditorTable, proceedingRemoveEditorButton,
 				null, null);
-    	
-    	inProceedingTabController = new InProceedingTabController(this, inProceedingMainTable,
-    			inProceedingSearchField, inProceedingSearchButton,
-    			inProceedingNextPageButton, inProceedingPreviousPageButton, inProceedingCurrentPageField,
-    			inProceedingCreateButton, inProceedingDeleteButton,
-    			inProceedingAuthorTable, inProceedingRemoveAuthorButton,
-				null, null);
-    	
-    	publicationTabController = new PublicationTabController(this, publicationMainTable,
-    			publicationSearchField, publicationSearchButton,
-    			publicationNextPageButton, publicationPreviousPageButton, publicationCurrentPageField,
-    			null, publicationDeleteButton,
-    			null, null,
-				null, null);
-    	
-    	publisherTabController = new PublisherTabController(this, publisherMainTable,
-    			publisherSearchField, publisherSearchButton,
-    			publisherNextPageButton, publisherPreviousPageButton, publisherCurrentPageField,
-    			publisherCreateButton, publisherDeleteButton,
-    			publisherProceedingTable, publisherRemoveProceedingButton,
-				null, null);
-    	
-    	conferenceTabController = new ConferenceTabController(this, conferenceMainTable,
-    			conferenceSearchField, conferenceSearchButton,
-    			conferenceNextPageButton, conferencePreviousPageButton, conferenceCurrentPageField,
-    			conferenceCreateButton, conferenceDeleteButton,
-    			conferenceEditionTable, conferenceRemoveEditionButton,
-				null, null);
-    	
-    	conferenceEditionTabController = new ConferenceEditionTabController(this, conferenceEditionMainTable,
-    			conferenceEditionSearchField, conferenceEditionSearchButton,
-    			conferenceEditionNextPageButton, conferenceEditionPreviousPageButton, conferenceEditionCurrentPageField,
-    			conferenceEditionCreateButton, conferenceEditionDeleteButton,
-    			null, null,
-				null, null);
-    	
-    	seriesTabController = new SeriesTabController(this, seriesMainTable,
-    			seriesSearchField, seriesSearchButton,
-    			seriesNextPageButton, seriesPreviousPageButton, seriesCurrentPageField,
-    			seriesCreateButton, seriesDeleteButton,
-    			seriesProceedingTable, seriesRemoveProceedingButton,
-				null, null);
     }
     
     // START section for person tab
+    
     private void setUpPersonTab() {
+    	
     	personTabController.initializeTabSpecificItems(
     			personNameField,
     			personChangeNameButton,
@@ -187,15 +141,20 @@ public class Controller {
     			personInProceedingDropdown,
     			personAddAuthorButton);
     	
-    	personTabController.initializeFunctions(proceedingTabController.mainShowFunction, inProceedingTabController.mainShowFunction);
+    	personTabController.initializeFunctions(proceedingTabController.mainShowFunction, this::showInProceeding);
     	
     	personTabController.setUpTables();
+    	
+    	
     }
+    
 	// END section for person tab
 	
 	
 	// START section for proceeding tab
+    
 	private void setUpProceedingTab() {
+		
 		proceedingTabController.initializeTabSpecificItems(
 				proceedingTitleField,
 				proceedingChangeTitleButton,
@@ -226,14 +185,22 @@ public class Controller {
 		proceedingTabController.initializeFunctions(personTabController.mainShowFunction);
 		
 		proceedingTabController.setUpTables();
+		
 	}
+	
+	
+	
+	
 	// END section for proceeding tab
 	
 	
 	// START section for inproceeding tab
+	private ObservableList<InProceedingTableEntry> inProceedingMainTableList = FXCollections.observableArrayList();
+	private ObservableList<SecondaryPersonTableEntry> inProceedingAuthorTableList = FXCollections.observableArrayList();
+	private int[] inProceedingQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
+	
 	private void setUpInProceedingTab() {
 		
-<<<<<<< ours
 		// START main table stuff
 		new TabSetupHelper<InProceedingTableEntry>().setUpTable(inProceedingMainTable, inProceedingMainTableList, this::showInProceeding);
 		new PagingSetupHelper().setUpPaging(inProceedingNextPageButton, inProceedingPreviousPageButton, inProceedingCurrentPageField, inProceedingQueryPage, this::loadDataInProceedingTab);
@@ -343,36 +310,16 @@ public class Controller {
 		database.removeObjectById(objectId);	
 		loadDataInProceedingTab();
 		emptyInProceedingFields();
-=======
-		inProceedingTabController.initializeTabSpecificItems(
-				  inProceedingPagesField,
-				  inProceedingChangePagesButton,
-				 
-				  inProceedingProceedingFilterField,
-				  inProceedingProceedingDropdown,
-				  inProceedingChangeProceedingButton,
-				 
-				  inProceedingAuthorDropdown,
-				  inProceedingAddAuthorButton,
-				  inProceedingAuthorFilterField,
-				 
-				  inProceedingTitleField,
-				  inProceedingChangeTitleButton,
-				 
-				  inProceedingYearField,
-				  inProceedingChangeYearButton);
-		
-		inProceedingTabController.initializeFunctions(personTabController.mainShowFunction);
-		
-		inProceedingTabController.setUpTables();
->>>>>>> theirs
 	}
+	
 	// END section for inproceeding tab
 	
 	
 	// START section for publication tab
+	private ObservableList<PublicationTableEntry> publicationMainTableList = FXCollections.observableArrayList();
+	private int[] publicationQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
+	
 	private void setUpPublicationTab() {
-<<<<<<< ours
 		// START main table stuff
 		new TabSetupHelper<PublicationTableEntry>().setUpTable(publicationMainTable, publicationMainTableList, this::showPublication);
 		new PagingSetupHelper().setUpPaging(publicationNextPageButton, publicationPreviousPageButton, publicationCurrentPageField, publicationQueryPage, this::loadDataPublicationTab);
@@ -427,13 +374,20 @@ public class Controller {
 		// convert to integer since the function "executeOnObjectById" requires a function that has a return type Integer
 		return (publication instanceof Proceedings) ? 1 : 0;
    };
-=======
-		publicationTabController.initializeTabSpecificItems();
-		
-		publicationTabController.initializeFunctions();
->>>>>>> theirs
 	
-		publicationTabController.setUpTables();
+	private void deletePublication(long objectId) {
+		boolean isProceeding = false;
+		pm.currentTransaction().begin();
+		Publication pub = (Publication) pm.getObjectById(objectId);
+		isProceeding = pub instanceof Proceedings;
+		pm.currentTransaction().commit();
+		
+		if (isProceeding) {
+			proceedingTabController.deleteRecord(objectId);
+		} else {
+			deleteInProceeding(objectId);
+		}
+		loadDataPublicationTab();
 	}
 	// End section for publication tab
 	
@@ -444,37 +398,135 @@ public class Controller {
     private int[] publisherQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
 	
 	private void setUpPublisherTab() {
-		publisherTabController.initializeTabSpecificItems(
-				publisherNameField, 
-				publisherChangeNameButton,
-				
-				publisherProceedingDropdown,
-				publisherAddProceedingButton,
-				publisherProceedingFilterField);
+		// START main table stuff
+		new TabSetupHelper<PublisherTableEntry>().setUpTable(publisherMainTable, publisherMainTableList, this::showPublisher);
+		new PagingSetupHelper().setUpPaging(publisherNextPageButton, publisherPreviousPageButton, publisherCurrentPageField, publisherQueryPage, this::loadDataPublisherTab);
 		
-		publisherTabController.initializeFunctions(proceedingTabController.mainShowFunction);
+		publisherDeleteButton.setOnAction(new DeleteHandler<PublisherTableEntry>(publisherMainTable, this::deletePublisher));
+		// END main table stuff
 		
-		publisherTabController.setUpTables();
+		// START proceeding table stuff
+		new TabSetupHelper<SecondaryProceedingTableEntry>().setUpTable(publisherProceedingTable, publisherProceedingTableList, proceedingTabController.mainShowFunction);
+		// END proceeding table stuff
 	}
 	
-	
+	private void loadDataPublisherTab() {
+		publisherMainTableList.clear();
+		pm.currentTransaction().begin();
 
+        Query query = pm.newQuery(Publisher.class);
+        query.setRange((publisherQueryPage[0]-1)*PAGE_SIZE, publisherQueryPage[0]*PAGE_SIZE);
+        Collection<Publisher> publishers = (Collection<Publisher>) query.execute();
+
+        for (Publisher puber: publishers) {
+        	publisherMainTableList.add(new PublisherTableEntry(puber));
+        }
+        
+        query.closeAll();
+        pm.currentTransaction().commit();
+	}
+	
+	private void showPublisher(long objectId) {
+		pm.currentTransaction().begin();
+		Publisher puber = (Publisher) pm.getObjectById(objectId);
+		
+		publisherNameField.setText(puber.getName());
+		
+		publisherProceedingFilterField.setText("");
+		publisherProceedingTableList.clear();
+		for (Publication pub : puber.getPublications()) {
+			if (pub instanceof Proceedings) {
+				Proceedings proc = (Proceedings) pub;
+				publisherProceedingTableList.add(new SecondaryProceedingTableEntry(proc));
+			}
+        }
+		
+		pm.currentTransaction().commit();
+		tabPane.getSelectionModel().select(publisherTab);
+	}
+	
+	private void emptyPublisherFields() {
+		publisherNameField.setText("");
+		publisherProceedingFilterField.setText("");
+		publisherProceedingTableList.clear();
+	}
+	
+	private void deletePublisher(long objectId) {
+		pm.currentTransaction().begin();
+		Publisher puber = (Publisher) pm.getObjectById(objectId);
+		puber.removeReferencesFromOthers();
+		pm.deletePersistent(puber);
+		pm.currentTransaction().commit();
+		loadDataPublisherTab();
+		emptyPublisherFields();
+	}
 	// End section for publisher tab
 	
 	
 	// START section for conferences tab
+	private ObservableList<ConferenceTableEntry> conferenceMainTableList = FXCollections.observableArrayList();
+	private ObservableList<SecondaryConferenceEditionTableEntry> conferenceEditionTableList = FXCollections.observableArrayList();
+	private int[] conferenceQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
+	
 	private void setUpConferenceTab() {
-		conferenceTabController.initializeTabSpecificItems(
-				conferenceNameField,
-				conferenceChangeNameButton,
-				
-				conferenceEditionDropdown,
-				conferenceAddEditionButton,
-				conferenceEditionFilterField);
+		// START main table stuff
+		new TabSetupHelper<ConferenceTableEntry>().setUpTable(conferenceMainTable, conferenceMainTableList, this::showConference);
+		new PagingSetupHelper().setUpPaging(conferenceNextPageButton, conferencePreviousPageButton, conferenceCurrentPageField, conferenceQueryPage, this::loadDataConferenceTab);
 		
-		conferenceTabController.initializeFunctions(conferenceEditionTabController.mainShowFunction);
+		conferenceDeleteButton.setOnAction(new DeleteHandler<ConferenceTableEntry>(conferenceMainTable, this::deleteConference));
+		// END main table stuff
 		
-		conferenceTabController.setUpTables();
+		// START edition table stuff
+		new TabSetupHelper<SecondaryConferenceEditionTableEntry>().setUpTable(conferenceEditionTable, conferenceEditionTableList, this::showConferenceEdition);
+		// END edition table stuff
+	}
+	
+	private void loadDataConferenceTab() {
+		conferenceMainTableList.clear();
+		pm.currentTransaction().begin();
+
+        Query query = pm.newQuery(Conference.class);
+        query.setRange((conferenceQueryPage[0]-1)*PAGE_SIZE, conferenceQueryPage[0]*PAGE_SIZE);
+        Collection<Conference> conferences = (Collection<Conference>) query.execute();
+
+        for (Conference conf: conferences) {
+        	conferenceMainTableList.add(new ConferenceTableEntry(conf));
+        }
+        
+        query.closeAll();
+        pm.currentTransaction().commit();
+	}
+	
+	private void showConference(long objectId) {
+		pm.currentTransaction().begin();
+		Conference conf = (Conference) pm.getObjectById(objectId);
+		
+		conferenceNameField.setText(conf.getName());
+		
+		conferenceEditionFilterField.setText("");
+		conferenceEditionTableList.clear();
+		for (ConferenceEdition confEd : conf.getEditions()) {
+			conferenceEditionTableList.add(new SecondaryConferenceEditionTableEntry(confEd));
+		}
+		
+		pm.currentTransaction().commit();
+		tabPane.getSelectionModel().select(conferenceTab);
+	}
+	
+	private void emptyConferenceFields() {
+		conferenceNameField.setText("");
+		conferenceEditionFilterField.setText("");
+		conferenceEditionTableList.clear();
+	}
+	
+	private void deleteConference(long objectId) {
+		pm.currentTransaction().begin();
+		Conference conf = (Conference) pm.getObjectById(objectId);
+		conf.removeReferencesFromOthers();
+		pm.deletePersistent(conf);
+		pm.currentTransaction().commit();
+		loadDataConferenceTab();
+		emptyConferenceFields();
 	}
 	// END section for conferences tab
 	
@@ -484,34 +536,136 @@ public class Controller {
 	private int[] conferenceEditionQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
 	
 	private void setUpConferenceEditionTab() {
-		conferenceEditionTabController.initializeTabSpecificItems(
-				conferenceEditionNameField,
-				conferenceEditionChangeNameButton,
-				
-				conferenceEditionEditionField,
-				conferenceEditionChangeEditionButton);
+		// START main table stuff
+		new TabSetupHelper<ConferenceEditionTableEntry>().setUpTable(conferenceEditionMainTable, conferenceEditionMainTableList, this::showConferenceEdition);
+		new PagingSetupHelper().setUpPaging(conferenceEditionNextPageButton, conferenceEditionPreviousPageButton, conferenceEditionCurrentPageField, conferenceEditionQueryPage, this::loadDataConferenceEditionTab);
 		
-		conferenceEditionTabController.initializeFunctions();
+		conferenceEditionDeleteButton.setOnAction(new DeleteHandler<ConferenceEditionTableEntry>(conferenceEditionMainTable, this::deleteConferenceEdition));
+		// END main table stuff
+	}
+	
+	private void loadDataConferenceEditionTab() {
+		conferenceEditionMainTableList.clear();
+		pm.currentTransaction().begin();
+
+        Query query = pm.newQuery(ConferenceEdition.class);
+        query.setRange((conferenceEditionQueryPage[0]-1)*PAGE_SIZE, conferenceEditionQueryPage[0]*PAGE_SIZE);
+        Collection<ConferenceEdition> conferenceEditions = (Collection<ConferenceEdition>) query.execute();
+
+        for (ConferenceEdition confEd: conferenceEditions) {
+        	conferenceEditionMainTableList.add(new ConferenceEditionTableEntry(confEd));
+        }
+        
+        query.closeAll();
+        pm.currentTransaction().commit();
+	}
+	
+	private void showConferenceEdition(long objectId) {
+		pm.currentTransaction().begin();
+		ConferenceEdition confEd = (ConferenceEdition) pm.getObjectById(objectId);
 		
-		conferenceEditionTabController.setUpTables();
+		Conference conf = confEd.getConference();
+		
+		if (null != conf) {
+			conferenceEditionNameField.setText(conf.getName());
+		} else {
+			conferenceEditionNameField.setText("");
+		}
+		
+		int year = confEd.getYear();
+		if (0 != year) {
+			conferenceEditionEditionField.setText(Integer.toString(year));
+		} else {
+			conferenceEditionEditionField.setText("No year");
+		}
+		
+		pm.currentTransaction().commit();
+		tabPane.getSelectionModel().select(conferenceEditionTab);
+	}
+	
+	private void emptyConferenceEditionFields() {
+		conferenceEditionNameField.setText("");
+		conferenceEditionEditionField.setText("");
+	}
+
+	private void deleteConferenceEdition(long objectId) {
+		pm.currentTransaction().begin();
+		ConferenceEdition confEd = (ConferenceEdition) pm.getObjectById(objectId);
+		confEd.removeReferencesFromOthers();
+		pm.deletePersistent(confEd);
+		pm.currentTransaction().commit();
+		loadDataConferenceEditionTab();
+		emptyConferenceEditionFields();
 	}
 	// END section for conference editions tab
 	
 	
 	// START section for series tab
+	private ObservableList<SeriesTableEntry> seriesMainTableList = FXCollections.observableArrayList();
+	private ObservableList<SecondaryProceedingTableEntry> seriesProceedingTableList = FXCollections.observableArrayList();
+	private int[] seriesQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
+	
 	private void setUpSeriesTab() {
+		// START main table stuff
+		new TabSetupHelper<SeriesTableEntry>().setUpTable(seriesMainTable, seriesMainTableList, this::showSeries);
+		new PagingSetupHelper().setUpPaging(seriesNextPageButton, seriesPreviousPageButton, seriesCurrentPageField, seriesQueryPage, this::loadDataSeriesTab);
 		
-		seriesTabController.initializeTabSpecificItems(
-				seriesNameField, 
-				seriesChangeNameButton, 
-				
-				seriesProceedingFilterField,
-				seriesAddProceedingButton, 
-				seriesProceedingDropdown);
+		seriesDeleteButton.setOnAction(new DeleteHandler<SeriesTableEntry>(seriesMainTable, this::deleteSeries));
+		// END main table stuff
 		
-		seriesTabController.initializeFunctions(proceedingTabController.mainShowFunction);
+		// START proceeding table stuff
+		new TabSetupHelper<SecondaryProceedingTableEntry>().setUpTable(seriesProceedingTable, seriesProceedingTableList, proceedingTabController.mainShowFunction);
+		// END proceeding table stuff
+	}
+	
+	private void loadDataSeriesTab() {
+		seriesMainTableList.clear();
+		pm.currentTransaction().begin();
+
+        Query query = pm.newQuery(Series.class);
+        query.setRange((seriesQueryPage[0]-1)*PAGE_SIZE, seriesQueryPage[0]*PAGE_SIZE);
+        Collection<Series> seriesPlural = (Collection<Series>) query.execute();
+
+        for (Series series: seriesPlural) {
+        	seriesMainTableList.add(new SeriesTableEntry(series));
+        }
+        
+        query.closeAll();
+        pm.currentTransaction().commit();
+	}
+	
+	private void showSeries(long objectId) {
+		pm.currentTransaction().begin();
+		Series series = (Series) pm.getObjectById(objectId);
 		
-		seriesTabController.setUpTables();
+		seriesNameField.setText(series.getName());
+		
+		seriesProceedingFilterField.setText("");
+		seriesProceedingTableList.clear();
+		for (Publication pub : series.getPublications()) {
+			if (pub instanceof Proceedings) {
+				seriesProceedingTableList.add(new SecondaryProceedingTableEntry((Proceedings)pub));
+			}
+		}
+		
+		pm.currentTransaction().commit();
+		tabPane.getSelectionModel().select(seriesTab);
+	}
+	
+	private void emptySeriesFields() {
+		seriesNameField.setText("");
+		seriesProceedingFilterField.setText("");
+		seriesProceedingTableList.clear();
+	}
+
+	private void deleteSeries(long objectId) {
+		pm.currentTransaction().begin();
+		Series ser = (Series) pm.getObjectById(objectId);
+		ser.removeReferencesFromOthers();
+		pm.deletePersistent(ser);
+		pm.currentTransaction().commit();
+		loadDataSeriesTab();
+		emptySeriesFields();
 	}
 	// END section for series tab
 	
@@ -1005,7 +1159,7 @@ public class Controller {
     	}
     }
     
-    protected Database database;
+    private Database database;
     // START section for fields that reference FXML
     @FXML TabPane tabPane;
     @FXML Tab personTab;
@@ -1059,9 +1213,9 @@ public class Controller {
     @FXML    private Button proceedingRemoveEditorButton;
     @FXML    private ChoiceBox<?> proceedingEditorDropdown;
     @FXML    private Button proceedingAddEditorButton;
-    @FXML    Tab inProceedingTab;
+    @FXML    private Tab inProceedingTab;
     @FXML    private TableView<InProceedingTableEntry> inProceedingMainTable;
-    @FXML    private TextField inProceedingSearchField;
+    @FXML    private TextField inProceedingProceedingFilterField;
     @FXML    private Button inProceedingSearchButton;
     @FXML    private Button inProceedingDeleteButton;
     @FXML    private Button inProceedingNextPageButton;
@@ -1070,7 +1224,6 @@ public class Controller {
     @FXML    private Button inProceedingCreateButton;
     @FXML    private TextField inProceedingPagesField;
     @FXML    private Button inProceedingChangePagesButton;
-    @FXML    private TextField inProceedingProceedingFilterField;
     @FXML    private ChoiceBox<?> inProceedingProceedingDropdown;
     @FXML    private Button inProceedingChangeProceedingButton;
     @FXML    private ChoiceBox<?> inProceedingAuthorDropdown;
@@ -1082,7 +1235,7 @@ public class Controller {
     @FXML    private Button inProceedingChangeTitleButton;
     @FXML    private TextField inProceedingYearField;
     @FXML    private Button inProceedingChangeYearButton;
-    @FXML    Tab publicationTab;
+    @FXML    private Tab publicationTab;
     @FXML    private TableView<PublicationTableEntry> publicationMainTable;
     @FXML    private TextField publicationSearchField;
     @FXML    private Button publicationSearchButton;
@@ -1090,7 +1243,7 @@ public class Controller {
     @FXML    private Button publicationNextPageButton;
     @FXML    private Button publicationPreviousPageButton;
     @FXML    private TextField publicationCurrentPageField;
-    @FXML    Tab publisherTab;
+    @FXML    private Tab publisherTab;
     @FXML    private TableView<PublisherTableEntry> publisherMainTable;
     @FXML    private Button publisherDeleteButton;
     @FXML    private TextField publisherSearchField;
@@ -1106,7 +1259,7 @@ public class Controller {
     @FXML    private TextField publisherProceedingFilterField;
     @FXML    private TableView<SecondaryProceedingTableEntry> publisherProceedingTable;
     @FXML    private Button publisherRemoveProceedingButton;
-    @FXML    Tab conferenceTab;
+    @FXML    private Tab conferenceTab;
     @FXML    private TableView<ConferenceTableEntry> conferenceMainTable;
     @FXML    private Button conferenceDeleteButton;
     @FXML    private TextField conferenceSearchField;
@@ -1122,7 +1275,7 @@ public class Controller {
     @FXML    private TextField conferenceEditionFilterField;
     @FXML    private TableView<SecondaryConferenceEditionTableEntry> conferenceEditionTable;
     @FXML    private Button conferenceRemoveEditionButton;
-    @FXML    Tab conferenceEditionTab;
+    @FXML    private Tab conferenceEditionTab;
     @FXML    private TableView<ConferenceEditionTableEntry> conferenceEditionMainTable;
     @FXML    private Button conferenceEditionDeleteButton;
     @FXML    private TextField conferenceEditionSearchField;
@@ -1135,7 +1288,7 @@ public class Controller {
     @FXML    private Button conferenceEditionChangeNameButton;
     @FXML    private TextField conferenceEditionEditionField;
     @FXML    private Button conferenceEditionChangeEditionButton;
-    @FXML    Tab seriesTab;
+    @FXML    private Tab seriesTab;
     @FXML    private TableView<SeriesTableEntry> seriesMainTable;
     @FXML    private Button seriesDeleteButton;
     @FXML    private TextField seriesSearchField;
@@ -1151,7 +1304,7 @@ public class Controller {
     @FXML    private ChoiceBox<?> seriesProceedingDropdown;
     @FXML    private TableView<SecondaryProceedingTableEntry> seriesProceedingTable;
     @FXML    private Button seriesRemoveProceedingButton;
-    @FXML    Tab importTab;
+    @FXML    private Tab importTab;
     @FXML    private Button importButton;
     @FXML    private Label importStatusLabel;
     // END section for fields that reference FXML

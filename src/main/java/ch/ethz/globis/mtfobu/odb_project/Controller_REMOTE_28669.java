@@ -1,6 +1,5 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.OptionalLong;
@@ -11,7 +10,6 @@ import javax.jdo.Extent;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
-import org.xml.sax.HandlerBase;
 import org.zoodb.jdo.ZooJdoHelper;
 
 import ch.ethz.globis.mtfobu.odb_project.Controller.MyRowFactory;
@@ -81,7 +79,7 @@ public class Controller {
 	            } else if (newTab == conferenceEditionTab) {
 	            	conferenceEditionTabController.loadData();
 	            } else if (newTab == seriesTab) {
-	            	seriesTabController.loadData();
+	            	loadDataSeriesTab();
 	            } else if (newTab == importTab) {
 	            	
 	            }
@@ -113,7 +111,6 @@ public class Controller {
     protected PublisherTabController publisherTabController;
     protected ConferenceTabController conferenceTabController;
     protected ConferenceEditionTabController conferenceEditionTabController;
-    protected SeriesTabController seriesTabController;
     
     private void instantiateControllers() {
     	personTabController = new PersonTabController(this, personMainTable,
@@ -163,13 +160,6 @@ public class Controller {
     			conferenceEditionNextPageButton, conferenceEditionPreviousPageButton, conferenceEditionCurrentPageField,
     			conferenceEditionCreateButton, conferenceEditionDeleteButton,
     			null, null,
-				null, null);
-    	
-    	seriesTabController = new SeriesTabController(this, seriesMainTable,
-    			seriesSearchField, seriesSearchButton,
-    			seriesNextPageButton, seriesPreviousPageButton, seriesCurrentPageField,
-    			seriesCreateButton, seriesDeleteButton,
-    			seriesProceedingTable, seriesRemoveProceedingButton,
 				null, null);
     }
     
@@ -233,117 +223,6 @@ public class Controller {
 	// START section for inproceeding tab
 	private void setUpInProceedingTab() {
 		
-<<<<<<< ours
-		// START main table stuff
-		new TabSetupHelper<InProceedingTableEntry>().setUpTable(inProceedingMainTable, inProceedingMainTableList, this::showInProceeding);
-		new PagingSetupHelper().setUpPaging(inProceedingNextPageButton, inProceedingPreviousPageButton, inProceedingCurrentPageField, inProceedingQueryPage, this::loadDataInProceedingTab);
-		
-		publicationSearchButton.setOnAction((event) -> {
-			String search[] = publicationSearchField.getText().split(";");
-			if(search.length == 3){
-			Function<ArrayList<Publication>, Void> fun = (pubs)-> {
-				int start = (Integer.parseInt(search[1]) < pubs.size())? Integer.parseInt(search[1]) : 0;
-				int stop = (Integer.parseInt(search[2]) < pubs.size()) ? Integer.parseInt(search[2]) : pubs.size()-1;
-				publicationMainTableList.clear();
-				for (Publication pub: pubs.subList(start, stop)){
-					publicationMainTableList.add(new PublicationTableEntry(pub));
-				}
-				return null;
-				};
-				
-			database.executeOnPublicationsByTitle(search[0],fun);
-			}
-			else loadDataPublicationTab();
-			
-			
-		});
-		inProceedingDeleteButton.setOnAction(new DeleteHandler<InProceedingTableEntry>(inProceedingMainTable, this::deleteInProceeding));
-		// END main table stuff
-		
-		// START author table stuff
-		new TabSetupHelper<SecondaryPersonTableEntry>().setUpTable(inProceedingAuthorTable, inProceedingAuthorTableList, personTabController.mainShowFunction);
-		// END author table stuff
-	}
-	
-	private void loadDataInProceedingTab() {
-//		inProceedingMainTableList.clear();
-//		pm.currentTransaction().begin();
-//
-//        Query query = pm.newQuery(InProceedings.class);
-//        query.setRange((inProceedingQueryPage[0]-1)*PAGE_SIZE, inProceedingQueryPage[0]*PAGE_SIZE);
-//        Collection<InProceedings> inProceedings = (Collection<InProceedings>) query.execute();
-//  
-//        query.closeAll();
-//        pm.currentTransaction().commit();
-
-		//Seba: I really wanted to ensure that queries are fully executed by a "Database" Object
-		database.executeOnAllInProceedings(updateProceedings, OptionalLong.of((inProceedingQueryPage[0]-1)*PAGE_SIZE), OptionalLong.of(inProceedingQueryPage[0]*PAGE_SIZE));
-	}
-	private final Function<Collection<InProceedings>,Void> updateProceedings = inProc -> {
-		inProceedingMainTableList.clear();
-		for (InProceedings inProceeding: inProc) {
-			inProceedingMainTableList.add(new InProceedingTableEntry(inProceeding));
-		}
-		return null;
-    };
-	
-	private void showInProceeding(long objectId) {
-//		pm.currentTransaction().begin();
-//		InProceedings inProc = (InProceedings) pm.getObjectById(objectId);
-//		
-//		inProceedingTitleField.setText(inProc.getTitle());
-//		inProceedingPagesField.setText(inProc.getPages());
-//		inProceedingYearField.setText(Integer.toString(inProc.getYear()));
-//		
-//		Proceedings proc = inProc.getProceedings();
-//		if(null != proc) {
-//			inProceedingProceedingFilterField.setText(proc.getTitle());
-//		}
-//		
-//		inProceedingAuthorFilterField.setText("");
-//		inProceedingAuthorTableList.clear();
-//		for (Person person : inProc.getAuthors()) {
-//			inProceedingAuthorTableList.add(new SecondaryPersonTableEntry(person));
-//        }
-//		
-//		pm.currentTransaction().commit();
-//		tabPane.getSelectionModel().select(inProceedingTab);
-		database.executeOnObjectById(objectId, show_in_proceeding);
-		tabPane.getSelectionModel().select(inProceedingTab);
-	}
-	private final Function<Object,Integer> show_in_proceeding = ( obj) -> {
-		InProceedings inProc = (InProceedings) obj;
-		this.inProceedingTitleField.setText(inProc.getTitle());
-		this.inProceedingPagesField.setText(inProc.getPages());
-		this.inProceedingYearField.setText(Integer.toString(inProc.getYear()));
-		
-		Proceedings proc = inProc.getProceedings();
-		if(null != proc) {
-			this.inProceedingProceedingFilterField.setText(proc.getTitle());
-		}
-		
-		this.inProceedingAuthorFilterField.setText("");
-		inProceedingAuthorTableList.clear();
-		for (Person person : inProc.getAuthors()) {
-			inProceedingAuthorTableList.add(new SecondaryPersonTableEntry(person));
-        }
-		return 0;
-    };
-    
-	private void emptyInProceedingFields() {
-		inProceedingTitleField.setText("");
-		inProceedingPagesField.setText("");
-		inProceedingYearField.setText("");
-		inProceedingProceedingFilterField.setText("");
-		inProceedingAuthorFilterField.setText("");
-		inProceedingAuthorTableList.clear();
-	}
-	
-	private void deleteInProceeding(long objectId) {
-		database.removeObjectById(objectId);	
-		loadDataInProceedingTab();
-		emptyInProceedingFields();
-=======
 		inProceedingTabController.initializeTabSpecificItems(
 				  inProceedingPagesField,
 				  inProceedingChangePagesButton,
@@ -365,73 +244,15 @@ public class Controller {
 		inProceedingTabController.initializeFunctions(personTabController.mainShowFunction);
 		
 		inProceedingTabController.setUpTables();
->>>>>>> theirs
 	}
 	// END section for inproceeding tab
 	
 	
 	// START section for publication tab
 	private void setUpPublicationTab() {
-<<<<<<< ours
-		// START main table stuff
-		new TabSetupHelper<PublicationTableEntry>().setUpTable(publicationMainTable, publicationMainTableList, this::showPublication);
-		new PagingSetupHelper().setUpPaging(publicationNextPageButton, publicationPreviousPageButton, publicationCurrentPageField, publicationQueryPage, this::loadDataPublicationTab);
-		
-		publicationDeleteButton.setOnAction(new DeleteHandler<PublicationTableEntry>(publicationMainTable, this::deletePublication));
-		// END main table stuff
-	}
-	
-	private void loadDataPublicationTab() {
-		publicationMainTableList.clear();
-		database.executeOnAllPublications(updatePublications, OptionalLong.of((publicationQueryPage[0]-1)*PAGE_SIZE), OptionalLong.of(publicationQueryPage[0]*PAGE_SIZE));
-//		pm.currentTransaction().begin();
-//
-//        Query query = pm.newQuery(Proceedings.class);
-//        query.setRange((publicationQueryPage[0]-1)*PAGE_SIZE, publicationQueryPage[0]*PAGE_SIZE);
-//        Collection<Publication> publications = (Collection<Publication>) query.execute();
-//
-//        for (Publication proc: publications) {
-//        	publicationMainTableList.add(new PublicationTableEntry(proc));
-//        }
-//        
-//        query.closeAll();
-//        
-//        query = pm.newQuery(InProceedings.class);
-//        query.setRange((publicationQueryPage[0]-1)*PAGE_SIZE, publicationQueryPage[0]*PAGE_SIZE);
-//        publications = (Collection<Publication>) query.execute();
-//        
-//        for (Publication inProc: publications) {
-//        	publicationMainTableList.add(new PublicationTableEntry(inProc));
-//        }
-//        
-//        query.closeAll();
-//        pm.currentTransaction().commit();
-	}
-	private final Function<Collection<Publication>,Void> updatePublications = publications -> {
-		 for (Publication pub: publications) {
-	        	publicationMainTableList.add(new PublicationTableEntry(pub));
-	        }
-		return null;
-    };
-	
-	
-	private void showPublication(long objectId) {
-		if(database.executeOnObjectById(objectId, show_publication) == 1){
-			proceedingTabController.mainShowFunction.accept(objectId);
-		}
-		else{
-			showInProceeding(objectId);
-		}
-	}
-	private final Function<Object,Integer> show_publication = publication -> {
-		// convert to integer since the function "executeOnObjectById" requires a function that has a return type Integer
-		return (publication instanceof Proceedings) ? 1 : 0;
-   };
-=======
 		publicationTabController.initializeTabSpecificItems();
 		
 		publicationTabController.initializeFunctions();
->>>>>>> theirs
 	
 		publicationTabController.setUpTables();
 	}
@@ -499,19 +320,71 @@ public class Controller {
 	
 	
 	// START section for series tab
+	private ObservableList<SeriesTableEntry> seriesMainTableList = FXCollections.observableArrayList();
+	private ObservableList<SecondaryProceedingTableEntry> seriesProceedingTableList = FXCollections.observableArrayList();
+	private int[] seriesQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
+	
 	private void setUpSeriesTab() {
+		// START main table stuff
+		new TabSetupHelper<SeriesTableEntry>().setUpTable(seriesMainTable, seriesMainTableList, this::showSeries);
+		new PagingSetupHelper().setUpPaging(seriesNextPageButton, seriesPreviousPageButton, seriesCurrentPageField, seriesQueryPage, this::loadDataSeriesTab);
 		
-		seriesTabController.initializeTabSpecificItems(
-				seriesNameField, 
-				seriesChangeNameButton, 
-				
-				seriesProceedingFilterField,
-				seriesAddProceedingButton, 
-				seriesProceedingDropdown);
+		seriesDeleteButton.setOnAction(new DeleteHandler<SeriesTableEntry>(seriesMainTable, this::deleteSeries));
+		// END main table stuff
 		
-		seriesTabController.initializeFunctions(proceedingTabController.mainShowFunction);
+		// START proceeding table stuff
+		new TabSetupHelper<SecondaryProceedingTableEntry>().setUpTable(seriesProceedingTable, seriesProceedingTableList, proceedingTabController.mainShowFunction);
+		// END proceeding table stuff
+	}
+	
+	private void loadDataSeriesTab() {
+		seriesMainTableList.clear();
+		pm.currentTransaction().begin();
+
+        Query query = pm.newQuery(Series.class);
+        query.setRange((seriesQueryPage[0]-1)*PAGE_SIZE, seriesQueryPage[0]*PAGE_SIZE);
+        Collection<Series> seriesPlural = (Collection<Series>) query.execute();
+
+        for (Series series: seriesPlural) {
+        	seriesMainTableList.add(new SeriesTableEntry(series));
+        }
+        
+        query.closeAll();
+        pm.currentTransaction().commit();
+	}
+	
+	private void showSeries(long objectId) {
+		pm.currentTransaction().begin();
+		Series series = (Series) pm.getObjectById(objectId);
 		
-		seriesTabController.setUpTables();
+		seriesNameField.setText(series.getName());
+		
+		seriesProceedingFilterField.setText("");
+		seriesProceedingTableList.clear();
+		for (Publication pub : series.getPublications()) {
+			if (pub instanceof Proceedings) {
+				seriesProceedingTableList.add(new SecondaryProceedingTableEntry((Proceedings)pub));
+			}
+		}
+		
+		pm.currentTransaction().commit();
+		tabPane.getSelectionModel().select(seriesTab);
+	}
+	
+	private void emptySeriesFields() {
+		seriesNameField.setText("");
+		seriesProceedingFilterField.setText("");
+		seriesProceedingTableList.clear();
+	}
+
+	private void deleteSeries(long objectId) {
+		pm.currentTransaction().begin();
+		Series ser = (Series) pm.getObjectById(objectId);
+		ser.removeReferencesFromOthers();
+		pm.deletePersistent(ser);
+		pm.currentTransaction().commit();
+		loadDataSeriesTab();
+		emptySeriesFields();
 	}
 	// END section for series tab
 	
@@ -1151,7 +1024,7 @@ public class Controller {
     @FXML    private ChoiceBox<?> seriesProceedingDropdown;
     @FXML    private TableView<SecondaryProceedingTableEntry> seriesProceedingTable;
     @FXML    private Button seriesRemoveProceedingButton;
-    @FXML    Tab importTab;
+    @FXML    private Tab importTab;
     @FXML    private Button importButton;
     @FXML    private Label importStatusLabel;
     // END section for fields that reference FXML
