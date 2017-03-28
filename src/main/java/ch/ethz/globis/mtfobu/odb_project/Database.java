@@ -1,14 +1,20 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
+import java.awt.Dimension;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.function.Function;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
 import org.zoodb.jdo.ZooJdoHelper;
 import org.zoodb.tools.ZooHelper;
+
+import javafx.collections.ObservableList;
 
 public class Database {
 	
@@ -30,6 +36,10 @@ public class Database {
 
 		// By default, all database files will be created in %USER_HOME%/zoodb
 		ZooHelper.createDb(dbName);
+	}
+	
+	public static boolean testForExistance(String dbName){
+		return ZooHelper.dbExists(dbName);
 	}
 	
 	public String getName(){
@@ -55,8 +65,8 @@ public class Database {
 		
 		//defining some indexes
 		ZooJdoHelper.createIndex(pm, Person.class, "name", false);
-		ZooJdoHelper.createIndex(pm, InProceedings.class, "id", true);
-		ZooJdoHelper.createIndex(pm, InProceedings.class, "title", false);
+		ZooJdoHelper.createIndex(pm, Proceedings.class, "id", true);
+		ZooJdoHelper.createIndex(pm, Proceedings.class, "title", false);
 		ZooJdoHelper.createIndex(pm, InProceedings.class, "id", true);
 		ZooJdoHelper.createIndex(pm, InProceedings.class, "title", false);
 		ZooJdoHelper.createIndex(pm, Publisher.class, "id", true);
@@ -139,21 +149,33 @@ public class Database {
         return Collections.unmodifiableCollection(proceedings);
 		
 	}
-	
-	public Collection<InProceedings> getAllInProceedings(){
-		Collection<InProceedings> inproceedings = null;
-		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+	/*** Seba: @fun is the function that will treat the queried data in form of a collection. 
+	 * This function is executed during the open transaction.
+	 * @rangeStart and @rangeEnd are optional parameters and determine the rage of the query */
+	public void executeOnAllInProceedings(Function<Collection<InProceedings>,Void> fun, OptionalLong rangeStart, OptionalLong rangeEnd){
 		
-		pm.currentTransaction().setNontransactionalRead(true);
+		//Seba: default range values in case no range has been specified.
+		long begin = rangeStart.isPresent() ? rangeStart.getAsLong() : 0;
+		long end = rangeEnd.isPresent() ? rangeEnd.getAsLong() : Long.MAX_VALUE;
+		
+		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+
+		pm.currentTransaction().begin();
 		
 		Query q = pm.newQuery(InProceedings.class);
-		inproceedings = (Collection<InProceedings>)q.execute(); 
+		q.setRange(begin, end);
+		fun.apply((Collection<InProceedings>) q.execute());
 
 		closeDB(pm);
-        
-        return Collections.unmodifiableCollection(inproceedings);
 		
 	}
+	public void executeOnObjectById(long objID, Function<Object,Void> fun){
+		PersistenceManager pm = ZooJdoHelper.openDB(dbName);;
+		pm.currentTransaction().begin();
+		fun.apply(pm.getObjectById(objID));
+		closeDB(pm);
+	}
+	
 	public void removePersonByID(long objID){
 		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
 		pm.currentTransaction().begin();
@@ -176,6 +198,5 @@ public class Database {
 		pm.getPersistenceManagerFactory().close();
 	}	
 	private final String dbName;
-
 
 }

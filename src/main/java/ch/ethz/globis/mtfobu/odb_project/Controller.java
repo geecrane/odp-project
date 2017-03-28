@@ -2,7 +2,9 @@ package ch.ethz.globis.mtfobu.odb_project;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.OptionalLong;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.jdo.Extent;
 import javax.jdo.PersistenceManager;
@@ -33,7 +35,7 @@ public class Controller {
 	
     public void initialize() {
     	pm = ZooJdoHelper.openOrCreateDB(Config.DATABASE_NAME);
-    	
+    	database = new Database(Config.DATABASE_NAME);
     	
     	importButton.setOnAction((event) -> {
 			//George: only for testing purposes
@@ -47,9 +49,7 @@ public class Controller {
 		         {
 		        	c.importButton.setDisable(true);
 		        	
-		        	Database db = new Database(Config.DATABASE_NAME);
-		 	        db.create();
-		 	        XmlImport xim = new XmlImport(db, c);
+		 	        XmlImport xim = new XmlImport(database, c);
 		 	        xim.ImportFromXML("src/main/resources/dblp_filtered.xml");
 		 	        c.pm = ZooJdoHelper.openDB(Config.DATABASE_NAME);
 		 	        c.importButton.setDisable(false);
@@ -212,43 +212,69 @@ public class Controller {
 	}
 	
 	private void loadDataInProceedingTab() {
-		inProceedingMainTableList.clear();
-		pm.currentTransaction().begin();
+//		inProceedingMainTableList.clear();
+//		pm.currentTransaction().begin();
+//
+//        Query query = pm.newQuery(InProceedings.class);
+//        query.setRange((inProceedingQueryPage[0]-1)*PAGE_SIZE, inProceedingQueryPage[0]*PAGE_SIZE);
+//        Collection<InProceedings> inProceedings = (Collection<InProceedings>) query.execute();
+//  
+//        query.closeAll();
+//        pm.currentTransaction().commit();
 
-        Query query = pm.newQuery(InProceedings.class);
-        query.setRange((inProceedingQueryPage[0]-1)*PAGE_SIZE, inProceedingQueryPage[0]*PAGE_SIZE);
-        Collection<InProceedings> inProceedings = (Collection<InProceedings>) query.execute();
-
-        for (InProceedings inProc: inProceedings) {
-        	inProceedingMainTableList.add(new InProceedingTableEntry(inProc));
-        }
-        
-        query.closeAll();
-        pm.currentTransaction().commit();
+		//Seba: I really wanted to ensure that queries are fully executed by a "Database" Object
+		database.executeOnAllInProceedings(updateProceedings, OptionalLong.of((inProceedingQueryPage[0]-1)*PAGE_SIZE), OptionalLong.of(inProceedingQueryPage[0]*PAGE_SIZE));
 	}
+	private final Function<Collection<InProceedings>,Void> updateProceedings = inProc -> {
+		inProceedingMainTableList.clear();
+		for (InProceedings inProceeding: inProc) {
+			inProceedingMainTableList.add(new InProceedingTableEntry(inProceeding));
+		}
+		return null;
+    };
 	
 	private void showInProceeding(long objectId) {
-		pm.currentTransaction().begin();
-		InProceedings inProc = (InProceedings) pm.getObjectById(objectId);
-		
-		inProceedingTitleField.setText(inProc.getTitle());
-		inProceedingPagesField.setText(inProc.getPages());
-		inProceedingYearField.setText(Integer.toString(inProc.getYear()));
+//		pm.currentTransaction().begin();
+//		InProceedings inProc = (InProceedings) pm.getObjectById(objectId);
+//		
+//		inProceedingTitleField.setText(inProc.getTitle());
+//		inProceedingPagesField.setText(inProc.getPages());
+//		inProceedingYearField.setText(Integer.toString(inProc.getYear()));
+//		
+//		Proceedings proc = inProc.getProceedings();
+//		if(null != proc) {
+//			inProceedingProceedingFilterField.setText(proc.getTitle());
+//		}
+//		
+//		inProceedingAuthorFilterField.setText("");
+//		inProceedingAuthorTableList.clear();
+//		for (Person person : inProc.getAuthors()) {
+//			inProceedingAuthorTableList.add(new SecondaryPersonTableEntry(person));
+//        }
+//		
+//		pm.currentTransaction().commit();
+//		tabPane.getSelectionModel().select(inProceedingTab);
+		database.executeOnObjectById(objectId, showinproceeding);
+		tabPane.getSelectionModel().select(inProceedingTab);
+	}
+	private final Function<Object,Void> showinproceeding = ( obj) -> {
+		InProceedings inProc = (InProceedings) obj;
+		this.inProceedingTitleField.setText(inProc.getTitle());
+		this.inProceedingPagesField.setText(inProc.getPages());
+		this.inProceedingYearField.setText(Integer.toString(inProc.getYear()));
 		
 		Proceedings proc = inProc.getProceedings();
 		if(null != proc) {
-			inProceedingProceedingFilterField.setText(proc.getTitle());
+			this.inProceedingProceedingFilterField.setText(proc.getTitle());
 		}
 		
-		inProceedingAuthorFilterField.setText("");
+		this.inProceedingAuthorFilterField.setText("");
 		inProceedingAuthorTableList.clear();
 		for (Person person : inProc.getAuthors()) {
 			inProceedingAuthorTableList.add(new SecondaryPersonTableEntry(person));
         }
-		
-		pm.currentTransaction().commit();
-		tabPane.getSelectionModel().select(inProceedingTab);
-	}
+		return null;
+    };
     
 	private void emptyInProceedingFields() {
 		inProceedingTitleField.setText("");
@@ -1108,6 +1134,7 @@ public class Controller {
     	}
     }
     
+    private Database database;
     // START section for fields that reference FXML
     @FXML TabPane tabPane;
     @FXML Tab personTab;

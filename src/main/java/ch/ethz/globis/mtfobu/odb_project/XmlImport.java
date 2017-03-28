@@ -49,7 +49,7 @@ public class XmlImport {
 			//parser
 			parseXml(doc);
 		
-			//commit to database
+			//commit to database 
 			setStatus("Commiting to Database...");
 			database.importData(proceedingsList, inProceedingsList);
 			
