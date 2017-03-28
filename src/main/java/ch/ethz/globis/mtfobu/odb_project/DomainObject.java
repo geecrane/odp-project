@@ -9,4 +9,6 @@ public interface DomainObject {
 
     public void setId(String id);
     
+    public void removeReferencesFromOthers();
+    
 }

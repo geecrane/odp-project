@@ -149,9 +149,9 @@ public class Database {
         return Collections.unmodifiableCollection(proceedings);
 		
 	}
-	/*** Seba: @fun is the function that will treat the queried data in form of a collection. 
+	/*** Seba: @param fun is the function that will treat the queried data in form of a collection. 
 	 * This function is executed during the open transaction.
-	 * @rangeStart and @rangeEnd are optional parameters and determine the rage of the query */
+	 * @param rangeStart and @param rangeEnd are optional parameters and determine the rage of the query */
 	public void executeOnAllInProceedings(Function<Collection<InProceedings>,Void> fun, OptionalLong rangeStart, OptionalLong rangeEnd){
 		
 		//Seba: default range values in case no range has been specified.
@@ -161,10 +161,10 @@ public class Database {
 		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
 
 		pm.currentTransaction().begin();
-		
 		Query q = pm.newQuery(InProceedings.class);
 		q.setRange(begin, end);
 		fun.apply((Collection<InProceedings>) q.execute());
+		pm.currentTransaction().commit();
 
 		closeDB(pm);
 		
@@ -176,12 +176,34 @@ public class Database {
 		closeDB(pm);
 	}
 	
+	
 	public void removePersonByID(long objID){
 		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
 		pm.currentTransaction().begin();
 		Person person = (Person) pm.getObjectById(objID);
 		person.removeReferencesFromOthers();
 		pm.deletePersistent(person);
+		closeDB(pm);
+	}
+	/** Seba: Removes every object given the object ID by @param objID. 
+	 * It assumes that the object implements the DomainObject interface. 
+	 * Otherwise the object will not be removed and the incident reported in the error log */
+	public void removeObjectById(long objID){
+		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+		
+		pm.currentTransaction().begin();
+		Object obj = pm.getObjectById(objID);
+		
+		//Seba: The function "removeReferencesFromOthers" is part of the "DomainObject" interface that every persistent class should implement
+		if (obj instanceof DomainObject){
+			((Proceedings) obj).removeReferencesFromOthers();
+			pm.deletePersistent(obj);
+		}
+		else if (obj != null) {
+			System.err.printf("Database was not expected to remove an object that does not implement DomainObject.\nThe give object ID was: %l \nits class was: %s", objID, obj.getClass());
+		}
+		
+		pm.currentTransaction().commit();
 		closeDB(pm);
 	}
 	
@@ -198,5 +220,6 @@ public class Database {
 		pm.getPersistenceManagerFactory().close();
 	}	
 	private final String dbName;
+	//private PersistenceManager pm;
 
 }

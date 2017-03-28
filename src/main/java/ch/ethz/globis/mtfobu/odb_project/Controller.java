@@ -254,10 +254,10 @@ public class Controller {
 //		
 //		pm.currentTransaction().commit();
 //		tabPane.getSelectionModel().select(inProceedingTab);
-		database.executeOnObjectById(objectId, showinproceeding);
+		database.executeOnObjectById(objectId, show_in_proceeding);
 		tabPane.getSelectionModel().select(inProceedingTab);
 	}
-	private final Function<Object,Void> showinproceeding = ( obj) -> {
+	private final Function<Object,Void> show_in_proceeding = ( obj) -> {
 		InProceedings inProc = (InProceedings) obj;
 		this.inProceedingTitleField.setText(inProc.getTitle());
 		this.inProceedingPagesField.setText(inProc.getPages());
@@ -286,14 +286,12 @@ public class Controller {
 	}
 	
 	private void deleteInProceeding(long objectId) {
-		pm.currentTransaction().begin();
-		InProceedings inProc = (InProceedings) pm.getObjectById(objectId);
-		inProc.removeReferencesFromOthers();
-		pm.deletePersistent(inProc);
-		pm.currentTransaction().commit();
+		database.removeObjectById(objectId);
+		
 		loadDataInProceedingTab();
 		emptyInProceedingFields();
 	}
+	
 	// END section for inproceeding tab
 	
 	
