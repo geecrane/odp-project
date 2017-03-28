@@ -69,7 +69,7 @@ public class Controller {
 	            } else if (newTab == proceedingTab) {
 	            	proceedingTabController.loadData();
 	            } else if (newTab == inProceedingTab) {
-	            	loadDataInProceedingTab();
+	            	inProceedingTabController.loadData();
 	            } else if (newTab == publicationTab) {
 	            	loadDataPublicationTab();
 	            } else if (newTab == publisherTab) {
@@ -106,6 +106,7 @@ public class Controller {
     
     private PersonTabController personTabController;
     private ProceedingTabController proceedingTabController;
+    private InProceedingTabController inProceedingTabController;
     
     private void instantiateControllers() {
     	personTabController = new PersonTabController(this, personMainTable,
@@ -121,12 +122,17 @@ public class Controller {
 				proceedingNewButton, proceedingDeleteButton,
 				proceedingEditorTable, proceedingRemoveEditorButton,
 				null, null);
+    	
+    	inProceedingTabController = new InProceedingTabController(this, inProceedingMainTable,
+    			inProceedingSearchField, inProceedingSearchButton,
+    			inProceedingNextPageButton, inProceedingPreviousPageButton, inProceedingCurrentPageField,
+    			inProceedingCreateButton, inProceedingDeleteButton,
+    			inProceedingAuthorTable, inProceedingRemoveAuthorButton,
+				null, null);
     }
     
     // START section for person tab
-    
     private void setUpPersonTab() {
-    	
     	personTabController.initializeTabSpecificItems(
     			personNameField,
     			personChangeNameButton,
@@ -139,20 +145,14 @@ public class Controller {
     			personInProceedingDropdown,
     			personAddAuthorButton);
     	
-    	personTabController.initializeFunctions(proceedingTabController.mainShowFunction, this::showInProceeding);
-    	
+    	personTabController.initializeFunctions(proceedingTabController.mainShowFunction, inProceedingTabController.mainShowFunction);
     	personTabController.setUpTables();
-    	
-    	
     }
-    
 	// END section for person tab
 	
 	
 	// START section for proceeding tab
-    
 	private void setUpProceedingTab() {
-		
 		proceedingTabController.initializeTabSpecificItems(
 				proceedingTitleField,
 				proceedingChangeTitleButton,
@@ -181,117 +181,36 @@ public class Controller {
 				proceedingAddEditorButton);
 		
 		proceedingTabController.initializeFunctions(personTabController.mainShowFunction);
-		
 		proceedingTabController.setUpTables();
-		
 	}
-	
-	
-	
-	
 	// END section for proceeding tab
 	
 	
 	// START section for inproceeding tab
-	private ObservableList<InProceedingTableEntry> inProceedingMainTableList = FXCollections.observableArrayList();
-	private ObservableList<SecondaryPersonTableEntry> inProceedingAuthorTableList = FXCollections.observableArrayList();
-	private int[] inProceedingQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
-	
 	private void setUpInProceedingTab() {
 		
-		// START main table stuff
-		new TabSetupHelper<InProceedingTableEntry>().setUpTable(inProceedingMainTable, inProceedingMainTableList, this::showInProceeding);
-		new PagingSetupHelper().setUpPaging(inProceedingNextPageButton, inProceedingPreviousPageButton, inProceedingCurrentPageField, inProceedingQueryPage, this::loadDataInProceedingTab);
+		inProceedingTabController.initializeTabSpecificItems(
+				  inProceedingPagesField,
+				  inProceedingChangePagesButton,
+				 
+				  inProceedingProceedingFilterField,
+				  inProceedingProceedingDropdown,
+				  inProceedingChangeProceedingButton,
+				 
+				  inProceedingAuthorDropdown,
+				  inProceedingAddAuthorButton,
+				  inProceedingAuthorFilterField,
+				 
+				  inProceedingTitleField,
+				  inProceedingChangeTitleButton,
+				 
+				  inProceedingYearField,
+				  inProceedingChangeYearButton);
 		
-		inProceedingDeleteButton.setOnAction(new DeleteHandler<InProceedingTableEntry>(inProceedingMainTable, this::deleteInProceeding));
-		// END main table stuff
+		inProceedingTabController.initializeFunctions(personTabController.mainShowFunction);
 		
-		// START author table stuff
-		new TabSetupHelper<SecondaryPersonTableEntry>().setUpTable(inProceedingAuthorTable, inProceedingAuthorTableList, personTabController.mainShowFunction);
-		// END author table stuff
+		inProceedingTabController.setUpTables();
 	}
-	
-	private void loadDataInProceedingTab() {
-//		inProceedingMainTableList.clear();
-//		pm.currentTransaction().begin();
-//
-//        Query query = pm.newQuery(InProceedings.class);
-//        query.setRange((inProceedingQueryPage[0]-1)*PAGE_SIZE, inProceedingQueryPage[0]*PAGE_SIZE);
-//        Collection<InProceedings> inProceedings = (Collection<InProceedings>) query.execute();
-//  
-//        query.closeAll();
-//        pm.currentTransaction().commit();
-
-		//Seba: I really wanted to ensure that queries are fully executed by a "Database" Object
-		database.executeOnAllInProceedings(updateProceedings, OptionalLong.of((inProceedingQueryPage[0]-1)*PAGE_SIZE), OptionalLong.of(inProceedingQueryPage[0]*PAGE_SIZE));
-	}
-	private final Function<Collection<InProceedings>,Void> updateProceedings = inProc -> {
-		inProceedingMainTableList.clear();
-		for (InProceedings inProceeding: inProc) {
-			inProceedingMainTableList.add(new InProceedingTableEntry(inProceeding));
-		}
-		return null;
-    };
-	
-	private void showInProceeding(long objectId) {
-//		pm.currentTransaction().begin();
-//		InProceedings inProc = (InProceedings) pm.getObjectById(objectId);
-//		
-//		inProceedingTitleField.setText(inProc.getTitle());
-//		inProceedingPagesField.setText(inProc.getPages());
-//		inProceedingYearField.setText(Integer.toString(inProc.getYear()));
-//		
-//		Proceedings proc = inProc.getProceedings();
-//		if(null != proc) {
-//			inProceedingProceedingFilterField.setText(proc.getTitle());
-//		}
-//		
-//		inProceedingAuthorFilterField.setText("");
-//		inProceedingAuthorTableList.clear();
-//		for (Person person : inProc.getAuthors()) {
-//			inProceedingAuthorTableList.add(new SecondaryPersonTableEntry(person));
-//        }
-//		
-//		pm.currentTransaction().commit();
-//		tabPane.getSelectionModel().select(inProceedingTab);
-		database.executeOnObjectById(objectId, show_in_proceeding);
-		tabPane.getSelectionModel().select(inProceedingTab);
-	}
-	private final Function<Object,Void> show_in_proceeding = ( obj) -> {
-		InProceedings inProc = (InProceedings) obj;
-		this.inProceedingTitleField.setText(inProc.getTitle());
-		this.inProceedingPagesField.setText(inProc.getPages());
-		this.inProceedingYearField.setText(Integer.toString(inProc.getYear()));
-		
-		Proceedings proc = inProc.getProceedings();
-		if(null != proc) {
-			this.inProceedingProceedingFilterField.setText(proc.getTitle());
-		}
-		
-		this.inProceedingAuthorFilterField.setText("");
-		inProceedingAuthorTableList.clear();
-		for (Person person : inProc.getAuthors()) {
-			inProceedingAuthorTableList.add(new SecondaryPersonTableEntry(person));
-        }
-		return null;
-    };
-    
-	private void emptyInProceedingFields() {
-		inProceedingTitleField.setText("");
-		inProceedingPagesField.setText("");
-		inProceedingYearField.setText("");
-		inProceedingProceedingFilterField.setText("");
-		inProceedingAuthorFilterField.setText("");
-		inProceedingAuthorTableList.clear();
-	}
-	
-	private void deleteInProceeding(long objectId) {
-		database.removeObjectById(objectId);
-		
-		loadDataInProceedingTab();
-		emptyInProceedingFields();
-	}
-	
 	// END section for inproceeding tab
 	
 	
@@ -344,7 +263,7 @@ public class Controller {
 		if (isProceeding) {
 			proceedingTabController.mainShowFunction.accept(objectId);
 		} else {
-			showInProceeding(objectId);
+			inProceedingTabController.mainShowFunction.accept(objectId);
 		}
 	}
 	
@@ -358,7 +277,7 @@ public class Controller {
 		if (isProceeding) {
 			proceedingTabController.deleteRecord(objectId);
 		} else {
-			deleteInProceeding(objectId);
+			inProceedingTabController.deleteRecord(objectId);
 		}
 		loadDataPublicationTab();
 	}
@@ -1132,7 +1051,7 @@ public class Controller {
     	}
     }
     
-    private Database database;
+    protected Database database;
     // START section for fields that reference FXML
     @FXML TabPane tabPane;
     @FXML Tab personTab;
@@ -1186,9 +1105,9 @@ public class Controller {
     @FXML    private Button proceedingRemoveEditorButton;
     @FXML    private ChoiceBox<?> proceedingEditorDropdown;
     @FXML    private Button proceedingAddEditorButton;
-    @FXML    private Tab inProceedingTab;
+    @FXML    Tab inProceedingTab;
     @FXML    private TableView<InProceedingTableEntry> inProceedingMainTable;
-    @FXML    private TextField inProceedingProceedingFilterField;
+    @FXML    private TextField inProceedingSearchField;
     @FXML    private Button inProceedingSearchButton;
     @FXML    private Button inProceedingDeleteButton;
     @FXML    private Button inProceedingNextPageButton;
@@ -1197,6 +1116,7 @@ public class Controller {
     @FXML    private Button inProceedingCreateButton;
     @FXML    private TextField inProceedingPagesField;
     @FXML    private Button inProceedingChangePagesButton;
+    @FXML    private TextField inProceedingProceedingFilterField;
     @FXML    private ChoiceBox<?> inProceedingProceedingDropdown;
     @FXML    private Button inProceedingChangeProceedingButton;
     @FXML    private ChoiceBox<?> inProceedingAuthorDropdown;

@@ -196,7 +196,7 @@ public class Database {
 		
 		//Seba: The function "removeReferencesFromOthers" is part of the "DomainObject" interface that every persistent class should implement
 		if (obj instanceof DomainObject){
-			((Proceedings) obj).removeReferencesFromOthers();
+			((DomainObject) obj).removeReferencesFromOthers();
 			pm.deletePersistent(obj);
 		}
 		else if (obj != null) {

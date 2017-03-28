@@ -175,6 +175,13 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 	
 	abstract public void loadData();
 	
-	abstract public void deleteRecord(Long objectId);
+	public void deleteRecord(Long objectId) {
+		c.database.removeObjectById(objectId);
+			
+		loadData();
+		emptyFields();
+	};
+	
+	abstract public void emptyFields();
 	
 }

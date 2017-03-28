@@ -2,7 +2,9 @@ package ch.ethz.globis.mtfobu.odb_project;
 
 
 import java.util.Collection;
+import java.util.OptionalLong;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.jdo.Query;
 
@@ -79,10 +81,16 @@ public class PersonTabController extends TabController<PersonTableEntry, Seconda
         c.pm.currentTransaction().commit();
 	}
 	
+	
+	
 	// shows a specific person in the bottom
 	public void showPerson(Long objectId) {
-		c.pm.currentTransaction().begin();
-		Person person = (Person) c.pm.getObjectById(objectId);
+		c.database.executeOnObjectById(objectId, displayPerson);
+		c.tabPane.getSelectionModel().select(c.personTab);
+	}
+	
+	private final Function<Object, Void> displayPerson = ( obj) -> {
+		Person person = (Person) obj;
 		
 		nameField.setText(person.getName());
 		
@@ -98,13 +106,12 @@ public class PersonTabController extends TabController<PersonTableEntry, Seconda
 			thirdTableList.add(c.new SecondaryInProceedingTableEntry((InProceedings) inProc));
         }
 		
-		c.pm.currentTransaction().commit();
-		
-		c.tabPane.getSelectionModel().select(c.personTab);
-	}
+		return null;
+	};
 
 	// resets all fields in the bottom to empty
-	private void emptyFields() {
+	@Override
+	public void emptyFields() {
 		nameField.setText("");
 		proceedingFilterField.setText("");
 		secondTableList.clear();
@@ -112,15 +119,4 @@ public class PersonTabController extends TabController<PersonTableEntry, Seconda
 		thirdTableList.clear();
 	}
 	
-	// deletes a person, while first removing the references to it
-	@Override
-	public void deleteRecord(Long objectId) {
-		c.pm.currentTransaction().begin();
-		Person person = (Person) c.pm.getObjectById(objectId);
-		person.removeReferencesFromOthers();
-		c.pm.deletePersistent(person);
-		c.pm.currentTransaction().commit();
-		loadData();
-		emptyFields();
-	}
 }

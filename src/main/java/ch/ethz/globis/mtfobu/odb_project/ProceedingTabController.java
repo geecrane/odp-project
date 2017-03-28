@@ -2,6 +2,7 @@ package ch.ethz.globis.mtfobu.odb_project;
 
 import java.util.Collection;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.jdo.Query;
 
@@ -113,8 +114,12 @@ public class ProceedingTabController extends TabController<ProceedingTableEntry,
 	}
 
 	private void showProceeding(long objectId) {
-		c.pm.currentTransaction().begin();
-		Proceedings proc = (Proceedings) c.pm.getObjectById(objectId);
+		c.database.executeOnObjectById(objectId, displayProceeding);
+		c.tabPane.getSelectionModel().select(c.proceedingTab);
+	}
+	
+	private final Function<Object, Void> displayProceeding = (obj) -> {
+		Proceedings proc = (Proceedings) obj;
 		
 		proceedingTitleField.setText(proc.getTitle());
 		proceedingIsbnField.setText(proc.getIsbn());
@@ -154,9 +159,8 @@ public class ProceedingTabController extends TabController<ProceedingTableEntry,
 			secondTableList.add(c.new SecondaryPersonTableEntry(person));
         }
 		
-		c.pm.currentTransaction().commit();
-		c.tabPane.getSelectionModel().select(c.proceedingTab);
-	}
+		return null;
+	};
 	
 	@Override
 	public void loadData() {
@@ -175,7 +179,8 @@ public class ProceedingTabController extends TabController<ProceedingTableEntry,
         c.pm.currentTransaction().commit();
 	}
 	
-	private void emptyProceedingFields() {
+	@Override
+	public void emptyFields() {
 		proceedingTitleField.setText("");
 		proceedingIsbnField.setText("");
 		proceedingPublisherFilterField.setText("");
@@ -187,15 +192,5 @@ public class ProceedingTabController extends TabController<ProceedingTableEntry,
 	}
 	
 
-	@Override
-	public void deleteRecord(Long objectId) {
-		c.pm.currentTransaction().begin();
-		Proceedings proc = (Proceedings) c.pm.getObjectById(objectId);
-		proc.removeReferencesFromOthers();
-		c.pm.deletePersistent(proc);
-		c.pm.currentTransaction().commit();
-		loadData();
-		emptyProceedingFields();
-	}
 
 }
