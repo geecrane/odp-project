@@ -1,5 +1,6 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.OptionalLong;
@@ -10,6 +11,7 @@ import javax.jdo.Extent;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
+import org.xml.sax.HandlerBase;
 import org.zoodb.jdo.ZooJdoHelper;
 
 import ch.ethz.globis.mtfobu.odb_project.Controller.MyRowFactory;
@@ -203,6 +205,25 @@ public class Controller {
 		new TabSetupHelper<InProceedingTableEntry>().setUpTable(inProceedingMainTable, inProceedingMainTableList, this::showInProceeding);
 		new PagingSetupHelper().setUpPaging(inProceedingNextPageButton, inProceedingPreviousPageButton, inProceedingCurrentPageField, inProceedingQueryPage, this::loadDataInProceedingTab);
 		
+		publicationSearchButton.setOnAction((event) -> {
+			String search[] = publicationSearchField.getText().split(";");
+			if(search.length == 3){
+			Function<ArrayList<Publication>, Void> fun = (pubs)-> {
+				int start = (Integer.parseInt(search[1]) < pubs.size())? Integer.parseInt(search[1]) : 0;
+				int stop = (Integer.parseInt(search[2]) < pubs.size()) ? Integer.parseInt(search[2]) : pubs.size()-1;
+				publicationMainTableList.clear();
+				for (Publication pub: pubs.subList(start, stop)){
+					publicationMainTableList.add(new PublicationTableEntry(pub));
+				}
+				return null;
+				};
+				
+			database.executeOnPublicationsByTitle(search[0],fun);
+			}
+			else loadDataPublicationTab();
+			
+			
+		});
 		inProceedingDeleteButton.setOnAction(new DeleteHandler<InProceedingTableEntry>(inProceedingMainTable, this::deleteInProceeding));
 		// END main table stuff
 		
@@ -257,7 +278,7 @@ public class Controller {
 		database.executeOnObjectById(objectId, show_in_proceeding);
 		tabPane.getSelectionModel().select(inProceedingTab);
 	}
-	private final Function<Object,Void> show_in_proceeding = ( obj) -> {
+	private final Function<Object,Integer> show_in_proceeding = ( obj) -> {
 		InProceedings inProc = (InProceedings) obj;
 		this.inProceedingTitleField.setText(inProc.getTitle());
 		this.inProceedingPagesField.setText(inProc.getPages());
@@ -273,7 +294,7 @@ public class Controller {
 		for (Person person : inProc.getAuthors()) {
 			inProceedingAuthorTableList.add(new SecondaryPersonTableEntry(person));
         }
-		return null;
+		return 0;
     };
     
 	private void emptyInProceedingFields() {
@@ -286,8 +307,7 @@ public class Controller {
 	}
 	
 	private void deleteInProceeding(long objectId) {
-		database.removeObjectById(objectId);
-		
+		database.removeObjectById(objectId);	
 		loadDataInProceedingTab();
 		emptyInProceedingFields();
 	}
@@ -310,43 +330,50 @@ public class Controller {
 	
 	private void loadDataPublicationTab() {
 		publicationMainTableList.clear();
-		pm.currentTransaction().begin();
-
-        Query query = pm.newQuery(Proceedings.class);
-        query.setRange((publicationQueryPage[0]-1)*PAGE_SIZE, publicationQueryPage[0]*PAGE_SIZE);
-        Collection<Publication> publications = (Collection<Publication>) query.execute();
-
-        for (Publication proc: publications) {
-        	publicationMainTableList.add(new PublicationTableEntry(proc));
-        }
-        
-        query.closeAll();
-        
-        query = pm.newQuery(InProceedings.class);
-        query.setRange((publicationQueryPage[0]-1)*PAGE_SIZE, publicationQueryPage[0]*PAGE_SIZE);
-        publications = (Collection<Publication>) query.execute();
-        
-        for (Publication inProc: publications) {
-        	publicationMainTableList.add(new PublicationTableEntry(inProc));
-        }
-        
-        query.closeAll();
-        pm.currentTransaction().commit();
+		database.executeOnAllPublications(updatePublications, OptionalLong.of((publicationQueryPage[0]-1)*PAGE_SIZE), OptionalLong.of(publicationQueryPage[0]*PAGE_SIZE));
+//		pm.currentTransaction().begin();
+//
+//        Query query = pm.newQuery(Proceedings.class);
+//        query.setRange((publicationQueryPage[0]-1)*PAGE_SIZE, publicationQueryPage[0]*PAGE_SIZE);
+//        Collection<Publication> publications = (Collection<Publication>) query.execute();
+//
+//        for (Publication proc: publications) {
+//        	publicationMainTableList.add(new PublicationTableEntry(proc));
+//        }
+//        
+//        query.closeAll();
+//        
+//        query = pm.newQuery(InProceedings.class);
+//        query.setRange((publicationQueryPage[0]-1)*PAGE_SIZE, publicationQueryPage[0]*PAGE_SIZE);
+//        publications = (Collection<Publication>) query.execute();
+//        
+//        for (Publication inProc: publications) {
+//        	publicationMainTableList.add(new PublicationTableEntry(inProc));
+//        }
+//        
+//        query.closeAll();
+//        pm.currentTransaction().commit();
 	}
+	private final Function<Collection<Publication>,Void> updatePublications = publications -> {
+		 for (Publication pub: publications) {
+	        	publicationMainTableList.add(new PublicationTableEntry(pub));
+	        }
+		return null;
+    };
+	
 	
 	private void showPublication(long objectId) {
-		boolean isProceeding = false;
-		pm.currentTransaction().begin();
-		Publication pub = (Publication) pm.getObjectById(objectId);
-		isProceeding = pub instanceof Proceedings;
-		pm.currentTransaction().commit();
-		
-		if (isProceeding) {
+		if(database.executeOnObjectById(objectId, show_publication) == 1){
 			proceedingTabController.mainShowFunction.accept(objectId);
-		} else {
+		}
+		else{
 			showInProceeding(objectId);
 		}
 	}
+	private final Function<Object,Integer> show_publication = publication -> {
+		// convert to integer since the function "executeOnObjectById" requires a function that has a return type Integer
+		return (publication instanceof Proceedings) ? 1 : 0;
+   };
 	
 	private void deletePublication(long objectId) {
 		boolean isProceeding = false;
