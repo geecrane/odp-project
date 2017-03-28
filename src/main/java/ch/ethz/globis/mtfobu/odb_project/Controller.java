@@ -77,7 +77,7 @@ public class Controller {
 	            } else if (newTab == conferenceTab) {
 	            	conferenceTabController.loadData();
 	            } else if (newTab == conferenceEditionTab) {
-	            	loadDataConferenceEditionTab();
+	            	conferenceEditionTabController.loadData();
 	            } else if (newTab == seriesTab) {
 	            	loadDataSeriesTab();
 	            } else if (newTab == importTab) {
@@ -110,6 +110,7 @@ public class Controller {
     protected PublicationTabController publicationTabController;
     protected PublisherTabController publisherTabController;
     protected ConferenceTabController conferenceTabController;
+    protected ConferenceEditionTabController conferenceEditionTabController;
     
     private void instantiateControllers() {
     	personTabController = new PersonTabController(this, personMainTable,
@@ -152,6 +153,13 @@ public class Controller {
     			conferenceNextPageButton, conferencePreviousPageButton, conferenceCurrentPageField,
     			conferenceCreateButton, conferenceDeleteButton,
     			conferenceEditionTable, conferenceRemoveEditionButton,
+				null, null);
+    	
+    	conferenceEditionTabController = new ConferenceEditionTabController(this, conferenceEditionMainTable,
+    			conferenceEditionSearchField, conferenceEditionSearchButton,
+    			conferenceEditionNextPageButton, conferenceEditionPreviousPageButton, conferenceEditionCurrentPageField,
+    			conferenceEditionCreateButton, conferenceEditionDeleteButton,
+    			null, null,
 				null, null);
     }
     
@@ -285,7 +293,7 @@ public class Controller {
 				conferenceAddEditionButton,
 				conferenceEditionFilterField);
 		
-		conferenceTabController.initializeFunctions(this::showConferenceEdition);
+		conferenceTabController.initializeFunctions(conferenceEditionTabController.mainShowFunction);
 		
 		conferenceTabController.setUpTables();
 	}
@@ -297,66 +305,16 @@ public class Controller {
 	private int[] conferenceEditionQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
 	
 	private void setUpConferenceEditionTab() {
-		// START main table stuff
-		new TabSetupHelper<ConferenceEditionTableEntry>().setUpTable(conferenceEditionMainTable, conferenceEditionMainTableList, this::showConferenceEdition);
-		new PagingSetupHelper().setUpPaging(conferenceEditionNextPageButton, conferenceEditionPreviousPageButton, conferenceEditionCurrentPageField, conferenceEditionQueryPage, this::loadDataConferenceEditionTab);
+		conferenceEditionTabController.initializeTabSpecificItems(
+				conferenceEditionNameField,
+				conferenceEditionChangeNameButton,
+				
+				conferenceEditionEditionField,
+				conferenceEditionChangeEditionButton);
 		
-		conferenceEditionDeleteButton.setOnAction(new DeleteHandler<ConferenceEditionTableEntry>(conferenceEditionMainTable, this::deleteConferenceEdition));
-		// END main table stuff
-	}
-	
-	private void loadDataConferenceEditionTab() {
-		conferenceEditionMainTableList.clear();
-		pm.currentTransaction().begin();
-
-        Query query = pm.newQuery(ConferenceEdition.class);
-        query.setRange((conferenceEditionQueryPage[0]-1)*PAGE_SIZE, conferenceEditionQueryPage[0]*PAGE_SIZE);
-        Collection<ConferenceEdition> conferenceEditions = (Collection<ConferenceEdition>) query.execute();
-
-        for (ConferenceEdition confEd: conferenceEditions) {
-        	conferenceEditionMainTableList.add(new ConferenceEditionTableEntry(confEd));
-        }
-        
-        query.closeAll();
-        pm.currentTransaction().commit();
-	}
-	
-	private void showConferenceEdition(long objectId) {
-		pm.currentTransaction().begin();
-		ConferenceEdition confEd = (ConferenceEdition) pm.getObjectById(objectId);
+		conferenceEditionTabController.initializeFunctions();
 		
-		Conference conf = confEd.getConference();
-		
-		if (null != conf) {
-			conferenceEditionNameField.setText(conf.getName());
-		} else {
-			conferenceEditionNameField.setText("");
-		}
-		
-		int year = confEd.getYear();
-		if (0 != year) {
-			conferenceEditionEditionField.setText(Integer.toString(year));
-		} else {
-			conferenceEditionEditionField.setText("No year");
-		}
-		
-		pm.currentTransaction().commit();
-		tabPane.getSelectionModel().select(conferenceEditionTab);
-	}
-	
-	private void emptyConferenceEditionFields() {
-		conferenceEditionNameField.setText("");
-		conferenceEditionEditionField.setText("");
-	}
-
-	private void deleteConferenceEdition(long objectId) {
-		pm.currentTransaction().begin();
-		ConferenceEdition confEd = (ConferenceEdition) pm.getObjectById(objectId);
-		confEd.removeReferencesFromOthers();
-		pm.deletePersistent(confEd);
-		pm.currentTransaction().commit();
-		loadDataConferenceEditionTab();
-		emptyConferenceEditionFields();
+		conferenceEditionTabController.setUpTables();
 	}
 	// END section for conference editions tab
 	
@@ -1037,7 +995,7 @@ public class Controller {
     @FXML    private TextField conferenceEditionFilterField;
     @FXML    private TableView<SecondaryConferenceEditionTableEntry> conferenceEditionTable;
     @FXML    private Button conferenceRemoveEditionButton;
-    @FXML    private Tab conferenceEditionTab;
+    @FXML    Tab conferenceEditionTab;
     @FXML    private TableView<ConferenceEditionTableEntry> conferenceEditionMainTable;
     @FXML    private Button conferenceEditionDeleteButton;
     @FXML    private TextField conferenceEditionSearchField;
@@ -1050,7 +1008,7 @@ public class Controller {
     @FXML    private Button conferenceEditionChangeNameButton;
     @FXML    private TextField conferenceEditionEditionField;
     @FXML    private Button conferenceEditionChangeEditionButton;
-    @FXML    private Tab seriesTab;
+    @FXML    Tab seriesTab;
     @FXML    private TableView<SeriesTableEntry> seriesMainTable;
     @FXML    private Button seriesDeleteButton;
     @FXML    private TextField seriesSearchField;
