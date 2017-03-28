@@ -73,7 +73,7 @@ public class Controller {
 	            } else if (newTab == publicationTab) {
 	            	publicationTabController.loadData();
 	            } else if (newTab == publisherTab) {
-	            	loadDataPublisherTab();
+	            	publisherTabController.loadData();
 	            } else if (newTab == conferenceTab) {
 	            	loadDataConferenceTab();
 	            } else if (newTab == conferenceEditionTab) {
@@ -108,6 +108,7 @@ public class Controller {
     protected ProceedingTabController proceedingTabController;
     protected InProceedingTabController inProceedingTabController;
     protected PublicationTabController publicationTabController;
+    protected PublisherTabController publisherTabController;
     
     private void instantiateControllers() {
     	personTabController = new PersonTabController(this, personMainTable,
@@ -137,6 +138,13 @@ public class Controller {
     			null, publicationDeleteButton,
     			null, null,
 				null, null);
+    	
+    	publisherTabController = new PublisherTabController(this, publisherMainTable,
+    			publisherSearchField, publisherSearchButton,
+    			publisherNextPageButton, publisherPreviousPageButton, publisherCurrentPageField,
+    			publisherCreateButton, publisherDeleteButton,
+    			publisherProceedingTable, publisherRemoveProceedingButton,
+				null, null);
     }
     
     // START section for person tab
@@ -154,6 +162,7 @@ public class Controller {
     			personAddAuthorButton);
     	
     	personTabController.initializeFunctions(proceedingTabController.mainShowFunction, inProceedingTabController.mainShowFunction);
+    	
     	personTabController.setUpTables();
     }
 	// END section for person tab
@@ -189,6 +198,7 @@ public class Controller {
 				proceedingAddEditorButton);
 		
 		proceedingTabController.initializeFunctions(personTabController.mainShowFunction);
+		
 		proceedingTabController.setUpTables();
 	}
 	// END section for proceeding tab
@@ -227,7 +237,7 @@ public class Controller {
 		publicationTabController.initializeTabSpecificItems();
 		
 		publicationTabController.initializeFunctions();
-		
+	
 		publicationTabController.setUpTables();
 	}
 	// End section for publication tab
@@ -239,68 +249,21 @@ public class Controller {
     private int[] publisherQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
 	
 	private void setUpPublisherTab() {
-		// START main table stuff
-		new TabSetupHelper<PublisherTableEntry>().setUpTable(publisherMainTable, publisherMainTableList, this::showPublisher);
-		new PagingSetupHelper().setUpPaging(publisherNextPageButton, publisherPreviousPageButton, publisherCurrentPageField, publisherQueryPage, this::loadDataPublisherTab);
+		publisherTabController.initializeTabSpecificItems(
+				publisherNameField, 
+				publisherChangeNameButton,
+				
+				publisherProceedingDropdown,
+				publisherAddProceedingButton,
+				publisherProceedingFilterField);
 		
-		publisherDeleteButton.setOnAction(new DeleteHandler<PublisherTableEntry>(publisherMainTable, this::deletePublisher));
-		// END main table stuff
+		publisherTabController.initializeFunctions(proceedingTabController.mainShowFunction);
 		
-		// START proceeding table stuff
-		new TabSetupHelper<SecondaryProceedingTableEntry>().setUpTable(publisherProceedingTable, publisherProceedingTableList, proceedingTabController.mainShowFunction);
-		// END proceeding table stuff
+		publisherTabController.setUpTables();
 	}
 	
-	private void loadDataPublisherTab() {
-		publisherMainTableList.clear();
-		pm.currentTransaction().begin();
+	
 
-        Query query = pm.newQuery(Publisher.class);
-        query.setRange((publisherQueryPage[0]-1)*PAGE_SIZE, publisherQueryPage[0]*PAGE_SIZE);
-        Collection<Publisher> publishers = (Collection<Publisher>) query.execute();
-
-        for (Publisher puber: publishers) {
-        	publisherMainTableList.add(new PublisherTableEntry(puber));
-        }
-        
-        query.closeAll();
-        pm.currentTransaction().commit();
-	}
-	
-	private void showPublisher(long objectId) {
-		pm.currentTransaction().begin();
-		Publisher puber = (Publisher) pm.getObjectById(objectId);
-		
-		publisherNameField.setText(puber.getName());
-		
-		publisherProceedingFilterField.setText("");
-		publisherProceedingTableList.clear();
-		for (Publication pub : puber.getPublications()) {
-			if (pub instanceof Proceedings) {
-				Proceedings proc = (Proceedings) pub;
-				publisherProceedingTableList.add(new SecondaryProceedingTableEntry(proc));
-			}
-        }
-		
-		pm.currentTransaction().commit();
-		tabPane.getSelectionModel().select(publisherTab);
-	}
-	
-	private void emptyPublisherFields() {
-		publisherNameField.setText("");
-		publisherProceedingFilterField.setText("");
-		publisherProceedingTableList.clear();
-	}
-	
-	private void deletePublisher(long objectId) {
-		pm.currentTransaction().begin();
-		Publisher puber = (Publisher) pm.getObjectById(objectId);
-		puber.removeReferencesFromOthers();
-		pm.deletePersistent(puber);
-		pm.currentTransaction().commit();
-		loadDataPublisherTab();
-		emptyPublisherFields();
-	}
 	// End section for publisher tab
 	
 	
