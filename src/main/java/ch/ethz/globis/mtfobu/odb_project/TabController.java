@@ -173,6 +173,8 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 		
 	}
 	
+	// Generally you need initializeTabSpecificItems(...) and initializeFunctions(...) in subclasses
+	
 	abstract public void loadData();
 	
 	public void deleteRecord(Long objectId) {

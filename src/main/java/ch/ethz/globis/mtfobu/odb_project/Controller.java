@@ -71,7 +71,7 @@ public class Controller {
 	            } else if (newTab == inProceedingTab) {
 	            	inProceedingTabController.loadData();
 	            } else if (newTab == publicationTab) {
-	            	loadDataPublicationTab();
+	            	publicationTabController.loadData();
 	            } else if (newTab == publisherTab) {
 	            	loadDataPublisherTab();
 	            } else if (newTab == conferenceTab) {
@@ -104,9 +104,10 @@ public class Controller {
     
     
     
-    private PersonTabController personTabController;
-    private ProceedingTabController proceedingTabController;
-    private InProceedingTabController inProceedingTabController;
+    protected PersonTabController personTabController;
+    protected ProceedingTabController proceedingTabController;
+    protected InProceedingTabController inProceedingTabController;
+    protected PublicationTabController publicationTabController;
     
     private void instantiateControllers() {
     	personTabController = new PersonTabController(this, personMainTable,
@@ -128,6 +129,13 @@ public class Controller {
     			inProceedingNextPageButton, inProceedingPreviousPageButton, inProceedingCurrentPageField,
     			inProceedingCreateButton, inProceedingDeleteButton,
     			inProceedingAuthorTable, inProceedingRemoveAuthorButton,
+				null, null);
+    	
+    	publicationTabController = new PublicationTabController(this, publicationMainTable,
+    			publicationSearchField, publicationSearchButton,
+    			publicationNextPageButton, publicationPreviousPageButton, publicationCurrentPageField,
+    			null, publicationDeleteButton,
+    			null, null,
 				null, null);
     }
     
@@ -215,71 +223,12 @@ public class Controller {
 	
 	
 	// START section for publication tab
-	private ObservableList<PublicationTableEntry> publicationMainTableList = FXCollections.observableArrayList();
-	private int[] publicationQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
-	
 	private void setUpPublicationTab() {
-		// START main table stuff
-		new TabSetupHelper<PublicationTableEntry>().setUpTable(publicationMainTable, publicationMainTableList, this::showPublication);
-		new PagingSetupHelper().setUpPaging(publicationNextPageButton, publicationPreviousPageButton, publicationCurrentPageField, publicationQueryPage, this::loadDataPublicationTab);
+		publicationTabController.initializeTabSpecificItems();
 		
-		publicationDeleteButton.setOnAction(new DeleteHandler<PublicationTableEntry>(publicationMainTable, this::deletePublication));
-		// END main table stuff
-	}
-	
-	private void loadDataPublicationTab() {
-		publicationMainTableList.clear();
-		pm.currentTransaction().begin();
-
-        Query query = pm.newQuery(Proceedings.class);
-        query.setRange((publicationQueryPage[0]-1)*PAGE_SIZE, publicationQueryPage[0]*PAGE_SIZE);
-        Collection<Publication> publications = (Collection<Publication>) query.execute();
-
-        for (Publication proc: publications) {
-        	publicationMainTableList.add(new PublicationTableEntry(proc));
-        }
-        
-        query.closeAll();
-        
-        query = pm.newQuery(InProceedings.class);
-        query.setRange((publicationQueryPage[0]-1)*PAGE_SIZE, publicationQueryPage[0]*PAGE_SIZE);
-        publications = (Collection<Publication>) query.execute();
-        
-        for (Publication inProc: publications) {
-        	publicationMainTableList.add(new PublicationTableEntry(inProc));
-        }
-        
-        query.closeAll();
-        pm.currentTransaction().commit();
-	}
-	
-	private void showPublication(long objectId) {
-		boolean isProceeding = false;
-		pm.currentTransaction().begin();
-		Publication pub = (Publication) pm.getObjectById(objectId);
-		isProceeding = pub instanceof Proceedings;
-		pm.currentTransaction().commit();
+		publicationTabController.initializeFunctions();
 		
-		if (isProceeding) {
-			proceedingTabController.mainShowFunction.accept(objectId);
-		} else {
-			inProceedingTabController.mainShowFunction.accept(objectId);
-		}
-	}
-	
-	private void deletePublication(long objectId) {
-		boolean isProceeding = false;
-		pm.currentTransaction().begin();
-		Publication pub = (Publication) pm.getObjectById(objectId);
-		isProceeding = pub instanceof Proceedings;
-		pm.currentTransaction().commit();
-		
-		if (isProceeding) {
-			proceedingTabController.deleteRecord(objectId);
-		} else {
-			inProceedingTabController.deleteRecord(objectId);
-		}
-		loadDataPublicationTab();
+		publicationTabController.setUpTables();
 	}
 	// End section for publication tab
 	
@@ -1128,7 +1077,7 @@ public class Controller {
     @FXML    private Button inProceedingChangeTitleButton;
     @FXML    private TextField inProceedingYearField;
     @FXML    private Button inProceedingChangeYearButton;
-    @FXML    private Tab publicationTab;
+    @FXML    Tab publicationTab;
     @FXML    private TableView<PublicationTableEntry> publicationMainTable;
     @FXML    private TextField publicationSearchField;
     @FXML    private Button publicationSearchButton;
@@ -1136,7 +1085,7 @@ public class Controller {
     @FXML    private Button publicationNextPageButton;
     @FXML    private Button publicationPreviousPageButton;
     @FXML    private TextField publicationCurrentPageField;
-    @FXML    private Tab publisherTab;
+    @FXML    Tab publisherTab;
     @FXML    private TableView<PublisherTableEntry> publisherMainTable;
     @FXML    private Button publisherDeleteButton;
     @FXML    private TextField publisherSearchField;
