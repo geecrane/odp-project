@@ -27,7 +27,7 @@ public class PublicationTabController extends TabController<PublicationTableEntr
 			if(search.length == 3){
 			Function<ArrayList<Publication>, Void> fun = (pubs)-> {
 				int start = (Integer.parseInt(search[1]) < pubs.size())? Integer.parseInt(search[1]) : 0;
-				int stop = (Integer.parseInt(search[2]) < pubs.size()) ? Integer.parseInt(search[2]) : pubs.size()-1;
+				int stop = (Integer.parseInt(search[2]) < pubs.size()) ? Integer.parseInt(search[2]) : ((pubs.size() == 0 ) ? 0 : pubs.size()-1);
 				mainTableList.clear();
 				for (Publication pub: pubs.subList(start, stop)){
 					mainTableList.add(c.new PublicationTableEntry(pub));
