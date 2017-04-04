@@ -1,28 +1,31 @@
-package ch.ethz.globis.mtfobu.odb_project;
+package ch.ethz.globis.mtfobu.odb_project.ui;
 
 import java.util.Collection;
 import java.util.function.Consumer;
 
 import javax.jdo.Query;
 
-import ch.ethz.globis.mtfobu.odb_project.Controller.ConferenceEditionTableEntry;
-import ch.ethz.globis.mtfobu.odb_project.Controller.TableEntry;
+import ch.ethz.globis.mtfobu.odb_project.Conference;
+import ch.ethz.globis.mtfobu.odb_project.ConferenceEdition;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.ConferenceEditionTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 public class ConferenceEditionTabController extends TabController<ConferenceEditionTableEntry, TableEntry, TableEntry> {
-
-	public ConferenceEditionTabController(Controller c, TableView mainTable, TextField fieldSearch, Button buttonSearch,
-			Button buttonNextPage, Button buttonPreviousPage, TextField fieldCurrentPage, Button buttonCreateRecord,
-			Button buttonDeleteRecord, TableView secondTbl, Button btnDeleteRefSecond, TableView thirdTbl,
-			Button btnDeleteRefthird) {
-		super(c, mainTable, fieldSearch, buttonSearch, buttonNextPage, buttonPreviousPage, fieldCurrentPage, buttonCreateRecord,
-				buttonDeleteRecord, secondTbl, btnDeleteRefSecond, thirdTbl, btnDeleteRefthird);
+	
+	public ConferenceEditionTabController(Controller c, TableView<ConferenceEditionTableEntry> mainTable,
+			TextField searchField, Button searchButton, Button nextPageButton, Button previousPageButton,
+			TextField currentPageField, Button createRecordButton, Button deleteRecordButton,
+			TableView<TableEntry> secondTable, Button deleteSecondReferenceButton, TableView<TableEntry> thirdTable,
+			Button deleteThirdReferenceButton) {
+		super(c, mainTable, searchField, searchButton, nextPageButton, previousPageButton, currentPageField, createRecordButton,
+				deleteRecordButton, secondTable, deleteSecondReferenceButton, thirdTable, deleteThirdReferenceButton);
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	private TextField conferenceEditionNameField;
 	private Button conferenceEditionChangeNameButton;
 	private TextField conferenceEditionEditionField;

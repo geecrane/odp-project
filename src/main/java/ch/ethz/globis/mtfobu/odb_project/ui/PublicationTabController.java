@@ -1,4 +1,4 @@
-package ch.ethz.globis.mtfobu.odb_project;
+package ch.ethz.globis.mtfobu.odb_project.ui;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,24 +6,28 @@ import java.util.function.Function;
 
 import javax.jdo.Query;
 
-import ch.ethz.globis.mtfobu.odb_project.Controller.PublicationTableEntry;
-import ch.ethz.globis.mtfobu.odb_project.Controller.TableEntry;
+import ch.ethz.globis.mtfobu.odb_project.InProceedings;
+import ch.ethz.globis.mtfobu.odb_project.Proceedings;
+import ch.ethz.globis.mtfobu.odb_project.Publication;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PublicationTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 public class PublicationTabController extends TabController<PublicationTableEntry, TableEntry, TableEntry> {
-
-	public PublicationTabController(Controller c, TableView mainTable, TextField fieldSearch, Button buttonSearch,
-			Button buttonNextPage, Button buttonPreviousPage, TextField fieldCurrentPage, Button buttonCreateRecord,
-			Button buttonDeleteRecord, TableView secondTbl, Button btnDeleteRefSecond, TableView thirdTbl,
-			Button btnDeleteRefthird) {
-		super(c, mainTable, fieldSearch, buttonSearch, buttonNextPage, buttonPreviousPage, fieldCurrentPage, buttonCreateRecord,
-				buttonDeleteRecord, secondTbl, btnDeleteRefSecond, thirdTbl, btnDeleteRefthird);
+	
+	
+	public PublicationTabController(Controller c, TableView<PublicationTableEntry> mainTable, TextField searchField,
+			Button searchButton, Button nextPageButton, Button previousPageButton, TextField currentPageField,
+			Button createRecordButton, Button deleteRecordButton, TableView<TableEntry> secondTable,
+			Button deleteSecondReferenceButton, TableView<TableEntry> thirdTable, Button deleteThirdReferenceButton) {
+		super(c, mainTable, searchField, searchButton, nextPageButton, previousPageButton, currentPageField, createRecordButton,
+				deleteRecordButton, secondTable, deleteSecondReferenceButton, thirdTable, deleteThirdReferenceButton);
 		// TODO Auto-generated constructor stub
 		
-		buttonSearch.setOnAction((event) -> {
-			String search[] = fieldSearch.getText().split(";");
+		searchButton.setOnAction((event) -> {
+			String search[] = searchField.getText().split(";");
 			if(search.length == 3){
 			Function<ArrayList<Publication>, Void> fun = (pubs)-> {
 				int start = (Integer.parseInt(search[1]) < pubs.size())? Integer.parseInt(search[1]) : 0;
@@ -42,8 +46,7 @@ public class PublicationTabController extends TabController<PublicationTableEntr
 			
 		});
 	}
-	
-	
+
 	
 	
 	

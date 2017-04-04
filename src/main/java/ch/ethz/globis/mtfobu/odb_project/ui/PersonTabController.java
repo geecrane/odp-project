@@ -1,4 +1,4 @@
-package ch.ethz.globis.mtfobu.odb_project;
+package ch.ethz.globis.mtfobu.odb_project.ui;
 
 
 import java.util.Collection;
@@ -8,10 +8,14 @@ import java.util.function.Function;
 
 import javax.jdo.Query;
 
-import ch.ethz.globis.mtfobu.odb_project.Controller.MyRowFactory;
-import ch.ethz.globis.mtfobu.odb_project.Controller.PersonTableEntry;
-import ch.ethz.globis.mtfobu.odb_project.Controller.SecondaryInProceedingTableEntry;
-import ch.ethz.globis.mtfobu.odb_project.Controller.SecondaryProceedingTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.InProceedings;
+import ch.ethz.globis.mtfobu.odb_project.Person;
+import ch.ethz.globis.mtfobu.odb_project.Proceedings;
+import ch.ethz.globis.mtfobu.odb_project.Publication;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.MyRowFactory;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PersonTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryInProceedingTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryProceedingTableEntry;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -24,13 +28,15 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
 
 public class PersonTabController extends TabController<PersonTableEntry, SecondaryProceedingTableEntry, SecondaryInProceedingTableEntry> {
-	
-	public PersonTabController(Controller c, TableView<PersonTableEntry> mainTable, TextField fieldSearch,
-			Button buttonSearch, Button buttonNextPage, Button buttonPreviousPage, TextField fieldCurrentPage,
-			Button buttonCreateRecord, Button buttonDeleteRecord, TableView<SecondaryProceedingTableEntry> secondTbl,
-			Button btnDeleteRefSecond, TableView<SecondaryInProceedingTableEntry> thirdTbl, Button btnDeleteRefthird) {
-		super(c, mainTable, fieldSearch, buttonSearch, buttonNextPage, buttonPreviousPage, fieldCurrentPage, buttonCreateRecord,
-				buttonDeleteRecord, secondTbl, btnDeleteRefSecond, thirdTbl, btnDeleteRefthird);
+
+	public PersonTabController(Controller c, TableView<PersonTableEntry> mainTable, TextField searchField,
+			Button searchButton, Button nextPageButton, Button previousPageButton, TextField currentPageField,
+			Button createRecordButton, Button deleteRecordButton, TableView<SecondaryProceedingTableEntry> secondTable,
+			Button deleteSecondReferenceButton, TableView<SecondaryInProceedingTableEntry> thirdTable,
+			Button deleteThirdReferenceButton) {
+		super(c, mainTable, searchField, searchButton, nextPageButton, previousPageButton, currentPageField, createRecordButton,
+				deleteRecordButton, secondTable, deleteSecondReferenceButton, thirdTable, deleteThirdReferenceButton);
+		// TODO Auto-generated constructor stub
 	}
 
 	// person tab specific fields

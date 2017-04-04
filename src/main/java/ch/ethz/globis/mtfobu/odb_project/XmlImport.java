@@ -11,6 +11,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller;
 import javafx.application.Platform;
 
 public class XmlImport {

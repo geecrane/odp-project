@@ -1,13 +1,16 @@
-package ch.ethz.globis.mtfobu.odb_project;
+package ch.ethz.globis.mtfobu.odb_project.ui;
 
 import java.util.Collection;
 import java.util.function.Consumer;
 
 import javax.jdo.Query;
 
-import ch.ethz.globis.mtfobu.odb_project.Controller.SecondaryProceedingTableEntry;
-import ch.ethz.globis.mtfobu.odb_project.Controller.SeriesTableEntry;
-import ch.ethz.globis.mtfobu.odb_project.Controller.TableEntry;
+import ch.ethz.globis.mtfobu.odb_project.Proceedings;
+import ch.ethz.globis.mtfobu.odb_project.Publication;
+import ch.ethz.globis.mtfobu.odb_project.Series;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryProceedingTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SeriesTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
@@ -16,12 +19,12 @@ import javafx.scene.control.TextField;
 
 public class SeriesTabController extends TabController<SeriesTableEntry, SecondaryProceedingTableEntry, TableEntry> {
 
-	public SeriesTabController(Controller c, TableView mainTable, TextField fieldSearch, Button buttonSearch,
-			Button buttonNextPage, Button buttonPreviousPage, TextField fieldCurrentPage, Button buttonCreateRecord,
-			Button buttonDeleteRecord, TableView secondTbl, Button btnDeleteRefSecond, TableView thirdTbl,
-			Button btnDeleteRefthird) {
-		super(c, mainTable, fieldSearch, buttonSearch, buttonNextPage, buttonPreviousPage, fieldCurrentPage, buttonCreateRecord,
-				buttonDeleteRecord, secondTbl, btnDeleteRefSecond, thirdTbl, btnDeleteRefthird);
+	public SeriesTabController(Controller c, TableView<SeriesTableEntry> mainTable, TextField searchField,
+			Button searchButton, Button nextPageButton, Button previousPageButton, TextField currentPageField,
+			Button createRecordButton, Button deleteRecordButton, TableView<SecondaryProceedingTableEntry> secondTable,
+			Button deleteSecondReferenceButton, TableView<TableEntry> thirdTable, Button deleteThirdReferenceButton) {
+		super(c, mainTable, searchField, searchButton, nextPageButton, previousPageButton, currentPageField, createRecordButton,
+				deleteRecordButton, secondTable, deleteSecondReferenceButton, thirdTable, deleteThirdReferenceButton);
 		// TODO Auto-generated constructor stub
 	}
 

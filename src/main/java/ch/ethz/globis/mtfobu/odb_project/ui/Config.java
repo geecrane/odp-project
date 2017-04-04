@@ -1,4 +1,4 @@
-package ch.ethz.globis.mtfobu.odb_project;
+package ch.ethz.globis.mtfobu.odb_project.ui;
 
 //George: All configuration parameters go here
 final public class Config {

@@ -1,4 +1,4 @@
-package ch.ethz.globis.mtfobu.odb_project;
+package ch.ethz.globis.mtfobu.odb_project.ui;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,8 +14,18 @@ import javax.jdo.Query;
 import org.xml.sax.HandlerBase;
 import org.zoodb.jdo.ZooJdoHelper;
 
-import ch.ethz.globis.mtfobu.odb_project.Controller.MyRowFactory;
-import ch.ethz.globis.mtfobu.odb_project.Controller.TableEntry;
+import ch.ethz.globis.mtfobu.odb_project.Conference;
+import ch.ethz.globis.mtfobu.odb_project.ConferenceEdition;
+import ch.ethz.globis.mtfobu.odb_project.Database;
+import ch.ethz.globis.mtfobu.odb_project.InProceedings;
+import ch.ethz.globis.mtfobu.odb_project.Person;
+import ch.ethz.globis.mtfobu.odb_project.Proceedings;
+import ch.ethz.globis.mtfobu.odb_project.Publication;
+import ch.ethz.globis.mtfobu.odb_project.Publisher;
+import ch.ethz.globis.mtfobu.odb_project.Series;
+import ch.ethz.globis.mtfobu.odb_project.XmlImport;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.MyRowFactory;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -355,7 +365,7 @@ public class Controller {
     }
     
     
-    protected void setImportStatus(String text){
+    public void setImportStatus(String text){
     	importStatusLabel.setText(text);
     }
     

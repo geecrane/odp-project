@@ -1,4 +1,4 @@
-package ch.ethz.globis.mtfobu.odb_project;
+package ch.ethz.globis.mtfobu.odb_project.ui;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -7,11 +7,11 @@ import javax.jdo.Query;
 
 import org.zoodb.api.impl.ZooPC;
 
-import ch.ethz.globis.mtfobu.odb_project.Controller.DeleteHandler;
-import ch.ethz.globis.mtfobu.odb_project.Controller.MyRowFactory;
-import ch.ethz.globis.mtfobu.odb_project.Controller.PagingHandler;
-import ch.ethz.globis.mtfobu.odb_project.Controller.PersonTableEntry;
-import ch.ethz.globis.mtfobu.odb_project.Controller.TableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.DeleteHandler;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.MyRowFactory;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PagingHandler;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PersonTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -30,66 +30,66 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 	public TableView<TE1> mainTable;
 	public ObservableList<TE1> mainTableList;
 	
-	public TextField fieldSearch;
-	public Button buttonSearch;
+	public TextField searchField;
+	public Button searchButton;
 	
 	public int[] queryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
 	public long detailDisplayedId = 0L;
 	
-	public Button buttonNextPage;
-	public Button buttonPreviousPage;
-	public TextField fieldCurrentPage;
+	public Button nextPageButton;
+	public Button previousPageButton;
+	public TextField currentPageField;
 	
-	public Button buttonCreateRecord;
-	public Button buttonDeleteRecord;
+	public Button createRecordButton;
+	public Button deleteRecordButton;
 	
 	
 	public TableView<TE2> secondTable;
 	
 	public ObservableList<TE2> secondTableList;
-	public Button buttonDeleteRefSecond;
+	public Button deleteSecondReferenceButton;
 	
 	public TableView<TE3> thirdTable;
 	
 	public ObservableList<TE3> thirdTableList;
-	public Button buttonDeleteRefThird;
+	public Button deleteThirdReferenceButton;
 	
 	public int numberOfTables = 0;
 	
 	public TabController(Controller c, TableView<TE1> mainTable,
-			TextField fieldSearch, Button buttonSearch,
-			Button buttonNextPage, Button buttonPreviousPage, TextField fieldCurrentPage,
-			Button buttonCreateRecord, Button buttonDeleteRecord,
-			TableView<TE2> secondTbl, Button btnDeleteRefSecond,
-			TableView<TE3> thirdTbl, Button btnDeleteRefthird) {
+			TextField searchField, Button searchButton,
+			Button nextPageButton, Button previousPageButton, TextField currentPageField,
+			Button createRecordButton, Button deleteRecordButton,
+			TableView<TE2> secondTable, Button deleteSecondReferenceButton,
+			TableView<TE3> thirdTable, Button deleteThirdReferenceButton) {
 		this.c = c;
 		
 		this.mainTable = mainTable;
 		this.mainTableList = FXCollections.observableArrayList();
 		this.numberOfTables = 1;
 		
-		this.fieldSearch = fieldSearch;
-		this.buttonSearch = buttonSearch;
+		this.searchField = searchField;
+		this.searchButton = searchButton;
 		
-		this.buttonNextPage = buttonNextPage;
-		this.buttonPreviousPage = buttonPreviousPage;
-		this.fieldCurrentPage = fieldCurrentPage;
+		this.nextPageButton = nextPageButton;
+		this.previousPageButton = previousPageButton;
+		this.currentPageField = currentPageField;
 
-		this.buttonCreateRecord = buttonCreateRecord;
-		this.buttonDeleteRecord = buttonDeleteRecord;
+		this.createRecordButton = createRecordButton;
+		this.deleteRecordButton = deleteRecordButton;
 		
-		if (null != secondTbl) {
-			secondTable = secondTbl;
-			buttonDeleteRefSecond = btnDeleteRefSecond;
-			secondTableList = FXCollections.observableArrayList();
-			numberOfTables = 2;
+		if (null != secondTable) {
+			this.secondTable = secondTable;
+			this.deleteSecondReferenceButton = deleteSecondReferenceButton;
+			this.secondTableList = FXCollections.observableArrayList();
+			this.numberOfTables = 2;
 		}
 		
-		if (null != thirdTbl) {
-			thirdTable = thirdTbl;
-			buttonDeleteRefThird = btnDeleteRefthird;
-			thirdTableList = FXCollections.observableArrayList();
-			numberOfTables = 3;
+		if (null != thirdTable) {
+			this.thirdTable = thirdTable;
+			this.deleteThirdReferenceButton = deleteThirdReferenceButton;
+			this.thirdTableList = FXCollections.observableArrayList();
+			this.numberOfTables = 3;
 		}
 
 	}
@@ -124,11 +124,11 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 		mainTable.setRowFactory(c.new MyRowFactory<TE1>(mainShowFunction));
 		mainTable.setItems(mainTableList);
 		
-		buttonDeleteRecord.setOnAction(c.new DeleteHandler<TE1>(mainTable, this::deleteRecord));
+		deleteRecordButton.setOnAction(c.new DeleteHandler<TE1>(mainTable, this::deleteRecord));
 		
-		buttonNextPage.setOnAction(c.new PagingHandler(queryPage, fieldCurrentPage, 1, this::loadData));
-		buttonPreviousPage.setOnAction(c.new PagingHandler(queryPage, fieldCurrentPage, -1, this::loadData));
-		fieldCurrentPage.setOnAction(c.new PagingHandler(queryPage, fieldCurrentPage, 0, this::loadData));
+		nextPageButton.setOnAction(c.new PagingHandler(queryPage, currentPageField, 1, this::loadData));
+		previousPageButton.setOnAction(c.new PagingHandler(queryPage, currentPageField, -1, this::loadData));
+		currentPageField.setOnAction(c.new PagingHandler(queryPage, currentPageField, 0, this::loadData));
 		
 		
 		if (numberOfTables > 1) {

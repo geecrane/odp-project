@@ -1,4 +1,4 @@
-package ch.ethz.globis.mtfobu.odb_project;
+package ch.ethz.globis.mtfobu.odb_project.ui;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -6,9 +6,15 @@ import java.util.function.Function;
 
 import javax.jdo.Query;
 
-import ch.ethz.globis.mtfobu.odb_project.Controller.ProceedingTableEntry;
-import ch.ethz.globis.mtfobu.odb_project.Controller.SecondaryPersonTableEntry;
-import ch.ethz.globis.mtfobu.odb_project.Controller.TableEntry;
+import ch.ethz.globis.mtfobu.odb_project.Conference;
+import ch.ethz.globis.mtfobu.odb_project.ConferenceEdition;
+import ch.ethz.globis.mtfobu.odb_project.Person;
+import ch.ethz.globis.mtfobu.odb_project.Proceedings;
+import ch.ethz.globis.mtfobu.odb_project.Publisher;
+import ch.ethz.globis.mtfobu.odb_project.Series;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.ProceedingTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryPersonTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
@@ -16,13 +22,14 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 public class ProceedingTabController extends TabController<ProceedingTableEntry, SecondaryPersonTableEntry, TableEntry> {
-	
-	public ProceedingTabController(Controller c, TableView<ProceedingTableEntry> mainTable, TextField fieldSearch,
-			Button buttonSearch, Button buttonNextPage, Button buttonPreviousPage, TextField fieldCurrentPage,
-			Button buttonCreateRecord, Button buttonDeleteRecord, TableView<SecondaryPersonTableEntry> secondTbl,
-			Button btnDeleteRefSecond, TableView<TableEntry> thirdTbl, Button btnDeleteRefthird) {
-		super(c, mainTable, fieldSearch, buttonSearch, buttonNextPage, buttonPreviousPage, fieldCurrentPage, buttonCreateRecord,
-				buttonDeleteRecord, secondTbl, btnDeleteRefSecond, thirdTbl, btnDeleteRefthird);
+
+	public ProceedingTabController(Controller c, TableView<ProceedingTableEntry> mainTable, TextField searchField,
+			Button searchButton, Button nextPageButton, Button previousPageButton, TextField currentPageField,
+			Button createRecordButton, Button deleteRecordButton, TableView<SecondaryPersonTableEntry> secondTable,
+			Button deleteSecondReferenceButton, TableView<TableEntry> thirdTable, Button deleteThirdReferenceButton) {
+		super(c, mainTable, searchField, searchButton, nextPageButton, previousPageButton, currentPageField, createRecordButton,
+				deleteRecordButton, secondTable, deleteSecondReferenceButton, thirdTable, deleteThirdReferenceButton);
+		// TODO Auto-generated constructor stub
 	}
 
 	private TextField proceedingTitleField;
