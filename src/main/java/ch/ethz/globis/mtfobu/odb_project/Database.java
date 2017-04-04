@@ -148,34 +148,7 @@ public class Database {
 		
 	}
 	
-	public void queryInProceedings(Consumer<Collection<InProceedings>> fun, QueryParameters p){
-		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
-		pm.currentTransaction().begin();
-		
-		Query q;
-		
-		if (p.isSearch) {
-			q = pm.newQuery(InProceedings.class, "title.indexOf('" + p.searchTerm + "') > -1");
-		} else {
-			q = pm.newQuery(InProceedings.class);
-		}
-		
-		if (p.isRanged) {
-			long begin = p.rangeStart.isPresent() ? p.rangeStart.getAsLong() : 0;
-			long end = p.rangeEnd.isPresent() ? p.rangeEnd.getAsLong() : Long.MAX_VALUE;
-			q.setRange(begin, end);
-		} else {
-			q.setRange((p.pageNumber-1) * PAGE_SIZE, p.pageNumber * PAGE_SIZE);
-		}
-		
-		fun.accept((Collection<InProceedings>) q.execute());
-		pm.currentTransaction().commit();
-
-		closeDB(pm);
-	}
 	
-	
-	// Still working on this JOEL
 	public class QueryHelper<T extends DomainObject> {
 		Class<T> classImmediate;
 		String searchableField;
@@ -210,6 +183,46 @@ public class Database {
 
 			closeDB(pm);
 		}
+	}
+	
+	// Special case for publications
+	public void queryForPublication(Consumer<Collection<Publication>> fun, QueryParameters p){
+		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+		pm.currentTransaction().begin();
+		
+		Query q1;
+		Query q2;
+		
+		if (p.isSearch) {
+			q1 = pm.newQuery(Proceedings.class, "title.indexOf('" + p.searchTerm + "') > -1");
+			q2 = pm.newQuery(InProceedings.class, "title.indexOf('" + p.searchTerm + "') > -1");
+		} else {
+			q1 = pm.newQuery(Proceedings.class);
+			q2 = pm.newQuery(InProceedings.class);
+		}
+		
+		if (p.isRanged) {
+			long begin = p.rangeStart.isPresent() ? p.rangeStart.getAsLong() : 0;
+			long end = p.rangeEnd.isPresent() ? p.rangeEnd.getAsLong() : Long.MAX_VALUE;
+			q1.setRange(begin, end);
+			q2.setRange(begin, end);
+		} else {
+			q1.setRange((p.pageNumber-1) * PAGE_SIZE, p.pageNumber * PAGE_SIZE);
+			q2.setRange((p.pageNumber-1) * PAGE_SIZE, p.pageNumber * PAGE_SIZE);
+		}
+		
+		Collection<Publication> coll1 = (Collection<Publication>) q1.execute();
+		Collection<Publication> coll2 = (Collection<Publication>) q2.execute();
+		
+		// I don't know how to do this without copying
+		Collection<Publication> coll = new ArrayList();
+		coll.addAll(coll1);
+		coll.addAll(coll2);
+		
+		fun.accept(coll);
+		pm.currentTransaction().commit();
+
+		closeDB(pm);
 	}
 	
 	/*** Seba: @param fun is the function that will treat the queried data in form of a collection. 

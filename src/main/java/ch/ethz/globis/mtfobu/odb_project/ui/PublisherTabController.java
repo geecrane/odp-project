@@ -5,9 +5,11 @@ import java.util.function.Consumer;
 
 import javax.jdo.Query;
 
+import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
 import ch.ethz.globis.mtfobu.odb_project.Publication;
 import ch.ethz.globis.mtfobu.odb_project.Publisher;
+import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PublisherTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryProceedingTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
@@ -54,23 +56,9 @@ public class PublisherTabController extends TabController<Publisher, PublisherTa
 	public void initializeFunctions(Consumer<Long> secondShowFunction) {
 		this.mainShowFunction = this::showPublisher;
 		this.secondShowFunction = secondShowFunction;
+		this.searchFunction = c.db.new QueryHelper<Publisher>(Publisher.class, "name")::queryForDomainObject;
 	}
 	
-	
-	@Override
-	public void loadData() {
-		
-		c.pm.currentTransaction().begin();
-
-		Query query = c.pm.newQuery(Publisher.class);
-		query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
-		Collection<Publisher> publishers = (Collection<Publisher>) query.execute();
-
-		updateMainView(publishers);
-
-		query.closeAll();
-		c.pm.currentTransaction().commit();
-	}
 	
 	private void showPublisher(long objectId) {
 		c.pm.currentTransaction().begin();

@@ -7,10 +7,12 @@ import java.util.function.Function;
 
 import javax.jdo.Query;
 
+import ch.ethz.globis.mtfobu.odb_project.ConferenceEdition;
 import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Person;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
 import ch.ethz.globis.mtfobu.odb_project.Publication;
+import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PersonTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryInProceedingTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryProceedingTableEntry;
@@ -59,25 +61,8 @@ public class PersonTabController extends TabController<Person, PersonTableEntry,
 		this.mainShowFunction = this::showPerson;
 		this.secondShowFunction = secondShowFunction;
 		this.thirdShowFunction = thirdShowFunction;
-	}
-
-	// loads PAGE_SIZE number of entries in the big table
-	@Override
-	public void loadData() {
-		
-		c.pm.currentTransaction().begin();
-
-        Query query = c.pm.newQuery(Person.class);
-        query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
-        Collection<Person> people = (Collection<Person>) query.execute();
-
-        updateMainView(people);
-        
-        query.closeAll();
-        c.pm.currentTransaction().commit();
-	}
-	
-	
+		this.searchFunction = c.db.new QueryHelper<Person>(Person.class, "name")::queryForDomainObject;
+	}	
 	
 	// shows a specific person in the bottom
 	public void showPerson(Long objectId) {

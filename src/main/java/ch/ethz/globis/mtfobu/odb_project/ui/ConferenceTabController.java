@@ -7,6 +7,7 @@ import javax.jdo.Query;
 
 import ch.ethz.globis.mtfobu.odb_project.Conference;
 import ch.ethz.globis.mtfobu.odb_project.ConferenceEdition;
+import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.ConferenceTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryConferenceEditionTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
@@ -50,20 +51,7 @@ public class ConferenceTabController extends TabController<Conference, Conferenc
 	public void initializeFunctions(Consumer<Long> secondShowFunction) {
 		mainShowFunction = this::showConference;
 		this.secondShowFunction = secondShowFunction;
-	}
-
-	@Override
-	public void loadData() {
-			c.pm.currentTransaction().begin();
-
-	        Query query = c.pm.newQuery(Conference.class);
-	        query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
-	        Collection<Conference> conferences = (Collection<Conference>) query.execute();
-
-	        updateMainView(conferences);
-	        
-	        query.closeAll();
-	        c.pm.currentTransaction().commit();
+		this.searchFunction = this.searchFunction = c.db.new QueryHelper<Conference>(Conference.class, "name")::queryForDomainObject;
 	}
 
 	private void showConference(long objectId) {

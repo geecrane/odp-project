@@ -12,6 +12,7 @@ import ch.ethz.globis.mtfobu.odb_project.Person;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
 import ch.ethz.globis.mtfobu.odb_project.Publisher;
 import ch.ethz.globis.mtfobu.odb_project.Series;
+import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.ProceedingTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryPersonTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
@@ -118,6 +119,7 @@ public class ProceedingTabController extends TabController<Proceedings, Proceedi
 	public void initializeFunctions(Consumer<Long> secondShowFunction) {
 		this.mainShowFunction = this::showProceeding;
 		this.secondShowFunction = secondShowFunction;
+		this.searchFunction = c.db.new QueryHelper<Proceedings>(Proceedings.class, "title")::queryForDomainObject;
 	}
 
 	private void showProceeding(long objectId) {
@@ -168,21 +170,6 @@ public class ProceedingTabController extends TabController<Proceedings, Proceedi
 		
 		return 0;
 	};
-	
-	@Override
-	public void loadData() {
-		
-		c.pm.currentTransaction().begin();
-
-        Query query = c.pm.newQuery(Proceedings.class);
-        query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
-        Collection<Proceedings> proceedings = (Collection<Proceedings>) query.execute();
-
-        updateMainView(proceedings);
-        
-        query.closeAll();
-        c.pm.currentTransaction().commit();
-	}
 	
 	@Override
 	public void emptyFields() {

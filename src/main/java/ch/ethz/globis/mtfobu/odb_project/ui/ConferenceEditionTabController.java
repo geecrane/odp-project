@@ -45,6 +45,7 @@ public class ConferenceEditionTabController extends TabController<ConferenceEdit
 	
 	public void initializeFunctions() {
 		this.mainShowFunction = this::showConferenceEdition;
+		this.searchFunction = c.db.new QueryHelper<ConferenceEdition>(ConferenceEdition.class, "id")::queryForDomainObject;
 	}
 	
 	private void showConferenceEdition(Long objectId) {
@@ -68,20 +69,6 @@ public class ConferenceEditionTabController extends TabController<ConferenceEdit
 		
 		c.pm.currentTransaction().commit();
 		c.tabPane.getSelectionModel().select(c.conferenceEditionTab);
-	}
-
-	@Override
-	public void loadData() {
-			c.pm.currentTransaction().begin();
-
-	        Query query = c.pm.newQuery(ConferenceEdition.class);
-	        query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
-	        Collection<ConferenceEdition> conferenceEditions = (Collection<ConferenceEdition>) query.execute();
-
-	        updateMainView(conferenceEditions);
-	        
-	        query.closeAll();
-	        c.pm.currentTransaction().commit();
 	}
 
 	@Override

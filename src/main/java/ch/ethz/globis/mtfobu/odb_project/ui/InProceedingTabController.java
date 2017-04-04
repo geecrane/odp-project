@@ -6,6 +6,7 @@ import java.util.OptionalLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
 import ch.ethz.globis.mtfobu.odb_project.DomainObject;
 import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Person;
@@ -30,13 +31,6 @@ public class InProceedingTabController extends TabController<InProceedings, InPr
 		super(c, mainTable, searchField, searchButton, nextPageButton, previousPageButton, currentPageField, createRecordButton,
 				deleteRecordButton, secondTable, deleteSecondReferenceButton, thirdTable, deleteThirdReferenceButton);
 		// TODO Auto-generated constructor stub
-		
-		searchButton.setOnAction((event) -> {
-			
-			c.db.queryInProceedings(this::updateMainView, prepareQueryParametersFromSearch());
-			
-		});
-		
 		
 	}
 	private TextField inProceedingPagesField;
@@ -92,7 +86,7 @@ public class InProceedingTabController extends TabController<InProceedings, InPr
 	public void initializeFunctions(Consumer<Long> secondShowFunction) {
 		this.mainShowFunction = this::showInProceeding;
 		this.secondShowFunction = secondShowFunction;
-		this.searchFunction = c.db::queryInProceedings;
+		this.searchFunction = c.db.new QueryHelper<InProceedings>(InProceedings.class, "title")::queryForDomainObject;
 	}
 	
 	
@@ -119,13 +113,6 @@ public class InProceedingTabController extends TabController<InProceedings, InPr
         }
 		return 0;
     };
-    
-    
-
-	@Override
-	public void loadData() {
-		c.db.executeOnAllInProceedings(this::updateMainView, OptionalLong.of((queryPage[0]-1)*c.PAGE_SIZE), OptionalLong.of(queryPage[0]*c.PAGE_SIZE));
-	}
 
 	@Override
 	public void updateMainView(Collection<InProceedings> inProceedings) {

@@ -5,9 +5,11 @@ import java.util.function.Consumer;
 
 import javax.jdo.Query;
 
+import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
 import ch.ethz.globis.mtfobu.odb_project.Publication;
 import ch.ethz.globis.mtfobu.odb_project.Series;
+import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryProceedingTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SeriesTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
@@ -52,6 +54,7 @@ public class SeriesTabController extends TabController<Series, SeriesTableEntry,
 	public void initializeFunctions(Consumer<Long> secondShowFunction) {
 		this.mainShowFunction = this::showSeries;
 		this.secondShowFunction = secondShowFunction;
+		this.searchFunction = c.db.new QueryHelper<Series>(Series.class, "name")::queryForDomainObject;
 	}
 	
 	private void showSeries(Long objectId) {
@@ -71,21 +74,7 @@ public class SeriesTabController extends TabController<Series, SeriesTableEntry,
 		c.pm.currentTransaction().commit();
 		c.tabPane.getSelectionModel().select(c.seriesTab);
 	}
-	
-	@Override
-	public void loadData() {
-		
-		c.pm.currentTransaction().begin();
 
-		Query query = c.pm.newQuery(Series.class);
-		query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
-		Collection<Series> seriesPlural = (Collection<Series>) query.execute();
-
-		updateMainView(seriesPlural);
-
-		query.closeAll();
-		c.pm.currentTransaction().commit();
-	}
 
 	@Override
 	public void emptyFields() {

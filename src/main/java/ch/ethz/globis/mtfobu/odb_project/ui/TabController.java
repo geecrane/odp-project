@@ -131,8 +131,8 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 		previousPageButton.setOnAction((event) -> {handlePaging(-1);});
 		currentPageField.setOnAction((event) -> {handlePaging(0);});
 		
-		searchButton.setOnAction((event) -> {searchFunction.accept(this::updateMainView, prepareQueryParametersFromSearch());});
-		searchField.setOnAction((event) -> {searchFunction.accept(this::updateMainView, prepareQueryParametersFromSearch());});
+		searchButton.setOnAction((event) -> {loadFromSearch();});
+		searchField.setOnAction((event) -> {loadFromSearch();});
 		
 		
 		if (numberOfTables > 1) {
@@ -179,12 +179,10 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 	
 	// Generally you need initializeTabSpecificItems(...) and initializeFunctions(...) in subclasses
 	
-	abstract public void loadData();
-	
 	public void deleteRecord(Long objectId) {
 		c.db.removeObjectById(objectId);
-			
-		loadData();
+		
+		reload();
 		emptyFields();
 	};
 	
@@ -192,7 +190,19 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 	
 	abstract public void updateMainView(Collection<DO> collection);
 	
-	protected QueryParameters prepareQueryParametersFromSearch() {
+	public void reload() {
+		if (lastLoadWasFromSearch) {
+			loadFromSearch();
+		} else {
+			loadFromPaging();
+		}
+	}
+	
+	private boolean lastLoadWasFromSearch = true;
+	
+	public void loadFromSearch() {
+		lastLoadWasFromSearch = true;
+		
 		QueryParameters params = readAndParseSearchField();
 		
 		if (params.rangeEnd.isPresent() && params.rangeStart.isPresent() && params.rangeEnd.getAsLong() < params.rangeStart.getAsLong()) {
@@ -212,8 +222,21 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 		} else {
 			params.isSearch = true;
 		}
+		searchFunction.accept(this::updateMainView, params);
+	}
+	
+	public void loadFromPaging() {
+		lastLoadWasFromSearch = false;
 		
-		return params;
+		QueryParameters params = readAndParseSearchField();
+		params.isRanged = false;
+		params.pageNumber = queryPage[0];
+		if (params.searchTerm.equals("")) {
+			params.isSearch = false;
+		} else {
+			params.isSearch = true;
+		}
+		searchFunction.accept(this::updateMainView, params);
 	}
 	
 	private QueryParameters readAndParseSearchField() {
@@ -275,15 +298,7 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 					currentPageField.setText(Integer.toString(t));
 				}
 				queryPage[0] = t;
-				QueryParameters params = readAndParseSearchField();
-				params.isRanged = false;
-				params.pageNumber = queryPage[0];
-				if (params.searchTerm.equals("")) {
-					params.isSearch = false;
-				} else {
-					params.isSearch = true;
-				}
-				searchFunction.accept(this::updateMainView, params);
+				loadFromPaging();
 			}
 		} catch (NumberFormatException e) {
 			// Do nothing

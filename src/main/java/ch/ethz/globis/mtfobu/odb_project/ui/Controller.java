@@ -61,21 +61,21 @@ public class Controller {
 	        public void changed(ObservableValue<? extends Tab> observable, Tab oldTab, Tab newTab) {
 	        	
 	            if (newTab == personTab) {
-	            	personTabController.loadData();
+	            	personTabController.reload();
 	            } else if (newTab == proceedingTab) {
-	            	proceedingTabController.loadData();
+	            	proceedingTabController.reload();
 	            } else if (newTab == inProceedingTab) {
-	            	inProceedingTabController.loadData();
+	            	inProceedingTabController.reload();
 	            } else if (newTab == publicationTab) {
-	            	publicationTabController.loadData();
+	            	publicationTabController.reload();
 	            } else if (newTab == publisherTab) {
-	            	publisherTabController.loadData();
+	            	publisherTabController.reload();
 	            } else if (newTab == conferenceTab) {
-	            	conferenceTabController.loadData();
+	            	conferenceTabController.reload();
 	            } else if (newTab == conferenceEditionTab) {
-	            	conferenceEditionTabController.loadData();
+	            	conferenceEditionTabController.reload();
 	            } else if (newTab == seriesTab) {
-	            	seriesTabController.loadData();
+	            	seriesTabController.reload();
 	            } else if (newTab == importTab) {
 	            	
 	            }
@@ -95,7 +95,7 @@ public class Controller {
     	setUpSeriesTab();
     	
     	// Load person tab because that's the one the application starts with
-    	personTabController.loadData();
+    	personTabController.reload();
     }
     
     
