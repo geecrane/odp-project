@@ -21,7 +21,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class ProceedingTabController extends TabController<ProceedingTableEntry, SecondaryPersonTableEntry, TableEntry> {
+public class ProceedingTabController extends TabController<Proceedings, ProceedingTableEntry, SecondaryPersonTableEntry, TableEntry> {
 
 	public ProceedingTabController(Controller c, TableView<ProceedingTableEntry> mainTable, TextField searchField,
 			Button searchButton, Button nextPageButton, Button previousPageButton, TextField currentPageField,
@@ -171,16 +171,14 @@ public class ProceedingTabController extends TabController<ProceedingTableEntry,
 	
 	@Override
 	public void loadData() {
-		mainTableList.clear();
+		
 		c.pm.currentTransaction().begin();
 
         Query query = c.pm.newQuery(Proceedings.class);
         query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
         Collection<Proceedings> proceedings = (Collection<Proceedings>) query.execute();
 
-        for (Proceedings proc: proceedings) {
-        	mainTableList.add(c.new ProceedingTableEntry(proc));
-        }
+        updateMainView(proceedings);
         
         query.closeAll();
         c.pm.currentTransaction().commit();
@@ -196,6 +194,15 @@ public class ProceedingTabController extends TabController<ProceedingTableEntry,
 		proceedingSeriesFilterField.setText("");
 		proceedingEditorFilterField.setText("");
 		secondTableList.clear();
+	}
+
+
+	@Override
+	public void updateMainView(Collection<Proceedings> collection) {
+		mainTableList.clear();
+		for (Proceedings proc: collection) {
+        	mainTableList.add(c.new ProceedingTableEntry(proc));
+        }
 	}
 	
 

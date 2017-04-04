@@ -14,7 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class ConferenceEditionTabController extends TabController<ConferenceEditionTableEntry, TableEntry, TableEntry> {
+public class ConferenceEditionTabController extends TabController<ConferenceEdition, ConferenceEditionTableEntry, TableEntry, TableEntry> {
 	
 	public ConferenceEditionTabController(Controller c, TableView<ConferenceEditionTableEntry> mainTable,
 			TextField searchField, Button searchButton, Button nextPageButton, Button previousPageButton,
@@ -72,16 +72,13 @@ public class ConferenceEditionTabController extends TabController<ConferenceEdit
 
 	@Override
 	public void loadData() {
-			mainTableList.clear();
 			c.pm.currentTransaction().begin();
 
 	        Query query = c.pm.newQuery(ConferenceEdition.class);
 	        query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
 	        Collection<ConferenceEdition> conferenceEditions = (Collection<ConferenceEdition>) query.execute();
 
-	        for (ConferenceEdition confEd: conferenceEditions) {
-	        	mainTableList.add(c.new ConferenceEditionTableEntry(confEd));
-	        }
+	        updateMainView(conferenceEditions);
 	        
 	        query.closeAll();
 	        c.pm.currentTransaction().commit();
@@ -91,6 +88,15 @@ public class ConferenceEditionTabController extends TabController<ConferenceEdit
 	public void emptyFields() {
 		conferenceEditionNameField.setText("");
 		conferenceEditionEditionField.setText("");
+	}
+
+	@Override
+	public void updateMainView(Collection<ConferenceEdition> collection) {
+		mainTableList.clear();
+		
+		for (ConferenceEdition confEd: collection) {
+        	mainTableList.add(c.new ConferenceEditionTableEntry(confEd));
+        }
 	}
 
 }

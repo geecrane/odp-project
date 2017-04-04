@@ -17,7 +17,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class PublisherTabController extends TabController<PublisherTableEntry, SecondaryProceedingTableEntry, TableEntry> {
+public class PublisherTabController extends TabController<Publisher, PublisherTableEntry, SecondaryProceedingTableEntry, TableEntry> {
 	
 	public PublisherTabController(Controller c, TableView<PublisherTableEntry> mainTable, TextField searchField,
 			Button searchButton, Button nextPageButton, Button previousPageButton, TextField currentPageField,
@@ -59,16 +59,14 @@ public class PublisherTabController extends TabController<PublisherTableEntry, S
 	
 	@Override
 	public void loadData() {
-		mainTableList.clear();
+		
 		c.pm.currentTransaction().begin();
 
 		Query query = c.pm.newQuery(Publisher.class);
 		query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
 		Collection<Publisher> publishers = (Collection<Publisher>) query.execute();
 
-		for (Publisher puber: publishers) {
-			mainTableList.add(c.new PublisherTableEntry(puber));
-		}
+		updateMainView(publishers);
 
 		query.closeAll();
 		c.pm.currentTransaction().commit();
@@ -98,6 +96,14 @@ public class PublisherTabController extends TabController<PublisherTableEntry, S
 		publisherNameField.setText("");
 		publisherProceedingFilterField.setText("");
 		secondTableList.clear();
+	}
+
+	@Override
+	public void updateMainView(Collection<Publisher> collection) {
+		mainTableList.clear();
+		for (Publisher puber: collection) {
+			mainTableList.add(c.new PublisherTableEntry(puber));
+		}
 	}
 
 }

@@ -17,7 +17,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class SeriesTabController extends TabController<SeriesTableEntry, SecondaryProceedingTableEntry, TableEntry> {
+public class SeriesTabController extends TabController<Series, SeriesTableEntry, SecondaryProceedingTableEntry, TableEntry> {
 
 	public SeriesTabController(Controller c, TableView<SeriesTableEntry> mainTable, TextField searchField,
 			Button searchButton, Button nextPageButton, Button previousPageButton, TextField currentPageField,
@@ -74,16 +74,14 @@ public class SeriesTabController extends TabController<SeriesTableEntry, Seconda
 	
 	@Override
 	public void loadData() {
-		mainTableList.clear();
+		
 		c.pm.currentTransaction().begin();
 
 		Query query = c.pm.newQuery(Series.class);
 		query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
 		Collection<Series> seriesPlural = (Collection<Series>) query.execute();
 
-		for (Series series: seriesPlural) {
-			mainTableList.add(c.new SeriesTableEntry(series));
-		}
+		updateMainView(seriesPlural);
 
 		query.closeAll();
 		c.pm.currentTransaction().commit();
@@ -94,6 +92,14 @@ public class SeriesTabController extends TabController<SeriesTableEntry, Seconda
 		seriesNameField.setText("");
 		seriesProceedingFilterField.setText("");
 		secondTableList.clear();
+	}
+
+	@Override
+	public void updateMainView(Collection<Series> collection) {
+		mainTableList.clear();
+		for (Series series: collection) {
+			mainTableList.add(c.new SeriesTableEntry(series));
+		}
 	}
 
 }

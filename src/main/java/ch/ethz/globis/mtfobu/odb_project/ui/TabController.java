@@ -1,17 +1,24 @@
 package ch.ethz.globis.mtfobu.odb_project.ui;
 
 import java.util.Collection;
+import java.util.OptionalLong;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.jdo.Query;
 
 import org.zoodb.api.impl.ZooPC;
 
+import ch.ethz.globis.mtfobu.odb_project.DomainObject;
+import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.DeleteHandler;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.InProceedingTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.MyRowFactory;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PagingHandler;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PersonTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
+import ch.ethz.globis.mtfobu.odb_project.SearchParameters;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -24,7 +31,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
 
-public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEntry, TE3 extends TableEntry> {
+public abstract class TabController<DO extends DomainObject, TE1 extends TableEntry, TE2 extends TableEntry, TE3 extends TableEntry> {
 	public Controller c;
 	
 	public TableView<TE1> mainTable;
@@ -97,12 +104,15 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 	public Consumer<Long> mainShowFunction;
 	public Consumer<Long> secondShowFunction;
 	public Consumer<Long> thirdShowFunction;
+	public BiConsumer<Consumer<Collection<DO>>, SearchParameters> searchFunction;
 	
 	public void initializeFunctions(Consumer<Long> mainShowFunction,
-			Consumer<Long> secondShowFunction, Consumer<Long> thirdShowFunction) {
+			Consumer<Long> secondShowFunction, Consumer<Long> thirdShowFunction,
+			BiConsumer<Consumer<Collection<DO>>, SearchParameters> searchFunction) {
 		this.mainShowFunction = mainShowFunction;
 		this.secondShowFunction = secondShowFunction;
 		this.thirdShowFunction = thirdShowFunction;
+		this.searchFunction = searchFunction;
 	}
 	
 	public void setUpTables() {
@@ -129,6 +139,10 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 		nextPageButton.setOnAction(c.new PagingHandler(queryPage, currentPageField, 1, this::loadData));
 		previousPageButton.setOnAction(c.new PagingHandler(queryPage, currentPageField, -1, this::loadData));
 		currentPageField.setOnAction(c.new PagingHandler(queryPage, currentPageField, 0, this::loadData));
+		
+		searchButton.setOnAction((event) -> {
+			searchFunction.accept(this::updateMainView, parseSearchField());
+		});
 		
 		
 		if (numberOfTables > 1) {
@@ -185,5 +199,54 @@ public abstract class TabController<TE1 extends TableEntry, TE2 extends TableEnt
 	};
 	
 	abstract public void emptyFields();
+	
+	abstract public void updateMainView(Collection<DO> collection);
+	
+	protected SearchParameters parseSearchField() {
+		String searchParams[] = searchField.getText().split(";");
+		
+		// Do nothing if the number of parameters is under 1, or there are more than 3,
+		// unless it's 4 and the last is empty so that "search;1;20;" is also allowed.
+		if( searchParams.length < 1 || (searchParams.length > 3 && !(searchParams.length == 4 && searchParams[3].equals("")) ) ) return null;
+		
+		SearchParameters params = new SearchParameters();
+		
+		params.rangeEnd = OptionalLong.empty();
+		params.rangeStart = OptionalLong.empty();
+		params.searchTerm = "";
+		
+		// The breaks are left out intentionally, I want this to fall through
+		switch (searchParams.length) {
+		
+		case 3 :
+			try {
+				long stop = Long.parseLong(searchParams[2]);
+				stop = (stop < 1) ? 1 : stop;
+				params.rangeEnd = OptionalLong.of(stop);
+			} catch (NumberFormatException e) {
+				params.rangeEnd = OptionalLong.empty();
+			}
+			/* FALLTHROUGH */
+		case 2 : 
+			try {
+				long start = Long.parseLong(searchParams[1]);
+				start = (start < 0) ? 0 : start;
+				params.rangeStart = OptionalLong.of(start);
+			} catch (NumberFormatException e) {
+				params.rangeStart = OptionalLong.empty();
+			}
+			/* FALLTHROUGH */
+		default :
+			params.searchTerm = searchParams[0];
+		}
+		
+		if (params.rangeEnd.isPresent() && params.rangeStart.isPresent() && params.rangeEnd.getAsLong() < params.rangeStart.getAsLong()) {
+			params.rangeEnd = OptionalLong.empty();
+		}
+		
+		return params;
+	}
+	
+	
 	
 }

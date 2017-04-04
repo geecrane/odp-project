@@ -15,7 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class PublicationTabController extends TabController<PublicationTableEntry, TableEntry, TableEntry> {
+public class PublicationTabController extends TabController<Publication, PublicationTableEntry, TableEntry, TableEntry> {
 	
 	
 	public PublicationTabController(Controller c, TableView<PublicationTableEntry> mainTable, TextField searchField,
@@ -75,26 +75,25 @@ public class PublicationTabController extends TabController<PublicationTableEntr
 
 	@Override
 	public void loadData() {
-		mainTableList.clear();
+		Collection<Publication> publications = new ArrayList<Publication>();
+		
 		c.pm.currentTransaction().begin();
 
 		Query query = c.pm.newQuery(Proceedings.class);
 		query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
-		Collection<Publication> publications = (Collection<Publication>) query.execute();
+		Collection<Publication> publications1 = (Collection<Publication>) query.execute();
 
-		for (Publication proc: publications) {
-			mainTableList.add(c.new PublicationTableEntry(proc));
-		}
-
+		publications.addAll(publications1);
+		
 		query.closeAll();
 
 		query = c.pm.newQuery(InProceedings.class);
 		query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
-		publications = (Collection<Publication>) query.execute();
+		Collection<Publication> publications2 = ((Collection<Publication>) query.execute());
 
-		for (Publication inProc: publications) {
-			mainTableList.add(c.new PublicationTableEntry(inProc));
-		}
+		publications.addAll(publications2);
+		
+		updateMainView(publications);
 
 		query.closeAll();
 		c.pm.currentTransaction().commit();
@@ -103,6 +102,14 @@ public class PublicationTabController extends TabController<PublicationTableEntr
 	@Override
 	public void emptyFields() {
 		// No Fields to empty
+	}
+
+	@Override
+	public void updateMainView(Collection<Publication> collection) {
+		mainTableList.clear();
+		for (Publication proc: collection) {
+			mainTableList.add(c.new PublicationTableEntry(proc));
+		}
 	}
 
 }

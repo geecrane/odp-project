@@ -27,7 +27,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
 
-public class PersonTabController extends TabController<PersonTableEntry, SecondaryProceedingTableEntry, SecondaryInProceedingTableEntry> {
+public class PersonTabController extends TabController<Person, PersonTableEntry, SecondaryProceedingTableEntry, SecondaryInProceedingTableEntry> {
 
 	public PersonTabController(Controller c, TableView<PersonTableEntry> mainTable, TextField searchField,
 			Button searchButton, Button nextPageButton, Button previousPageButton, TextField currentPageField,
@@ -72,16 +72,14 @@ public class PersonTabController extends TabController<PersonTableEntry, Seconda
 	// loads PAGE_SIZE number of entries in the big table
 	@Override
 	public void loadData() {
-		mainTableList.clear();
+		
 		c.pm.currentTransaction().begin();
 
         Query query = c.pm.newQuery(Person.class);
         query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
         Collection<Person> people = (Collection<Person>) query.execute();
 
-        for (Person person: people) {
-        	mainTableList.add(c.new PersonTableEntry(person));
-        }
+        updateMainView(people);
         
         query.closeAll();
         c.pm.currentTransaction().commit();
@@ -123,6 +121,14 @@ public class PersonTabController extends TabController<PersonTableEntry, Seconda
 		secondTableList.clear();
 		inProceedingFilterField.setText("");
 		thirdTableList.clear();
+	}
+
+	@Override
+	public void updateMainView(Collection<Person> collection) {
+		mainTableList.clear();
+		for (Person person: collection) {
+        	mainTableList.add(c.new PersonTableEntry(person));
+        }
 	}
 	
 }

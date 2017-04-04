@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.jdo.PersistenceManager;
@@ -151,10 +152,28 @@ public class Database {
         return Collections.unmodifiableCollection(proceedings);
 		
 	}
+	
+	public void searchInProceedingsByTitle(Consumer<Collection<InProceedings>> fun, SearchParameters p){
+		
+		long begin = p.rangeStart.isPresent() ? p.rangeStart.getAsLong() : 0;
+		long end = p.rangeEnd.isPresent() ? p.rangeEnd.getAsLong() : Long.MAX_VALUE;
+		
+		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+		pm.currentTransaction().begin();
+		
+		Query q = pm.newQuery(InProceedings.class, "title.indexOf('" + p.searchTerm + "') > -1");
+		q.setRange(begin, end);
+		
+		fun.accept((Collection<InProceedings>) q.execute());
+		pm.currentTransaction().commit();
+
+		closeDB(pm);
+	}
+	
 	/*** Seba: @param fun is the function that will treat the queried data in form of a collection. 
 	 * This function is executed during the open transaction.
 	 * @param rangeStart and @param rangeEnd are optional parameters and determine the rage of the query */
-	public void executeOnAllInProceedings(Function<Collection<InProceedings>,Void> fun, OptionalLong rangeStart, OptionalLong rangeEnd){
+	public void executeOnAllInProceedings(Consumer<Collection<InProceedings>> fun, OptionalLong rangeStart, OptionalLong rangeEnd){
 		
 		//Seba: default range values in case no range has been specified.
 		long begin = rangeStart.isPresent() ? rangeStart.getAsLong() : 0;
@@ -165,7 +184,7 @@ public class Database {
 		pm.currentTransaction().begin();
 		Query q = pm.newQuery(InProceedings.class);
 		q.setRange(begin, end);
-		fun.apply((Collection<InProceedings>) q.execute());
+		fun.accept((Collection<InProceedings>) q.execute());
 		pm.currentTransaction().commit();
 
 		closeDB(pm);

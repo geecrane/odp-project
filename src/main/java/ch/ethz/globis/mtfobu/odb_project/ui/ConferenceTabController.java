@@ -16,7 +16,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class ConferenceTabController extends TabController<ConferenceTableEntry, SecondaryConferenceEditionTableEntry, TableEntry> {
+public class ConferenceTabController extends TabController<Conference, ConferenceTableEntry, SecondaryConferenceEditionTableEntry, TableEntry> {
 	
 	public ConferenceTabController(Controller c, TableView<ConferenceTableEntry> mainTable, TextField searchField,
 			Button searchButton, Button nextPageButton, Button previousPageButton, TextField currentPageField,
@@ -54,16 +54,13 @@ public class ConferenceTabController extends TabController<ConferenceTableEntry,
 
 	@Override
 	public void loadData() {
-			mainTableList.clear();
 			c.pm.currentTransaction().begin();
 
 	        Query query = c.pm.newQuery(Conference.class);
 	        query.setRange((queryPage[0]-1)*c.PAGE_SIZE, queryPage[0]*c.PAGE_SIZE);
 	        Collection<Conference> conferences = (Collection<Conference>) query.execute();
 
-	        for (Conference conf: conferences) {
-	        	mainTableList.add(c.new ConferenceTableEntry(conf));
-	        }
+	        updateMainView(conferences);
 	        
 	        query.closeAll();
 	        c.pm.currentTransaction().commit();
@@ -91,6 +88,16 @@ public class ConferenceTabController extends TabController<ConferenceTableEntry,
 		conferenceEditionFilterField.setText("");
 		secondTableList.clear();
 
+	}
+
+	@Override
+	public void updateMainView(Collection<Conference> collection) {
+		mainTableList.clear();
+		
+		for (Conference conf: collection) {
+        	mainTableList.add(c.new ConferenceTableEntry(conf));
+        }
+		
 	}
 
 }

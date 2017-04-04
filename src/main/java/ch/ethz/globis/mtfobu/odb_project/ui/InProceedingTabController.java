@@ -1,14 +1,18 @@
 package ch.ethz.globis.mtfobu.odb_project.ui;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.OptionalLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import ch.ethz.globis.mtfobu.odb_project.DomainObject;
 import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Person;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
+import ch.ethz.globis.mtfobu.odb_project.Publication;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.InProceedingTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PublicationTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryPersonTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
 import javafx.fxml.FXML;
@@ -17,7 +21,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class InProceedingTabController extends TabController<InProceedingTableEntry, SecondaryPersonTableEntry, TableEntry> {
+public class InProceedingTabController extends TabController<InProceedings, InProceedingTableEntry, SecondaryPersonTableEntry, TableEntry> {
 	
 	public InProceedingTabController(Controller c, TableView<InProceedingTableEntry> mainTable, TextField searchField,
 			Button searchButton, Button nextPageButton, Button previousPageButton, TextField currentPageField,
@@ -26,6 +30,14 @@ public class InProceedingTabController extends TabController<InProceedingTableEn
 		super(c, mainTable, searchField, searchButton, nextPageButton, previousPageButton, currentPageField, createRecordButton,
 				deleteRecordButton, secondTable, deleteSecondReferenceButton, thirdTable, deleteThirdReferenceButton);
 		// TODO Auto-generated constructor stub
+		
+		searchButton.setOnAction((event) -> {
+			
+			c.database.searchInProceedingsByTitle(this::updateMainView, parseSearchField());
+			
+		});
+		
+		
 	}
 	private TextField inProceedingPagesField;
 	private Button inProceedingChangePagesButton;
@@ -80,6 +92,7 @@ public class InProceedingTabController extends TabController<InProceedingTableEn
 	public void initializeFunctions(Consumer<Long> secondShowFunction) {
 		this.mainShowFunction = this::showInProceeding;
 		this.secondShowFunction = secondShowFunction;
+		this.searchFunction = c.database::searchInProceedingsByTitle;
 	}
 	
 	
@@ -111,16 +124,16 @@ public class InProceedingTabController extends TabController<InProceedingTableEn
 
 	@Override
 	public void loadData() {
-		c.database.executeOnAllInProceedings(updateProceedings, OptionalLong.of((queryPage[0]-1)*c.PAGE_SIZE), OptionalLong.of(queryPage[0]*c.PAGE_SIZE));
+		c.database.executeOnAllInProceedings(this::updateMainView, OptionalLong.of((queryPage[0]-1)*c.PAGE_SIZE), OptionalLong.of(queryPage[0]*c.PAGE_SIZE));
 	}
-	
-	private final Function<Collection<InProceedings>,Void> updateProceedings = inProc -> {
+
+	@Override
+	public void updateMainView(Collection<InProceedings> inProceedings) {
 		mainTableList.clear();
-		for (InProceedings inProceeding: inProc) {
-			mainTableList.add(c.new InProceedingTableEntry(inProceeding));
+		for (InProceedings inProc : inProceedings) {
+			mainTableList.add(c.new InProceedingTableEntry(inProc));
 		}
-		return null;
-    };
+	}
 
 	
 	@Override
