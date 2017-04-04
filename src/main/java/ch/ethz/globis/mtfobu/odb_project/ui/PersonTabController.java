@@ -2,7 +2,6 @@ package ch.ethz.globis.mtfobu.odb_project.ui;
 
 
 import java.util.Collection;
-import java.util.OptionalLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -12,20 +11,13 @@ import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Person;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
 import ch.ethz.globis.mtfobu.odb_project.Publication;
-import ch.ethz.globis.mtfobu.odb_project.ui.Controller.MyRowFactory;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PersonTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryInProceedingTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryProceedingTableEntry;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.util.Callback;
 
 public class PersonTabController extends TabController<Person, PersonTableEntry, SecondaryProceedingTableEntry, SecondaryInProceedingTableEntry> {
 
@@ -89,7 +81,7 @@ public class PersonTabController extends TabController<Person, PersonTableEntry,
 	
 	// shows a specific person in the bottom
 	public void showPerson(Long objectId) {
-		c.database.executeOnObjectById(objectId, displayPerson);
+		c.db.executeOnObjectById(objectId, displayPerson);
 		c.tabPane.getSelectionModel().select(c.personTab);
 	}
 	

@@ -1,26 +1,21 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
-import java.awt.Dimension;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
 import org.zoodb.jdo.ZooJdoHelper;
 import org.zoodb.tools.ZooHelper;
 
-import javafx.collections.ObservableList;
-
 public class Database {
-	
+	public final int PAGE_SIZE = 20;
 	public Database(String dbName){
 		this.dbName = dbName;
 		
@@ -153,21 +148,68 @@ public class Database {
 		
 	}
 	
-	public void searchInProceedingsByTitle(Consumer<Collection<InProceedings>> fun, SearchParameters p){
-		
-		long begin = p.rangeStart.isPresent() ? p.rangeStart.getAsLong() : 0;
-		long end = p.rangeEnd.isPresent() ? p.rangeEnd.getAsLong() : Long.MAX_VALUE;
-		
+	public void queryInProceedings(Consumer<Collection<InProceedings>> fun, QueryParameters p){
 		PersistenceManager pm = ZooJdoHelper.openDB(dbName);
 		pm.currentTransaction().begin();
 		
-		Query q = pm.newQuery(InProceedings.class, "title.indexOf('" + p.searchTerm + "') > -1");
-		q.setRange(begin, end);
+		Query q;
+		
+		if (p.isSearch) {
+			q = pm.newQuery(InProceedings.class, "title.indexOf('" + p.searchTerm + "') > -1");
+		} else {
+			q = pm.newQuery(InProceedings.class);
+		}
+		
+		if (p.isRanged) {
+			long begin = p.rangeStart.isPresent() ? p.rangeStart.getAsLong() : 0;
+			long end = p.rangeEnd.isPresent() ? p.rangeEnd.getAsLong() : Long.MAX_VALUE;
+			q.setRange(begin, end);
+		} else {
+			q.setRange((p.pageNumber-1) * PAGE_SIZE, p.pageNumber * PAGE_SIZE);
+		}
 		
 		fun.accept((Collection<InProceedings>) q.execute());
 		pm.currentTransaction().commit();
 
 		closeDB(pm);
+	}
+	
+	
+	// Still working on this JOEL
+	public class QueryHelper<T extends DomainObject> {
+		Class<T> classImmediate;
+		String searchableField;
+		
+		public QueryHelper(Class<T> classImmediate, String searchableField) {
+			this.classImmediate = classImmediate;
+			this.searchableField = searchableField;
+		}
+		
+		public void queryForDomainObject(Consumer<Collection<T>> fun, QueryParameters p){
+			PersistenceManager pm = ZooJdoHelper.openDB(dbName);
+			pm.currentTransaction().begin();
+			
+			Query q;
+			
+			if (p.isSearch) {
+				q = pm.newQuery(classImmediate, searchableField + ".indexOf('" + p.searchTerm + "') > -1");
+			} else {
+				q = pm.newQuery(classImmediate);
+			}
+			
+			if (p.isRanged) {
+				long begin = p.rangeStart.isPresent() ? p.rangeStart.getAsLong() : 0;
+				long end = p.rangeEnd.isPresent() ? p.rangeEnd.getAsLong() : Long.MAX_VALUE;
+				q.setRange(begin, end);
+			} else {
+				q.setRange((p.pageNumber-1) * PAGE_SIZE, p.pageNumber * PAGE_SIZE);
+			}
+			
+			fun.accept((Collection<T>) q.execute());
+			pm.currentTransaction().commit();
+
+			closeDB(pm);
+		}
 	}
 	
 	/*** Seba: @param fun is the function that will treat the queried data in form of a collection. 

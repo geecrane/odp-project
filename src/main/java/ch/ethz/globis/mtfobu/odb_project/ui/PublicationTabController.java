@@ -39,7 +39,7 @@ public class PublicationTabController extends TabController<Publication, Publica
 				return null;
 				};
 				
-			c.database.executeOnPublicationsByTitle(search[0],fun);
+			c.db.executeOnPublicationsByTitle(search[0],fun);
 			}
 			else loadData();
 			

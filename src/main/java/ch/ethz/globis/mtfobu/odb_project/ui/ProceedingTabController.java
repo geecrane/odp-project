@@ -121,7 +121,7 @@ public class ProceedingTabController extends TabController<Proceedings, Proceedi
 	}
 
 	private void showProceeding(long objectId) {
-		c.database.executeOnObjectById(objectId, displayProceeding);
+		c.db.executeOnObjectById(objectId, displayProceeding);
 		c.tabPane.getSelectionModel().select(c.proceedingTab);
 	}
 	

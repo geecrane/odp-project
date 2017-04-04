@@ -1,17 +1,9 @@
 package ch.ethz.globis.mtfobu.odb_project.ui;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.OptionalLong;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-import javax.jdo.Extent;
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 
-import org.xml.sax.HandlerBase;
 import org.zoodb.jdo.ZooJdoHelper;
 
 import ch.ethz.globis.mtfobu.odb_project.Conference;
@@ -24,30 +16,22 @@ import ch.ethz.globis.mtfobu.odb_project.Publication;
 import ch.ethz.globis.mtfobu.odb_project.Publisher;
 import ch.ethz.globis.mtfobu.odb_project.Series;
 import ch.ethz.globis.mtfobu.odb_project.XmlImport;
-import ch.ethz.globis.mtfobu.odb_project.ui.Controller.MyRowFactory;
-import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseButton;
-import javafx.util.Callback;
+
  
 public class Controller {
 	public final int PAGE_SIZE = 20;
 	public PersistenceManager pm;
+    public Database db;
 	
     public void initialize() {
     	pm = ZooJdoHelper.openOrCreateDB(Config.DATABASE_NAME);
-    	database = new Database(Config.DATABASE_NAME);
+    	db = new Database(Config.DATABASE_NAME);
     	
     	importButton.setOnAction((event) -> {
 			//George: only for testing purposes
@@ -61,7 +45,7 @@ public class Controller {
 		         {
 		        	c.importButton.setDisable(true);
 		        	
-		 	        XmlImport xim = new XmlImport(database, c);
+		 	        XmlImport xim = new XmlImport(db, c);
 		 	        xim.ImportFromXML("src/main/resources/dblp_filtered.xml");
 		 	        c.pm = ZooJdoHelper.openDB(Config.DATABASE_NAME);
 		 	        c.importButton.setDisable(false);
@@ -283,10 +267,6 @@ public class Controller {
 	
 	
 	// START section for publisher tab
-	private ObservableList<PublisherTableEntry> publisherMainTableList = FXCollections.observableArrayList();
-	private ObservableList<SecondaryProceedingTableEntry> publisherProceedingTableList = FXCollections.observableArrayList();
-    private int[] publisherQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
-	
 	private void setUpPublisherTab() {
 		publisherTabController.initializeTabSpecificItems(
 				publisherNameField, 
@@ -300,9 +280,6 @@ public class Controller {
 		
 		publisherTabController.setUpTables();
 	}
-	
-	
-
 	// End section for publisher tab
 	
 	
@@ -323,10 +300,7 @@ public class Controller {
 	// END section for conferences tab
 	
 	
-	// START section for conference editions tab
-	private ObservableList<ConferenceEditionTableEntry> conferenceEditionMainTableList = FXCollections.observableArrayList();
-	private int[] conferenceEditionQueryPage = new int[] {1}; // Looks dumb but I need this to be able to pass a reference
-	
+	// START section for conference editions tab	
 	private void setUpConferenceEditionTab() {
 		conferenceEditionTabController.initializeTabSpecificItems(
 				conferenceEditionNameField,
@@ -358,11 +332,6 @@ public class Controller {
 		seriesTabController.setUpTables();
 	}
 	// END section for series tab
-	
-	
-    protected void onImport(ActionEvent event){
-    	System.out.printf("Test");
-    }
     
     
     public void setImportStatus(String text){
@@ -744,59 +713,9 @@ public class Controller {
     }
     // END section for table entry data types
     
-    // an abstract paging handler that can be reused for all tabs and directions, by giving 
-    // the constructor the specific text field, counter, function and paging direction
-    class PagingHandler implements EventHandler{
-		private int[] pageCounter;
-		private TextField currentPageField;
-		private int direction;
-		private Runnable loadData;
-		
-		public PagingHandler(int[] pc, TextField cp, int dir, Runnable ld) {
-			pageCounter = pc;
-			currentPageField = cp;
-			direction = dir;
-			loadData = ld;
-		}
-		
-		@Override
-		public void handle(Event event) {
-			try {
-				int t = Integer.parseInt(currentPageField.getText()) + direction;
-				if (t >= 1) {
-					if (0 != direction) {
-						currentPageField.setText(Integer.toString(t));
-					}
-					pageCounter[0] = t;
-					loadData.run();
-				}
-			} catch (NumberFormatException e) {
-				// Do nothing
-			}
-		}
-	}
     
-    // much the same for the row factory an abstract type that should work for all tabs
-    protected class MyRowFactory<T extends TableEntry> implements Callback<TableView<T>, TableRow<T>> {
-    	Consumer<Long> show;
-    	
-    	public MyRowFactory(Consumer<Long> s) {
-    		show = s;
-    	}
-    	
-		@Override
-		public TableRow<T> call(TableView<T> tv) {
-			TableRow<T> row = new TableRow<>();
-		    row.setOnMouseClicked(event -> {
-		        if (! row.isEmpty() && event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 2) {
-		        	T item = row.getItem();
-		            show.accept(item.objectId);
-		        }
-		    });
-		    return row ;
-		}
-		
-	}
+    
+    
     
     public class DeleteHandler<T extends TableEntry> implements EventHandler<ActionEvent>{
     	Consumer<Long> delete;
@@ -820,36 +739,6 @@ public class Controller {
 		
 	}
     
-    private class PagingSetupHelper  {
-    	public void setUpPaging(Button buttonNext, Button buttonPrevious, TextField fieldCurrent, int[] pageNumber, Runnable loader) {
-    		buttonNext.setOnAction(new PagingHandler(pageNumber, fieldCurrent, 1, loader));
-    		buttonPrevious.setOnAction(new PagingHandler(pageNumber, fieldCurrent, -1, loader));
-    		fieldCurrent.setOnAction(new PagingHandler(pageNumber, fieldCurrent, 0, loader));
-    	}
-    }
-    
-    private class TabSetupHelper<T extends TableEntry>  {
-    	
-    	public void setUpTable(TableView<T> tableView, ObservableList<T> dataList, Consumer<Long> showFunction) {
-    		
-    		ObservableList<TableColumn<T, ?>> columns = tableView.getColumns();
-    		
-    		for (int i = 0; i < columns.size(); i++) {
-    			TableColumn<T,String> column = (TableColumn<T,String>) columns.get(i);
-    			final int fin = i;
-    			column.setCellValueFactory(new Callback<CellDataFeatures<T, String>, ObservableValue<String>>() {
-    				public ObservableValue<String> call(CellDataFeatures<T, String> p) {
-    					return new ReadOnlyObjectWrapper<String>(p.getValue().getColumnContent(fin));
-    				}
-    			});
-    			
-    		}
-    		tableView.setRowFactory(new MyRowFactory<T>(showFunction));
-    		tableView.setItems(dataList);
-    	}
-    }
-    
-    protected Database database;
     // START section for fields that reference FXML
     @FXML TabPane tabPane;
     @FXML Tab personTab;

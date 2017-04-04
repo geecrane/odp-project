@@ -4,31 +4,21 @@ import java.util.Collection;
 import java.util.OptionalLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
-
-import javax.jdo.Query;
-
-import org.zoodb.api.impl.ZooPC;
 
 import ch.ethz.globis.mtfobu.odb_project.DomainObject;
-import ch.ethz.globis.mtfobu.odb_project.InProceedings;
-import ch.ethz.globis.mtfobu.odb_project.ui.Controller.DeleteHandler;
-import ch.ethz.globis.mtfobu.odb_project.ui.Controller.InProceedingTableEntry;
-import ch.ethz.globis.mtfobu.odb_project.ui.Controller.MyRowFactory;
-import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PagingHandler;
-import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PersonTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
-import ch.ethz.globis.mtfobu.odb_project.SearchParameters;
+import ch.ethz.globis.mtfobu.odb_project.QueryParameters;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TableColumn.CellDataFeatures;
+import javafx.scene.input.MouseButton;
 import javafx.util.Callback;
 
 public abstract class TabController<DO extends DomainObject, TE1 extends TableEntry, TE2 extends TableEntry, TE3 extends TableEntry> {
@@ -104,11 +94,11 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 	public Consumer<Long> mainShowFunction;
 	public Consumer<Long> secondShowFunction;
 	public Consumer<Long> thirdShowFunction;
-	public BiConsumer<Consumer<Collection<DO>>, SearchParameters> searchFunction;
+	public BiConsumer<Consumer<Collection<DO>>, QueryParameters> searchFunction;
 	
 	public void initializeFunctions(Consumer<Long> mainShowFunction,
 			Consumer<Long> secondShowFunction, Consumer<Long> thirdShowFunction,
-			BiConsumer<Consumer<Collection<DO>>, SearchParameters> searchFunction) {
+			BiConsumer<Consumer<Collection<DO>>, QueryParameters> searchFunction) {
 		this.mainShowFunction = mainShowFunction;
 		this.secondShowFunction = secondShowFunction;
 		this.thirdShowFunction = thirdShowFunction;
@@ -131,18 +121,18 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 			
 		}
 		
-		mainTable.setRowFactory(c.new MyRowFactory<TE1>(mainShowFunction));
+		mainTable.setRowFactory(new MyRowFactory<TE1>(mainShowFunction));
 		mainTable.setItems(mainTableList);
 		
 		deleteRecordButton.setOnAction(c.new DeleteHandler<TE1>(mainTable, this::deleteRecord));
+
 		
-		nextPageButton.setOnAction(c.new PagingHandler(queryPage, currentPageField, 1, this::loadData));
-		previousPageButton.setOnAction(c.new PagingHandler(queryPage, currentPageField, -1, this::loadData));
-		currentPageField.setOnAction(c.new PagingHandler(queryPage, currentPageField, 0, this::loadData));
+		nextPageButton.setOnAction((event) -> {handlePaging(1);});
+		previousPageButton.setOnAction((event) -> {handlePaging(-1);});
+		currentPageField.setOnAction((event) -> {handlePaging(0);});
 		
-		searchButton.setOnAction((event) -> {
-			searchFunction.accept(this::updateMainView, parseSearchField());
-		});
+		searchButton.setOnAction((event) -> {searchFunction.accept(this::updateMainView, prepareQueryParametersFromSearch());});
+		searchField.setOnAction((event) -> {searchFunction.accept(this::updateMainView, prepareQueryParametersFromSearch());});
 		
 		
 		if (numberOfTables > 1) {
@@ -160,14 +150,14 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 				});
 				
 			}
-			secondTable.setRowFactory(c.new MyRowFactory<TE2>(secondShowFunction));
+			secondTable.setRowFactory(new MyRowFactory<TE2>(secondShowFunction));
 			secondTable.setItems(secondTableList);
 			
 		}
 		
 		if (numberOfTables > 2) {
 			
-			// Table 2
+			// Table 3
 			ObservableList<TableColumn<TE3, ?>> columns3 = thirdTable.getColumns();
 			
 			for (int i = 0; i < columns3.size(); i++) {
@@ -180,7 +170,7 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 				});
 				
 			}
-			thirdTable.setRowFactory(c.new MyRowFactory<TE3>(thirdShowFunction));
+			thirdTable.setRowFactory(new MyRowFactory<TE3>(thirdShowFunction));
 			thirdTable.setItems(thirdTableList);
 			
 		}
@@ -192,7 +182,7 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 	abstract public void loadData();
 	
 	public void deleteRecord(Long objectId) {
-		c.database.removeObjectById(objectId);
+		c.db.removeObjectById(objectId);
 			
 		loadData();
 		emptyFields();
@@ -202,14 +192,38 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 	
 	abstract public void updateMainView(Collection<DO> collection);
 	
-	protected SearchParameters parseSearchField() {
+	protected QueryParameters prepareQueryParametersFromSearch() {
+		QueryParameters params = readAndParseSearchField();
+		
+		if (params.rangeEnd.isPresent() && params.rangeStart.isPresent() && params.rangeEnd.getAsLong() < params.rangeStart.getAsLong()) {
+			params.rangeEnd = OptionalLong.empty();
+		}
+		
+		if (params.rangeEnd.isPresent() || params.rangeStart.isPresent()) {
+			params.isRanged = true;
+		} else {
+			readCurrentPageNumberFromUI();
+			params.pageNumber = queryPage[0];
+			params.isRanged = false;
+		}
+		
+		if (params.searchTerm.equals("")) {
+			params.isSearch = false;
+		} else {
+			params.isSearch = true;
+		}
+		
+		return params;
+	}
+	
+	private QueryParameters readAndParseSearchField() {
 		String searchParams[] = searchField.getText().split(";");
 		
 		// Do nothing if the number of parameters is under 1, or there are more than 3,
 		// unless it's 4 and the last is empty so that "search;1;20;" is also allowed.
 		if( searchParams.length < 1 || (searchParams.length > 3 && !(searchParams.length == 4 && searchParams[3].equals("")) ) ) return null;
 		
-		SearchParameters params = new SearchParameters();
+		QueryParameters params = new QueryParameters();
 		
 		params.rangeEnd = OptionalLong.empty();
 		params.rangeStart = OptionalLong.empty();
@@ -217,36 +231,86 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 		
 		// The breaks are left out intentionally, I want this to fall through
 		switch (searchParams.length) {
-		
-		case 3 :
-			try {
-				long stop = Long.parseLong(searchParams[2]);
-				stop = (stop < 1) ? 1 : stop;
-				params.rangeEnd = OptionalLong.of(stop);
-			} catch (NumberFormatException e) {
-				params.rangeEnd = OptionalLong.empty();
-			}
-			/* FALLTHROUGH */
-		case 2 : 
-			try {
-				long start = Long.parseLong(searchParams[1]);
-				start = (start < 0) ? 0 : start;
-				params.rangeStart = OptionalLong.of(start);
-			} catch (NumberFormatException e) {
-				params.rangeStart = OptionalLong.empty();
-			}
-			/* FALLTHROUGH */
-		default :
-			params.searchTerm = searchParams[0];
-		}
-		
-		if (params.rangeEnd.isPresent() && params.rangeStart.isPresent() && params.rangeEnd.getAsLong() < params.rangeStart.getAsLong()) {
-			params.rangeEnd = OptionalLong.empty();
+			case 3 :
+				try {
+					long stop = Long.parseLong(searchParams[2]);
+					stop = (stop < 1) ? 1 : stop;
+					params.rangeEnd = OptionalLong.of(stop);
+				} catch (NumberFormatException e) {
+					params.rangeEnd = OptionalLong.empty();
+				}
+				/* FALLTHROUGH */
+			case 2 : 
+				try {
+					long start = Long.parseLong(searchParams[1]);
+					start = (start < 0) ? 0 : start;
+					params.rangeStart = OptionalLong.of(start);
+				} catch (NumberFormatException e) {
+					params.rangeStart = OptionalLong.empty();
+				}
+				/* FALLTHROUGH */
+			default :
+				params.searchTerm = searchParams[0];
 		}
 		
 		return params;
 	}
 	
+	private void readCurrentPageNumberFromUI() {
+		try {
+			int t = Integer.parseInt(currentPageField.getText());
+			if (t >= 1) {
+				queryPage[0] = t;
+			}
+		} catch (NumberFormatException e) {
+			// Do nothing
+		}
+	}
 	
+	public void handlePaging(int direction) {
+		try {
+			int t = Integer.parseInt(currentPageField.getText()) + direction;
+			if (t >= 1) {
+				if (0 != direction) {
+					currentPageField.setText(Integer.toString(t));
+				}
+				queryPage[0] = t;
+				QueryParameters params = readAndParseSearchField();
+				params.isRanged = false;
+				params.pageNumber = queryPage[0];
+				if (params.searchTerm.equals("")) {
+					params.isSearch = false;
+				} else {
+					params.isSearch = true;
+				}
+				searchFunction.accept(this::updateMainView, params);
+			}
+		} catch (NumberFormatException e) {
+			// Do nothing
+		}
+	}
+	
+    
+	// A row factory that takes a show function and generates rows that react to doubleclicks by running that function on their table entry
+    protected class MyRowFactory<T extends TableEntry> implements Callback<TableView<T>, TableRow<T>> {
+    	Consumer<Long> show;
+    	
+    	public MyRowFactory(Consumer<Long> s) {
+    		show = s;
+    	}
+    	
+		@Override
+		public TableRow<T> call(TableView<T> tv) {
+			TableRow<T> row = new TableRow<>();
+		    row.setOnMouseClicked(event -> {
+		        if (! row.isEmpty() && event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 2) {
+		        	T item = row.getItem();
+		            show.accept(item.objectId);
+		        }
+		    });
+		    return row ;
+		}
+		
+	}
 	
 }

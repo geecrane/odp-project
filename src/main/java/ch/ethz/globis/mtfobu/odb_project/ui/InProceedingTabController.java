@@ -33,7 +33,7 @@ public class InProceedingTabController extends TabController<InProceedings, InPr
 		
 		searchButton.setOnAction((event) -> {
 			
-			c.database.searchInProceedingsByTitle(this::updateMainView, parseSearchField());
+			c.db.queryInProceedings(this::updateMainView, prepareQueryParametersFromSearch());
 			
 		});
 		
@@ -92,13 +92,13 @@ public class InProceedingTabController extends TabController<InProceedings, InPr
 	public void initializeFunctions(Consumer<Long> secondShowFunction) {
 		this.mainShowFunction = this::showInProceeding;
 		this.secondShowFunction = secondShowFunction;
-		this.searchFunction = c.database::searchInProceedingsByTitle;
+		this.searchFunction = c.db::queryInProceedings;
 	}
 	
 	
 	private void showInProceeding(Long objectId) {
 
-		c.database.executeOnObjectById(objectId, show_in_proceeding);
+		c.db.executeOnObjectById(objectId, show_in_proceeding);
 		c.tabPane.getSelectionModel().select(c.inProceedingTab);
 	}
 	private final Function<Object,Integer> show_in_proceeding = ( obj) -> {
@@ -124,7 +124,7 @@ public class InProceedingTabController extends TabController<InProceedings, InPr
 
 	@Override
 	public void loadData() {
-		c.database.executeOnAllInProceedings(this::updateMainView, OptionalLong.of((queryPage[0]-1)*c.PAGE_SIZE), OptionalLong.of(queryPage[0]*c.PAGE_SIZE));
+		c.db.executeOnAllInProceedings(this::updateMainView, OptionalLong.of((queryPage[0]-1)*c.PAGE_SIZE), OptionalLong.of(queryPage[0]*c.PAGE_SIZE));
 	}
 
 	@Override
