@@ -8,6 +8,7 @@ import org.zoodb.jdo.ZooJdoHelper;
 
 import ch.ethz.globis.mtfobu.odb_project.Conference;
 import ch.ethz.globis.mtfobu.odb_project.ConferenceEdition;
+import ch.ethz.globis.mtfobu.odb_project.Config;
 import ch.ethz.globis.mtfobu.odb_project.Database;
 import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Person;
