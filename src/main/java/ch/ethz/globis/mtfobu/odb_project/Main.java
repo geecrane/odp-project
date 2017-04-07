@@ -1,36 +1,45 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
 import java.net.URL;
-import java.util.Collection;
 
-import javax.jdo.Extent;
-import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TabPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import org.zoodb.jdo.ZooJdoHelper;
-import org.zoodb.tools.ZooHelper;
 
 public class Main extends Application{
 
 	public static void main(String[] args) {
-        
-        launch(args);
+		
+		Database db = new Database(Config.DATABASE_NAME);
+		//comment out the line below, if you don't want to import the xml every time.
+		tempXMLImport(db);
+		Proceedings p = db.getProceedingsById("conf/bcshci/1988");
+		System.out.println(p.getTitle());
+	
+		//uncomment line below to enable the GUI
+		
+        //launch(args);
         
     }
-
+	
+	//temporary function. just for testing until the gui works
+	public static void tempXMLImport(Database db){
+		
+		//delete db if exists already
+		db.create();
+		
+		XmlImport importer = new XmlImport(db, null);
+		importer.ImportFromXML("src/main/resources/dblp_filtered.xml");
+	}
+	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		
+		
 		FXMLLoader loader = new FXMLLoader();
 		URL url = getClass().getResource("/first-prototype.fxml");
 		loader.setLocation(url);

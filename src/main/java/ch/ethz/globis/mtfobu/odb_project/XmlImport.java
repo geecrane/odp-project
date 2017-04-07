@@ -52,7 +52,9 @@ public class XmlImport {
 		
 			//commit to database 
 			setStatus("Commiting to Database...");
-			database.importData(proceedingsList, inProceedingsList);
+			database.importData(proceedingsList, inProceedingsList,
+								seriesList, publishers, conferenceEditions,
+								conferences, people);
 			
 			//Done!
 			String output = String.format("Import Complete!\nImported succesfully:\n%s proceedings \n%s inProceedings \n%s editors \n%s publishers \n"
@@ -354,7 +356,8 @@ public class XmlImport {
 	void setStatus(String text){
 		Platform.runLater(new Runnable() {
 	        @Override public void run() {
-	        	c.setImportStatus(text);
+	        	if(c!=null)
+	        		c.setImportStatus(text);
 	        }
 	    });
 	}
