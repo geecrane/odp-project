@@ -1,14 +1,19 @@
-package ch.ethz.globis.mtfobu.odb_project;
+package ch.ethz.globis.mtfobu.odb_project.zoodb;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import org.zoodb.api.impl.ZooPC;
 
 /**
  * Represents a person. The person can have the role of an author
  * or of an editor for some publications.
  */
-public class Person implements DomainObject {
+public class Person extends ZooPC implements DomainObject {
 
+	private Person() {
+		// ZooDB
+	}
 	
 	public Person(String name) {
 		this.name = name;
@@ -17,34 +22,42 @@ public class Person implements DomainObject {
 	
     public String getName()
     {
+    	zooActivateRead();
     	return name;
     }
     
     public void setName(String name){
+    	zooActivateWrite();
     	this.name = name;
     }
 
     public Set<Publication> getAuthoredPublications(){
+    	zooActivateRead();
     	return this.authoredPublications;
     }
     
     public boolean removeAuthoredPublication(Publication publication){
+    	zooActivateWrite();
     	return authoredPublications.remove(publication);
     }
 
     public void setAuthoredPublications(Set<Publication> authoredPublications){
+    	zooActivateWrite();
     	this.authoredPublications = authoredPublications;
     }
 
     public Set<Publication> getEditedPublications(){
+    	zooActivateRead();
     	return editedPublications;
     }
     
     public boolean removeEditedPublication(Publication publication){
+    	zooActivateWrite();
     	return editedPublications.remove(publication);
     }
 
     public void setEditedPublications(Set<Publication> editedPublications){
+    	zooActivateWrite();
     	this.editedPublications = editedPublications;
     }
     
@@ -59,11 +72,13 @@ public class Person implements DomainObject {
 
 	@Override
 	public String getId() {
+		zooActivateRead();
 		return id;
 	}
 
 	@Override
 	public void setId(String id) {
+		zooActivateWrite();
 		this.id = id;
 		
 	}

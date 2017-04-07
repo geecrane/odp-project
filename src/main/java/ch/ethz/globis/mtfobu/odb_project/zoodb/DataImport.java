@@ -1,4 +1,4 @@
-package ch.ethz.globis.mtfobu.odb_project;
+package ch.ethz.globis.mtfobu.odb_project.zoodb;
 
 import java.io.File;
 import java.io.IOException;
