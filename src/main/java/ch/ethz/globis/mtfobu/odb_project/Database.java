@@ -66,7 +66,7 @@ public class Database {
 		return null;
 	}
 	
-	//George: get ConferenceEdition By Id
+	//George: get ConferenceEdition By ID
 	public ConferenceEdition getConferenceEditionById(String id){
 		//TODO:implement
 		return null;
