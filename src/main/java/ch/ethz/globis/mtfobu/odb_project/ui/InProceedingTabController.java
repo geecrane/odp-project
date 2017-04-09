@@ -83,20 +83,17 @@ public class InProceedingTabController extends TabController<InProceedings, InPr
 		
 	}
 
-	public void initializeFunctions(Consumer<Long> secondShowFunction) {
+	public void initializeFunctions(Consumer<String> secondShowFunction) {
 		this.mainShowFunction = this::showInProceeding;
 		this.secondShowFunction = secondShowFunction;
-		this.searchFunction = c.db.new QueryHelper<InProceedings>(InProceedings.class, "title")::queryForDomainObject;
+		this.searchFunction = c.db.inProceedingsQueryHelper::queryForDomainObject;
 	}
 	
 	
-	private void showInProceeding(Long objectId) {
+	private void showInProceeding(String id) {
 
-		c.db.executeOnObjectById(objectId, show_in_proceeding);
-		c.tabPane.getSelectionModel().select(c.inProceedingTab);
-	}
-	private final Function<Object,Integer> show_in_proceeding = ( obj) -> {
-		InProceedings inProc = (InProceedings) obj;
+		InProceedings inProc = c.db.getInProceedingsById(id);
+		
 		this.inProceedingTitleField.setText(inProc.getTitle());
 		this.inProceedingPagesField.setText(inProc.getPages());
 		this.inProceedingYearField.setText(Integer.toString(inProc.getYear()));
@@ -111,8 +108,9 @@ public class InProceedingTabController extends TabController<InProceedings, InPr
 		for (Person person : inProc.getAuthors()) {
 			secondTableList.add(c.new SecondaryPersonTableEntry(person));
         }
-		return 0;
-    };
+		
+		c.tabPane.getSelectionModel().select(c.inProceedingTab);
+	}
 
 	@Override
 	public void updateMainView(Collection<InProceedings> inProceedings) {

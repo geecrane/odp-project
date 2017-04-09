@@ -39,20 +39,18 @@ public class PublicationTabController extends TabController<Publication, Publica
 	public void initializeFunctions() {
 		// None needed from outside
 		this.mainShowFunction = this::showPublication;
-		this.searchFunction = c.db::queryForPublication;
+		this.searchFunction = c.db::queryForPublications;
 	}
 	
-	private void showPublication(Long objectId) {
-		boolean isProceeding = false;
-		c.pm.currentTransaction().begin();
-		Publication pub = (Publication) c.pm.getObjectById(objectId);
-		isProceeding = pub instanceof Proceedings;
-		c.pm.currentTransaction().commit();
+	private void showPublication(String id) {
+		// This double querying is not very elegant or efficient
+		Proceedings proc = c.db.getProceedingsById(id);
+		InProceedings inProc = c.db.getInProceedingsById(id);
 		
-		if (isProceeding) {
-			c.proceedingTabController.mainShowFunction.accept(objectId);
-		} else {
-			c.inProceedingTabController.mainShowFunction.accept(objectId);
+		if (null != proc) {
+			c.proceedingTabController.mainShowFunction.accept(id);
+		} else if (null != inProc){
+			c.inProceedingTabController.mainShowFunction.accept(id);
 		}
 	}
 

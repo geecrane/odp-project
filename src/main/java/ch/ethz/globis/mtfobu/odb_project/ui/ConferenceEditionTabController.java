@@ -45,12 +45,11 @@ public class ConferenceEditionTabController extends TabController<ConferenceEdit
 	
 	public void initializeFunctions() {
 		this.mainShowFunction = this::showConferenceEdition;
-		this.searchFunction = c.db.new QueryHelper<ConferenceEdition>(ConferenceEdition.class, "id")::queryForDomainObject;
+		this.searchFunction = c.db.conferenceEditionQueryHelper::queryForDomainObject;
 	}
 	
-	private void showConferenceEdition(Long objectId) {
-		c.pm.currentTransaction().begin();
-		ConferenceEdition confEd = (ConferenceEdition) c.pm.getObjectById(objectId);
+	private void showConferenceEdition(String id) {
+		ConferenceEdition confEd = c.db.getConferenceEditionById(id);
 		
 		Conference conf = confEd.getConference();
 		
@@ -67,7 +66,6 @@ public class ConferenceEditionTabController extends TabController<ConferenceEdit
 			conferenceEditionEditionField.setText("No year");
 		}
 		
-		c.pm.currentTransaction().commit();
 		c.tabPane.getSelectionModel().select(c.conferenceEditionTab);
 	}
 

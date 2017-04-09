@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.OptionalLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import ch.ethz.globis.mtfobu.odb_project.DomainObject;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
@@ -94,11 +95,11 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 	public Consumer<String> mainShowFunction;
 	public Consumer<String> secondShowFunction;
 	public Consumer<String> thirdShowFunction;
-	public BiConsumer<Consumer<Collection<DO>>, QueryParameters> searchFunction;
+	public Function<QueryParameters, Collection<DO>> searchFunction;
 	
 	public void initializeFunctions(Consumer<String> mainShowFunction,
 			Consumer<String> secondShowFunction, Consumer<String> thirdShowFunction,
-			BiConsumer<Consumer<Collection<DO>>, QueryParameters> searchFunction) {
+			Function<QueryParameters, Collection<DO>> searchFunction) {
 		this.mainShowFunction = mainShowFunction;
 		this.secondShowFunction = secondShowFunction;
 		this.thirdShowFunction = thirdShowFunction;
@@ -231,7 +232,7 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 		} else {
 			params.isSearch = true;
 		}
-		searchFunction.accept(this::updateMainView, params);
+		updateMainView(searchFunction.apply(params));
 	}
 	
 	public void loadFromPaging() {
@@ -246,7 +247,7 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 		} else {
 			params.isSearch = true;
 		}
-		searchFunction.accept(this::updateMainView, params);
+		updateMainView(searchFunction.apply(params));
 	}
 	
 	private QueryParameters readAndParseSearchField() {

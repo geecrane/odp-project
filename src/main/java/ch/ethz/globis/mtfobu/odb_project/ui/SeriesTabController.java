@@ -51,15 +51,14 @@ public class SeriesTabController extends TabController<Series, SeriesTableEntry,
 
 	}
 	
-	public void initializeFunctions(Consumer<Long> secondShowFunction) {
+	public void initializeFunctions(Consumer<String> secondShowFunction) {
 		this.mainShowFunction = this::showSeries;
 		this.secondShowFunction = secondShowFunction;
-		this.searchFunction = c.db.new QueryHelper<Series>(Series.class, "name")::queryForDomainObject;
+		this.searchFunction = c.db.seriesQueryHelper::queryForDomainObject;
 	}
 	
-	private void showSeries(Long objectId) {
-		c.pm.currentTransaction().begin();
-		Series series = (Series) c.pm.getObjectById(objectId);
+	private void showSeries(String id) {
+		Series series = c.db.getSeriesById(id);
 		
 		seriesNameField.setText(series.getName());
 		
@@ -71,7 +70,6 @@ public class SeriesTabController extends TabController<Series, SeriesTableEntry,
 			}
 		}
 		
-		c.pm.currentTransaction().commit();
 		c.tabPane.getSelectionModel().select(c.seriesTab);
 	}
 

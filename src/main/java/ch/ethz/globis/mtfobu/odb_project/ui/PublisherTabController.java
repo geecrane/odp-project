@@ -53,16 +53,16 @@ public class PublisherTabController extends TabController<Publisher, PublisherTa
 		 this.publisherProceedingFilterField = publisherProceedingFilterField;
 	}
 	
-	public void initializeFunctions(Consumer<Long> secondShowFunction) {
+	public void initializeFunctions(Consumer<String> secondShowFunction) {
 		this.mainShowFunction = this::showPublisher;
 		this.secondShowFunction = secondShowFunction;
-		this.searchFunction = c.db.new QueryHelper<Publisher>(Publisher.class, "name")::queryForDomainObject;
+		this.searchFunction = c.db.publisherQueryHelper::queryForDomainObject;
 	}
 	
 	
-	private void showPublisher(long objectId) {
-		c.pm.currentTransaction().begin();
-		Publisher puber = (Publisher) c.pm.getObjectById(objectId);
+	private void showPublisher(String id) {
+		
+		Publisher puber = c.db.getPublisherById(id);
 		
 		publisherNameField.setText(puber.getName());
 		
@@ -75,7 +75,6 @@ public class PublisherTabController extends TabController<Publisher, PublisherTa
 			}
         }
 		
-		c.pm.currentTransaction().commit();
 		c.tabPane.getSelectionModel().select(c.publisherTab);
 	}
 

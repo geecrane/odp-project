@@ -125,11 +125,7 @@ public class ProceedingTabController extends TabController<Proceedings, Proceedi
 	}
 
 	private void showProceeding(String id) {
-		displayProceeding(c.db.getProceedingsById(id));
-		c.tabPane.getSelectionModel().select(c.proceedingTab);
-	}
-	
-	private void displayProceeding(Proceedings proc){
+		Proceedings proc = c.db.getProceedingsById(id);
 		
 		proceedingTitleField.setText(proc.getTitle());
 		proceedingIsbnField.setText(proc.getIsbn());
@@ -169,7 +165,8 @@ public class ProceedingTabController extends TabController<Proceedings, Proceedi
 			secondTableList.add(c.new SecondaryPersonTableEntry(person));
         }
 		
-	};
+		c.tabPane.getSelectionModel().select(c.proceedingTab);
+	}
 	
 	@Override
 	public void emptyFields() {

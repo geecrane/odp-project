@@ -33,7 +33,6 @@ public class Controller {
     public Database db;
 	
     public void initialize() {
-    	pm = ZooJdoHelper.openOrCreateDB(Config.DATABASE_NAME);
     	db = new Database(Config.DATABASE_NAME);
     	
     	importButton.setOnAction((event) -> {
@@ -48,9 +47,10 @@ public class Controller {
 		         {
 		        	c.importButton.setDisable(true);
 		        	
-		 	        XmlImport xim = new XmlImport(db, c);
-		 	        xim.ImportFromXML("src/main/resources/dblp_filtered.xml");
-		 	        c.pm = ZooJdoHelper.openDB(Config.DATABASE_NAME);
+		        	db.create();
+		    		XmlImport importer = new XmlImport(db, null);
+		    		importer.ImportFromXML("src/main/resources/dblp_filtered.xml");
+		    		
 		 	        c.importButton.setDisable(false);
 		         }
 			});

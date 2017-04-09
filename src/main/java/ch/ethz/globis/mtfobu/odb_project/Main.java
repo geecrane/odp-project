@@ -16,7 +16,7 @@ public class Main extends Application{
 		
 		Database db = new Database(Config.DATABASE_NAME);
 		//comment out the line below, if you don't want to import the xml every time.
-		tempXMLImport(db);
+		//tempXMLImport(db);
 		Proceedings p = db.getProceedingsById("conf/bcshci/1988");
 		System.out.println(p.getTitle());
 	

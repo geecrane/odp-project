@@ -57,21 +57,16 @@ public class PersonTabController extends TabController<Person, PersonTableEntry,
 	}
 	
 	// some functions are right here so we pass them in directly
-	public void initializeFunctions(Consumer<Long> secondShowFunction, Consumer<Long> thirdShowFunction) {
+	public void initializeFunctions(Consumer<String> secondShowFunction, Consumer<String> thirdShowFunction) {
 		this.mainShowFunction = this::showPerson;
 		this.secondShowFunction = secondShowFunction;
 		this.thirdShowFunction = thirdShowFunction;
-		this.searchFunction = c.db.new QueryHelper<Person>(Person.class, "name")::queryForDomainObject;
+		this.searchFunction = c.db.personQueryHelper::queryForDomainObject;
 	}	
 	
 	// shows a specific person in the bottom
-	public void showPerson(Long objectId) {
-		c.db.executeOnObjectById(objectId, displayPerson);
-		c.tabPane.getSelectionModel().select(c.personTab);
-	}
-	
-	private final Function<Object, Integer> displayPerson = ( obj) -> {
-		Person person = (Person) obj;
+	public void showPerson(String id) {
+		Person person = c.db.getPersonById(id);
 		
 		nameField.setText(person.getName());
 		
@@ -86,9 +81,8 @@ public class PersonTabController extends TabController<Person, PersonTableEntry,
 		for (Publication inProc : person.getAuthoredPublications()) {
 			thirdTableList.add(c.new SecondaryInProceedingTableEntry((InProceedings) inProc));
         }
-		
-		return 0;
-	};
+		c.tabPane.getSelectionModel().select(c.personTab);
+	}
 
 	// resets all fields in the bottom to empty
 	@Override

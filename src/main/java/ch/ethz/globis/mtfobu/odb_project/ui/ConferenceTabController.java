@@ -48,15 +48,15 @@ public class ConferenceTabController extends TabController<Conference, Conferenc
 		  this.conferenceEditionFilterField = conferenceEditionFilterField;
 	}
 	
-	public void initializeFunctions(Consumer<Long> secondShowFunction) {
+	public void initializeFunctions(Consumer<String> secondShowFunction) {
 		mainShowFunction = this::showConference;
 		this.secondShowFunction = secondShowFunction;
-		this.searchFunction = this.searchFunction = c.db.new QueryHelper<Conference>(Conference.class, "name")::queryForDomainObject;
+		this.searchFunction = c.db.conferenceQueryHelper::queryForDomainObject;
 	}
 
-	private void showConference(long objectId) {
-		c.pm.currentTransaction().begin();
-		Conference conf = (Conference) c.pm.getObjectById(objectId);
+	private void showConference(String id) {
+		
+		Conference conf = c.db.getConferenceById(id);
 		
 		conferenceNameField.setText(conf.getName());
 		
@@ -66,7 +66,6 @@ public class ConferenceTabController extends TabController<Conference, Conferenc
 			secondTableList.add(c.new SecondaryConferenceEditionTableEntry(confEd));
 		}
 		
-		c.pm.currentTransaction().commit();
 		c.tabPane.getSelectionModel().select(c.conferenceTab);
 	}
 	
