@@ -8,6 +8,7 @@ import javax.jdo.Query;
 
 import ch.ethz.globis.mtfobu.odb_project.Conference;
 import ch.ethz.globis.mtfobu.odb_project.ConferenceEdition;
+import ch.ethz.globis.mtfobu.odb_project.Config;
 import ch.ethz.globis.mtfobu.odb_project.Person;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
 import ch.ethz.globis.mtfobu.odb_project.Publisher;
@@ -116,19 +117,19 @@ public class ProceedingTabController extends TabController<Proceedings, Proceedi
 		
 	}
 	
-	public void initializeFunctions(Consumer<Long> secondShowFunction) {
+	public void initializeFunctions(Consumer<String> secondShowFunction) {
 		this.mainShowFunction = this::showProceeding;
 		this.secondShowFunction = secondShowFunction;
-		this.searchFunction = c.db.new QueryHelper<Proceedings>(Proceedings.class, "title")::queryForDomainObject;
+		this.searchFunction = c.db.proceedingsQueryHelper::queryForDomainObject;
+
 	}
 
-	private void showProceeding(long objectId) {
-		c.db.executeOnObjectById(objectId, displayProceeding);
+	private void showProceeding(String id) {
+		displayProceeding(c.db.getProceedingsById(id));
 		c.tabPane.getSelectionModel().select(c.proceedingTab);
 	}
 	
-	private final Function<Object, Integer> displayProceeding = (obj) -> {
-		Proceedings proc = (Proceedings) obj;
+	private void displayProceeding(Proceedings proc){
 		
 		proceedingTitleField.setText(proc.getTitle());
 		proceedingIsbnField.setText(proc.getIsbn());
@@ -168,7 +169,6 @@ public class ProceedingTabController extends TabController<Proceedings, Proceedi
 			secondTableList.add(c.new SecondaryPersonTableEntry(person));
         }
 		
-		return 0;
 	};
 	
 	@Override

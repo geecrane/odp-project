@@ -5,17 +5,27 @@ package ch.ethz.globis.mtfobu.odb_project;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.bson.Document;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoIterable;
+
+import ch.ethz.globis.mtfobu.odb_project.QueryParameters;
+
 import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Sorts.*;
 
 
 
@@ -90,67 +100,130 @@ public class Database {
 		
 	}
 	
+	// Helper class to construct a function for querying or searching with paging or ranged accesses for any domain object
+	public class QueryHelper<DO extends DomainObject> {
+		private String collectionToUse;
+		private String fieldToSearch;
+		private Function<Document,DO> parser;
+		
+		public QueryHelper(String collectionToUse, String fieldToSearch, Function<Document,DO> parser) {
+			this.collectionToUse = collectionToUse;
+			this.fieldToSearch = fieldToSearch;
+			this.parser = parser;
+		}
+		
+		public void queryForDomainObject(Consumer<Collection<DO>> fun, QueryParameters p) {
+			MongoCollection<Document> collection = mongoDB.getCollection(collectionToUse);
+			MongoCursor<Document> cursor;
+			
+			if (p.isRanged) {
+				long begin = p.rangeStart.isPresent() ? p.rangeStart.getAsLong() : 0;
+				long end = p.rangeEnd.isPresent() ? p.rangeEnd.getAsLong() : Long.MAX_VALUE;
+				
+				if (p.isSearch) {
+					cursor = collection.find(text(p.searchTerm)).sort(ascending(fieldToSearch)).skip((int) begin).limit((int) (end - begin)).iterator();
+				} else {
+					cursor = collection.find().sort(ascending(fieldToSearch)).skip((int) begin).limit((int) (end - begin)).iterator();
+				}
+				
+			} else {
+				
+				if (p.isSearch) {
+					cursor = collection.find(text(p.searchTerm)).sort(ascending(fieldToSearch)).skip((p.pageNumber - 1)* Config.PAGE_SIZE).limit(Config.PAGE_SIZE).iterator();
+				} else {
+					cursor = collection.find().sort(ascending(fieldToSearch)).skip((p.pageNumber - 1)* Config.PAGE_SIZE).iterator();
+				}
+				
+			}
+			
+			Collection<DO> coll = new ArrayList<DO>(Config.PAGE_SIZE);
+			
+			while (cursor.hasNext()) {
+				Document doc = cursor.next();
+				coll.add(parser.apply(doc));
+			}
+	
+			fun.accept(coll);
+			return;
+		}
+	}
+	
+	// Query Helper for Proceedings
+	public QueryHelper<Proceedings> proceedingsQueryHelper = new QueryHelper<Proceedings>(Config.PROCEEDINGS_COLLECTION, Config.PROCEEDINGS_TITLE, this::makeProceedingsObject);
+	
+	
+	
+	
+	
+	public Proceedings makeProceedingsObject(Document doc) {
+		
+		Proceedings proceedings = new Proceedings((String)doc.get(Config.MONGODB_PRIMARY_KEY));
+		
+		String title = (String)doc.get(Config.PROCEEDINGS_TITLE);
+		int year = (int)doc.get(Config.PROCEEDINGS_YEAR);
+		String isbn = (String)doc.get(Config.PROCEEDINGS_ISBN);
+		String volume = (String)doc.get(Config.PROCEEDINGS_VOLUME);
+		String note = (String)doc.get(Config.PROCEEDINGS_NOTE);
+		String ee = (String)doc.get(Config.PROCEEDINGS_ELECTRONIC_EDITION);
+		int number = (int)doc.get(Config.PROCEEDINGS_NUMBER);
+		
+		proceedings.setTitle(title);
+		proceedings.setYear(year);
+		proceedings.setIsbn(isbn);
+		proceedings.setVolume(volume);
+		proceedings.setNote(note);
+		proceedings.setElectronicEdition(ee);
+		proceedings.setNumber(number);
+		
+		String series_key = (String)doc.get(Config.PROCEEDINGS_SERIES_KEY);
+		Series series = getSeriesById(series_key);
+		proceedings.setSeries(series);
+		
+		
+		String conf_ed_key = (String)doc.get(Config.PROCEEDINGS_CONFERENCE_EDITION_KEY);
+		ConferenceEdition conferenceEdition = getConferenceEditionById(conf_ed_key);
+		proceedings.setConferenceEdition(conferenceEdition);
+		
+		
+		String publisher_key = (String)doc.get(Config.PROCEEDINGS_PUBLISHER_KEY);
+		Publisher publisher = getPublisherById(publisher_key);
+		proceedings.setPublisher(publisher);
+		
+		
+		ArrayList<String> editor_keys = (ArrayList<String>)doc.get(Config.PROCEEDINGS_EDITOR_KEYS);
+		ArrayList<Person> authors = new ArrayList<>();
+		for(String key : editor_keys){
+			Person p = getPersonById(key);
+			authors.add(p);
+		}
+		proceedings.setAuthors(authors);
+		
+		
+		ArrayList<String> inproceedings_keys = (ArrayList<String>)doc.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
+		HashSet<InProceedings> inproceedingsList = new HashSet<>();
+		for(String key : inproceedings_keys){
+			InProceedings inProceedings = getInProceedingsById(key);
+			inproceedingsList.add(inProceedings);
+		}
+		proceedings.setPublications(inproceedingsList);
+		
+		return proceedings;
+	}
+	
 	//George: How to query and return domain classes
 	public Proceedings getProceedingsById(String id){
-		Proceedings proceedings = new Proceedings(id);
+		
 		
 		MongoCollection<Document> collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
 		Document doc = collection.find(eq("_id", id)).first();
 		
 		if(doc != null){
-			String title = (String)doc.get(Config.PROCEEDINGS_TITLE);
-			int year = (int)doc.get(Config.PROCEEDINGS_YEAR);
-			String isbn = (String)doc.get(Config.PROCEEDINGS_ISBN);
-			String volume = (String)doc.get(Config.PROCEEDINGS_VOLUME);
-			String note = (String)doc.get(Config.PROCEEDINGS_NOTE);
-			String ee = (String)doc.get(Config.PROCEEDINGS_ELECTRONIC_EDITION);
-			int number = (int)doc.get(Config.PROCEEDINGS_NUMBER);
-			
-			proceedings.setTitle(title);
-			proceedings.setYear(year);
-			proceedings.setIsbn(isbn);
-			proceedings.setVolume(volume);
-			proceedings.setNote(note);
-			proceedings.setElectronicEdition(ee);
-			proceedings.setNumber(number);
-			
-			String series_key = (String)doc.get(Config.PROCEEDINGS_SERIES_KEY);
-			Series series = getSeriesById(series_key);
-			proceedings.setSeries(series);
-			
-			
-			String conf_ed_key = (String)doc.get(Config.PROCEEDINGS_CONFERENCE_EDITION_KEY);
-			ConferenceEdition conferenceEdition = getConferenceEditionById(conf_ed_key);
-			proceedings.setConferenceEdition(conferenceEdition);
-			
-			
-			String publisher_key = (String)doc.get(Config.PROCEEDINGS_PUBLISHER_KEY);
-			Publisher publisher = getPublisherById(publisher_key);
-			proceedings.setPublisher(publisher);
-			
-			
-			ArrayList<String> editor_keys = (ArrayList<String>)doc.get(Config.PROCEEDINGS_EDITOR_KEYS);
-			ArrayList<Person> authors = new ArrayList<>();
-			for(String key : editor_keys){
-				Person p = getPersonById(key);
-				authors.add(p);
-			}
-			proceedings.setAuthors(authors);
-			
-			
-			ArrayList<String> inproceedings_keys = (ArrayList<String>)doc.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
-			HashSet<InProceedings> inproceedingsList = new HashSet<>();
-			for(String key : inproceedings_keys){
-				InProceedings inProceedings = getInProceedingsById(key);
-				inproceedingsList.add(inProceedings);
-			}
-			proceedings.setPublications(inproceedingsList);
-			
-			
-			return proceedings;
+			return makeProceedingsObject(doc);
 			
 		}else{
+			
 			return null;
+			
 		}
 
 	}

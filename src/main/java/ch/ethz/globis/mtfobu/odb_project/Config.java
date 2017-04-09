@@ -47,6 +47,9 @@ final public class Config {
 	public final static String PEOPLE_COLLECTION = "people";
 	public final static String PEOPLE_NAME = "name";
 	
+	public final static String MONGODB_PRIMARY_KEY = "_key";
+	
+	public final static int PAGE_SIZE = 20;
 	
 	private Config(){
 		//disable instantiation

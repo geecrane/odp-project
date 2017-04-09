@@ -91,13 +91,13 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 
 	}
 	
-	public Consumer<Long> mainShowFunction;
-	public Consumer<Long> secondShowFunction;
-	public Consumer<Long> thirdShowFunction;
+	public Consumer<String> mainShowFunction;
+	public Consumer<String> secondShowFunction;
+	public Consumer<String> thirdShowFunction;
 	public BiConsumer<Consumer<Collection<DO>>, QueryParameters> searchFunction;
 	
-	public void initializeFunctions(Consumer<Long> mainShowFunction,
-			Consumer<Long> secondShowFunction, Consumer<Long> thirdShowFunction,
+	public void initializeFunctions(Consumer<String> mainShowFunction,
+			Consumer<String> secondShowFunction, Consumer<String> thirdShowFunction,
 			BiConsumer<Consumer<Collection<DO>>, QueryParameters> searchFunction) {
 		this.mainShowFunction = mainShowFunction;
 		this.secondShowFunction = secondShowFunction;
@@ -318,9 +318,9 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
     
 	// A row factory that takes a show function and generates rows that react to doubleclicks by running that function on their table entry
     protected class MyRowFactory<T extends TableEntry> implements Callback<TableView<T>, TableRow<T>> {
-    	Consumer<Long> show;
+    	Consumer<String> show;
     	
-    	public MyRowFactory(Consumer<Long> s) {
+    	public MyRowFactory(Consumer<String> s) {
     		show = s;
     	}
     	
@@ -330,7 +330,7 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 		    row.setOnMouseClicked(event -> {
 		        if (! row.isEmpty() && event.getButton()==MouseButton.PRIMARY && event.getClickCount() == 2) {
 		        	T item = row.getItem();
-		            show.accept(item.objectId);
+		            show.accept(item.id);
 		        }
 		    });
 		    return row ;
