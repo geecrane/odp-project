@@ -70,4 +70,9 @@ public class PublicationTabController extends TabController<Publication, Publica
 		}
 	}
 
+	@Override
+	void deleteRecord(String id) {
+		c.db.removeProceedings(id);
+		c.db.removeInProceedings(id);
+	}
 }

@@ -108,4 +108,8 @@ public class PersonTabController extends TabController<Person, PersonTableEntry,
         }
 	}
 	
+	@Override
+	void deleteRecord(String id) {
+		c.db.removePerson(id);
+	}
 }

@@ -1,5 +1,7 @@
 package ch.ethz.globis.mtfobu.odb_project.ui;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.Consumer;
 
 import javax.jdo.PersistenceManager;
@@ -110,6 +112,8 @@ public class Controller {
     protected ConferenceEditionTabController conferenceEditionTabController;
     protected SeriesTabController seriesTabController;
     
+    protected Collection<TabController> mainDataTabs;
+    
     private void instantiateControllers() {
     	personTabController = new PersonTabController(this, personMainTable,
     			personSearchField, personSearchButton,
@@ -166,6 +170,17 @@ public class Controller {
     			seriesCreateButton, seriesDeleteButton,
     			seriesProceedingTable, seriesRemoveProceedingButton,
 				null, null);
+    	
+    	mainDataTabs = new ArrayList<TabController>(10);
+    	mainDataTabs.add(personTabController);
+    	mainDataTabs.add(proceedingTabController);
+    	mainDataTabs.add(inProceedingTabController);
+    	mainDataTabs.add(publicationTabController);
+    	mainDataTabs.add(publisherTabController);
+    	mainDataTabs.add(conferenceTabController);
+    	mainDataTabs.add(conferenceEditionTabController);
+    	mainDataTabs.add(seriesTabController);
+    	
     }
     
     // START section for person tab
@@ -339,9 +354,20 @@ public class Controller {
     	importStatusLabel.setText(text);
     }
     
+    
+    public void setAllDataTabsDirty() {
+    	
+        for (TabController tab: mainDataTabs) {
+        	tab.setDirty();
+        }	
+        
+    }
+    
+    
     // START section for table entry data types
     public abstract class TableEntry {
-    	public long objectId;
+//    	public long objectId;
+    	public String id;
     	public String getColumnContent(int i) {
     		return "";
     	};
@@ -363,7 +389,8 @@ public class Controller {
         		builder.append(", ");
         	}
         	
-        	objectId = person.jdoZooGetOid();
+        	id = person.getId();
+//        	objectId = person.jdoZooGetOid();
         	name = person.getName();
         	
         	int end = builder.length() - 2;
@@ -403,11 +430,13 @@ public class Controller {
         		authorsEditors = "";
         	}
         	
-        	if (pub instanceof Proceedings) {
-        		objectId = ((Proceedings)pub).jdoZooGetOid();
-        	} else {
-        		objectId = ((InProceedings)pub).jdoZooGetOid();
-        	}
+        	id = pub.getId();
+        	
+//        	if (pub instanceof Proceedings) {
+//        		objectId = ((Proceedings)pub).jdoZooGetOid();
+//        	} else {
+//        		objectId = ((InProceedings)pub).jdoZooGetOid();
+//        	}
         	
     	}
     	@Override
@@ -444,8 +473,8 @@ public class Controller {
     			conference = "";
     		}
     		
-        	
-        	objectId = proc.jdoZooGetOid();
+        	id = proc.getId();
+//        	objectId = proc.jdoZooGetOid();
     	}
     	@Override
 		public String getColumnContent(int i) {
@@ -476,8 +505,8 @@ public class Controller {
     		} else {
     			proceeding = "";
     		}
-    		
-        	objectId = inProc.jdoZooGetOid();
+    		id = inProc.getId();
+//        	objectId = inProc.jdoZooGetOid();
     	}
     	@Override
 		public String getColumnContent(int i) {
@@ -509,8 +538,8 @@ public class Controller {
         	} else {
         		publications = "";
         	}
-    		
-    		objectId = puber.jdoZooGetOid();
+        	id = puber.getId();
+//    		objectId = puber.jdoZooGetOid();
     	}
     	@Override
 		public String getColumnContent(int i) {
@@ -525,7 +554,8 @@ public class Controller {
     public class SecondaryPersonTableEntry extends TableEntry {
     	public String name;
     	public SecondaryPersonTableEntry(Person person) {
-    		objectId = person.jdoZooGetOid();
+    		id = person.getId();
+//    		objectId = person.jdoZooGetOid();
         	name = person.getName();
     	}
     	@Override
@@ -559,8 +589,8 @@ public class Controller {
         	} else {
         		editions = "";
         	}
-        	
-    		objectId = conf.jdoZooGetOid();
+        	id = conf.getId();
+//    		objectId = conf.jdoZooGetOid();
     	}
     	@Override
 		public String getColumnContent(int i) {
@@ -595,8 +625,8 @@ public class Controller {
     		if (null != proc) {
     			proceeding = proc.getTitle();
     		}
-    		
-    		objectId = confEd.jdoZooGetOid();
+    		id = confEd.getId();
+//    		objectId = confEd.jdoZooGetOid();
     	}
     	@Override
 		public String getColumnContent(int i) {
@@ -628,8 +658,8 @@ public class Controller {
         	} else {
         		publications = "";
         	}
-    		
-    		objectId = ser.jdoZooGetOid();
+        	id = ser.getId();
+//    		objectId = ser.jdoZooGetOid();
     	}
     	@Override
 		public String getColumnContent(int i) {
@@ -645,7 +675,8 @@ public class Controller {
     	public String title;
     	public String conference;
     	public SecondaryProceedingTableEntry(Proceedings proc) {
-    		objectId = proc.jdoZooGetOid();
+    		id = proc.getId();
+//    		objectId = proc.jdoZooGetOid();
     		title = proc.getTitle();
     		ConferenceEdition confEd = proc.getConferenceEdition();
     		if (null != confEd) {
@@ -674,7 +705,8 @@ public class Controller {
     	public String title;
     	public String proceeding;
     	public SecondaryInProceedingTableEntry(InProceedings inProc) {
-    		objectId = inProc.jdoZooGetOid();
+    		id = inProc.getId();
+//    		objectId = inProc.jdoZooGetOid();
     		title = inProc.getTitle();
     		Proceedings proc = inProc.getProceedings();
     		if (null != proc) {
@@ -702,7 +734,8 @@ public class Controller {
     		} else {
     			year = "No year";
     		}
-    		objectId = confEdit.jdoZooGetOid();
+    		id = confEdit.getId();
+//    		objectId = confEdit.jdoZooGetOid();
     	}
     	@Override
 		public String getColumnContent(int i) {
@@ -719,10 +752,11 @@ public class Controller {
     
     
     public class DeleteHandler<T extends TableEntry> implements EventHandler<ActionEvent>{
-    	Consumer<Long> delete;
+//    	Consumer<Long> delete;
+    	Consumer<String> delete;
     	TableView<T> table;
     	
-    	public DeleteHandler(TableView<T> t, Consumer<Long> d) {
+    	public DeleteHandler(TableView<T> t, Consumer<String> d) {
     		delete = d;
     		table = t;
     	}
@@ -731,7 +765,9 @@ public class Controller {
 		public void handle(ActionEvent event) {
 			T pte = table.getSelectionModel().getSelectedItem();
 			if (null != pte) {
-				delete.accept(pte.objectId);
+//				delete.accept(pte.objectId);
+				delete.accept(pte.id);
+				setAllDataTabsDirty();
 			} else {
 				System.err.println("cannot delete, no row selected");
 			}

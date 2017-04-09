@@ -192,6 +192,9 @@ public class ProceedingTabController extends TabController<Proceedings, Proceedi
         }
 	}
 	
-
+	@Override
+	void deleteRecord(String id) {
+		c.db.removeProceedings(id);
+	}
 
 }

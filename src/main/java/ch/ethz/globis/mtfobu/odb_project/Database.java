@@ -331,6 +331,42 @@ public class Database {
 		
 	}
 	
+	public void removeInProceedings(String id) {
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+		collection.deleteMany(eq("_id", id));
+	}
+	
+	public void removeProceedings(String id) {
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+		collection.deleteMany(eq("_id", id));
+	}
+	
+	public void removePerson(String id) {
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.PEOPLE_COLLECTION);
+		collection.deleteMany(eq("_id", id));
+	}
+	
+	public void removeConference(String id) {
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
+		collection.deleteMany(eq("_id", id));
+	}
+	
+	public void removeConferenceEdition(String id) {
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_EDITION_COLLECTION);
+		collection.deleteMany(eq("_id", id));
+	}
+	
+	public void removePublisher(String id) {
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.PUBLISHER_COLLECTION);
+		collection.deleteMany(eq("_id", id));
+	}
+	
+	public void removeSeries(String id) {
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.SERIES_COLLECTION);
+		collection.deleteMany(eq("_id", id));
+	}
+	
+	
 	public String getName(){
 		return dbName;
 	}

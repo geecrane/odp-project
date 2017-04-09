@@ -179,12 +179,14 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 	
 	// Generally you need initializeTabSpecificItems(...) and initializeFunctions(...) in subclasses
 	
-	public void deleteRecord(Long objectId) {
-		c.db.removeObjectById(objectId);
-		
-		reload();
-		emptyFields();
-	};
+	abstract void deleteRecord(String id);
+	
+//	public void deleteRecord(Long objectId) {
+//		c.db.removeObjectById(objectId);
+//		
+//		reload();
+//		emptyFields();
+//	};
 	
 	abstract public void emptyFields();
 	
@@ -198,9 +200,16 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 		}
 	}
 	
+	private boolean viewIsDirty;
+	
+	public void setDirty() {
+		viewIsDirty = true;
+	}
+	
 	private boolean lastLoadWasFromSearch = true;
 	
 	public void loadFromSearch() {
+		viewIsDirty = false;
 		lastLoadWasFromSearch = true;
 		
 		QueryParameters params = readAndParseSearchField();
@@ -226,6 +235,7 @@ public abstract class TabController<DO extends DomainObject, TE1 extends TableEn
 	}
 	
 	public void loadFromPaging() {
+		viewIsDirty = false;
 		lastLoadWasFromSearch = false;
 		
 		QueryParameters params = readAndParseSearchField();

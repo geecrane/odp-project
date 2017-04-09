@@ -94,4 +94,10 @@ public class PublisherTabController extends TabController<Publisher, PublisherTa
 		}
 	}
 
+	@Override
+	void deleteRecord(String id) {
+		c.db.removePublisher(id);
+	}
+
+	
 }

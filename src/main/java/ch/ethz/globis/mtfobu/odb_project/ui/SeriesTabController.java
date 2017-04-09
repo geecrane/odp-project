@@ -90,5 +90,11 @@ public class SeriesTabController extends TabController<Series, SeriesTableEntry,
 			mainTableList.add(c.new SeriesTableEntry(series));
 		}
 	}
+	
+	@Override
+	void deleteRecord(String id) {
+		c.db.removeSeries(id);
+	}
+
 
 }

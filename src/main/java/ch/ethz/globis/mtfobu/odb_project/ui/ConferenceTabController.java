@@ -88,4 +88,9 @@ public class ConferenceTabController extends TabController<Conference, Conferenc
 		
 	}
 
+	@Override
+	void deleteRecord(String id) {
+		c.db.removeConference(id);
+	}
+
 }

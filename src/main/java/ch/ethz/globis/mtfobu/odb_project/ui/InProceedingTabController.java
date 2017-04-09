@@ -133,4 +133,8 @@ public class InProceedingTabController extends TabController<InProceedings, InPr
 		secondTableList.clear();
 	}
 
+	@Override
+	void deleteRecord(String id) {
+		c.db.removeInProceedings(id);
+	}
 }
