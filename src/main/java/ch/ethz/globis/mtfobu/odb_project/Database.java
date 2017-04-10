@@ -16,11 +16,16 @@ import java.util.function.Function;
 
 import org.bson.Document;
 
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.Block;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Projections;
 
 import ch.ethz.globis.mtfobu.odb_project.QueryParameters;
 
@@ -314,6 +319,40 @@ public class Database {
 	private Series makeSeriesObject(Document doc) {
 		//TODO:implement
 		return null;
+	}
+	
+	//get inproceedings where author (by id) appears last
+	public List<InProceedings> getInproceedingsAuthorLast(String id){
+		/*db.getCollection('inproceedings').aggregate([
+		   { $project: { author_keys: { $slice: [ "$author_keys", -1 ] } } },
+		   { $match: { author_keys: "1785178126" } }
+		])*/
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+		ArrayList<InProceedings> results = new ArrayList<>();
+		
+		 Block<Document> block = new Block<Document>() {
+		        @Override
+		        public void apply(final Document document) {
+		            System.out.println(document.toJson());
+		            String id = (String)document.get("_id");
+		            InProceedings inProceedings = getInProceedingsById(id);
+		            if(inProceedings != null)
+		            	results.add(inProceedings);
+		        }
+		    };
+	    BasicDBList author_keys = new BasicDBList();
+		author_keys.add("$author_keys");
+		author_keys.add(-1);
+		
+		collection.aggregate(
+			      Arrays.asList(
+			    		  Aggregates.project(Projections.fields(new BasicDBObject("author_keys", new BasicDBObject("$slice", author_keys)))),
+			              Aggregates.match(eq("author_keys", id))
+			      )
+			).forEach(block);
+		 
+		
+		return results;
 	}
 	
 	

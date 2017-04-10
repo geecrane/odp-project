@@ -1,7 +1,7 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
 import java.net.URL;
-
+import java.util.List;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -16,10 +16,15 @@ public class Main extends Application{
 		
 		Database db = new Database(Config.DATABASE_NAME);
 		//comment out the line below, if you don't want to import the xml every time.
-		tempXMLImport(db);
+		//tempXMLImport(db);
 		Proceedings p = db.getProceedingsById("conf/bcshci/1988");
 		System.out.println(p.getTitle());
-	
+		
+		//print all inproceedings where author appears last, given author id
+		List<InProceedings> inProceedingsList = db.getInproceedingsAuthorLast("1785178126");
+		for (InProceedings inProceedings : inProceedingsList) {
+			System.out.println(inProceedings.getTitle());
+		}
 		//uncomment line below to enable the GUI
 		
         //launch(args);
