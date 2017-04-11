@@ -113,6 +113,15 @@ public class Database {
 		if(doc.hasNext()) System.out.println("Warning: multiple people share the same name");
 		return id;
 	}
+	
+	public String getConferenceIdFromName(String name){
+		String id;
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
+		MongoCursor<Document> doc = collection.find(eq(Config.CONFERENCE_COLLECTION, name)).iterator();
+		id = doc.next().getString("_id");
+		if(doc.hasNext()) System.out.println("Warning: multiple conferences share the same name");
+		return id;
+	}
 
 	// George: get publisher by id
 	public Publisher getPublisherById(String series_id) {
