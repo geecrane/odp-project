@@ -25,9 +25,19 @@ public class Main extends Application{
 		for (InProceedings inProceedings : inProceedingsList) {
 			System.out.println(inProceedings.getTitle());
 		}
-		
+//		//print all inproceedings where author appears last, given conference number
+//				List<InProceedings> inProceedingsList2 = db.allTasksFromPublication("GI Jahrestagung (1)");
+//				for (InProceedings inProceedings : inProceedingsList2) {
+//					System.out.println(inProceedings.getTitle());
+//				}
+		List<Person> people2 = db.allAuthorsOfConference("GI Jahrestagung (1)");
+		for (Person inProceedings : people2) {
+			System.out.println(inProceedings.getName());
+		}
+//		
+		System.out.println(db.countEditors("GI Jahrestagung (1)"));
 		db.noPublicationsPerYear(0, 2013);
-		
+	
 		System.out.println(db.globalAvgAuthors());
 		
 		List<Person> people = db.getCoAuthores("1785178126");

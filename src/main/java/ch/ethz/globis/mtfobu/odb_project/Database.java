@@ -25,6 +25,7 @@ import com.mongodb.MapReduceCommand;
 import com.mongodb.MapReduceOutput;
 import com.mongodb.MongoClient;
 import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MapReduceIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -425,7 +426,8 @@ public class Database {
 
 	// task 5
 	public int authorDistance(String authorIdA, String authorIdB) {
-		if(authorIdA == authorIdB) return 0;
+		if (authorIdA == authorIdB)
+			return 0;
 		HashMap<Integer, Integer> doneSet = new HashMap<>();
 		HashMap<Integer, Integer> remainingSet = new HashMap<>();
 
@@ -451,7 +453,8 @@ public class Database {
 				doneSet.put(currentAuthor, currentdist);
 				remainingSet.remove(currentAuthor);
 				for (Integer id : coAuthors) {
-					if (doneSet.containsKey(id)) continue;
+					if (doneSet.containsKey(id))
+						continue;
 					if (remainingSet.containsKey(id)) {
 						// path is shorter than a previously known one
 						if (remainingSet.get(id) > doneSet.get(currentAuthor) + 1) {
@@ -512,32 +515,33 @@ public class Database {
 		return foundCoAu;
 
 	}
-	
-	//task 6
-	//TODO: Seems to work but PIA to verify without GUI
-	public double globalAvgAuthors(){
+
+	// task 6
+	// TODO: Seems to work but PIA to verify without GUI
+	public double globalAvgAuthors() {
 		double result = 0;
 		int nInPro = 0;
 		MongoCollection<Document> col = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
 		String inProcMap = "function(){emit(this._id, " + "this." + Config.INPROCEEDINGS_AUTHOR_KEYS + ".length );}";
-		String inProcReduce =  "function(key, authors){return Array.sum(authors);}"; //Array.sum(authors)
+		String inProcReduce = "function(key, authors){return Array.sum(authors);}"; // Array.sum(authors)
 		MapReduceIterable<Document> res = col.mapReduce(inProcMap, inProcReduce);
-		for(Document doc: res){
-			result+=doc.getDouble("value");
+		for (Document doc : res) {
+			result += doc.getDouble("value");
 			nInPro++;
 		}
 		result /= (double) nInPro;
-		
+
 		return result;
 	}
-	
-	//task 7
-	//@retrun: The hashmap takes as key the year and returns the number of publications as value
-	//@param: the bounds are not inclusive
-	public HashMap<Integer, Integer> noPublicationsPerYear(int yearLowerBound, int yearUpperBound){
+
+	// task 7
+	// @retrun: The hashmap takes as key the year and returns the number of
+	// publications as value
+	// @param: the bounds are not inclusive
+	public HashMap<Integer, Integer> noPublicationsPerYear(int yearLowerBound, int yearUpperBound) {
 		HashMap<Integer, Integer> result = new HashMap<>();
-		
-		Block<Document> block = new Block<Document>(){
+
+		Block<Document> block = new Block<Document>() {
 			@Override
 			public void apply(final Document document) {
 				System.out.println(document.toJson());
@@ -550,54 +554,59 @@ public class Database {
 		DBObject matchFields = new BasicDBObject("$gt", yearLowerBound);
 		matchFields.put("$lt", yearUpperBound);
 		Bson match = new BasicDBObject("$match", new BasicDBObject("year", matchFields));
-		 
-		DBObject groupFields = new BasicDBObject( "_id", "$year");
-		groupFields.put("publications", new BasicDBObject( "$sum", 1));
-		Bson group = new BasicDBObject("$group", groupFields); 
-		
-		//TODO: I can't find out how the heck the Java driver uses aggregates since seriously it sucks
-		
-//		mongodb.getCollection('inproceedings').aggregate( [
-//		                                              {$match: { year: {$gt:1980, $lt:2013}} },
-//		                                              {$group: { _id: "$year", publications: {$sum: 1}}}
-//		                                             ])
 
-		MongoIterable<Document> doc = col.aggregate(Arrays.asList(Aggregates.match(match),Aggregates.project(group)));// .forEach(block);
-		
-		for(Document d: doc){
-			System.out.println(d.toJson()); //for test purposes
+		DBObject groupFields = new BasicDBObject("_id", "$year");
+		groupFields.put("publications", new BasicDBObject("$sum", 1));
+		Bson group = new BasicDBObject("$group", groupFields);
+
+		// TODO: I can't find out how the heck the Java driver uses aggregates
+		// since seriously it sucks
+
+		// mongodb.getCollection('inproceedings').aggregate( [
+		// {$match: { year: {$gt:1980, $lt:2013}} },
+		// {$group: { _id: "$year", publications: {$sum: 1}}}
+		// ])
+
+		MongoIterable<Document> doc = col.aggregate(Arrays.asList(Aggregates.match(match), Aggregates.project(group)));// .forEach(block);
+
+		for (Document d : doc) {
+			System.out.println(d.toJson()); // for test purposes
 		}
-		
-		//repeat for proceedings
+
+		// repeat for proceedings
 		col = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
-		//match and group fields stay the same
-		col.aggregate(Arrays.asList(Aggregates.match(match),Aggregates.project(group))).forEach(block);
-		
-//		String inProcMap = "function(){emit(this." + Config.INPROCEEDINGS_YEAR + ", this._id);}";
-//		String inProcReduce = "function(year, inProcs){retrun Array.sum(inProcs);}";
-//		MapReduceIterable<Document> res = col.mapReduce(inProcMap, inProcReduce);
-//		for(Document doc: res){
-//			//This is utterly ugly but 
-//			year = doc.getInteger(Config.INPROCEEDINGS_YEAR);
-//			if
-//			result+=doc.getDouble("value");
-//			nInPro++;
-//		}
+		// match and group fields stay the same
+		col.aggregate(Arrays.asList(Aggregates.match(match), Aggregates.project(group))).forEach(block);
+
+		// String inProcMap = "function(){emit(this." +
+		// Config.INPROCEEDINGS_YEAR + ", this._id);}";
+		// String inProcReduce = "function(year, inProcs){retrun
+		// Array.sum(inProcs);}";
+		// MapReduceIterable<Document> res = col.mapReduce(inProcMap,
+		// inProcReduce);
+		// for(Document doc: res){
+		// //This is utterly ugly but
+		// year = doc.getInteger(Config.INPROCEEDINGS_YEAR);
+		// if
+		// result+=doc.getDouble("value");
+		// nInPro++;
+		// }
 		return result;
-		
+
 	}
 
-	//task 8
-	//@retrun: the key is the ConferenceID and the value the number of publications
-	public HashMap<String, Integer> noPublicationsPerConference(){
-		//TODO: Same as for task 7
-//		db.getCollection('conferences').aggregate( [
-//		                                            {$unwind : "$edition_keys"},
-//		                                            {$group: { _id: "$_id", pubs: {$sum: 1}}}
-//		                                           ])
-HashMap<String, Integer> result = new HashMap<>();
-		
-		Block<Document> block = new Block<Document>(){
+	// task 8
+	// @retrun: the key is the ConferenceID and the value the number of
+	// publications
+	public HashMap<String, Integer> noPublicationsPerConference() {
+		// TODO: Same as for task 7
+		// db.getCollection('conferences').aggregate( [
+		// {$unwind : "$edition_keys"},
+		// {$group: { _id: "$_id", pubs: {$sum: 1}}}
+		// ])
+		HashMap<String, Integer> result = new HashMap<>();
+
+		Block<Document> block = new Block<Document>() {
 			@Override
 			public void apply(final Document document) {
 				System.out.println(document.toJson());
@@ -607,20 +616,155 @@ HashMap<String, Integer> result = new HashMap<>();
 			}
 		};
 		MongoCollection<Document> col = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
-		
-		Bson unwind = new BasicDBObject("$unwind", "$" + Config.CONFERENCE_EDITION_KEYS );
-		 
-		DBObject groupFields = new BasicDBObject( "_id", "$_id");
-		groupFields.put("publications", new BasicDBObject( "$sum", 1));
-		Bson group = new BasicDBObject("$group", groupFields); 
-		                                           
 
-		col.aggregate(Arrays.asList(Aggregates.unwind(Config.CONFERENCE_EDITION_KEYS),Aggregates.project(group))).forEach(block);
-		
+		Bson unwind = new BasicDBObject("$unwind", "$" + Config.CONFERENCE_EDITION_KEYS);
+
+		DBObject groupFields = new BasicDBObject("_id", "$_id");
+		groupFields.put("publications", new BasicDBObject("$sum", 1));
+		Bson group = new BasicDBObject("$group", groupFields);
+
+		col.aggregate(Arrays.asList(Aggregates.unwind(Config.CONFERENCE_EDITION_KEYS), Aggregates.project(group)))
+				.forEach(block);
+
 		return result;
+
+	}
+	
+	//task 9
+	public int countEditors(String ConferenceId){
+		Set<Integer> authors = new HashSet<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
+		Document doc = collection.find(eq("_id", ConferenceId)).first();
+		ArrayList<String> editions = (ArrayList<String>) doc.get(Config.CONFERENCE_EDITION_KEYS);
+		ArrayList<String> proceedingKeys = new ArrayList<>();
+		for(String edition: editions){
+			//It's ugly, but in comparison to the fancy functions above it works
+			collection = mongoDB.getCollection(Config.CONFERENCE_EDITION_COLLECTION);
+			FindIterable<Document> conf_editions = collection.find(eq("_id", edition));
+			
+			for(Document d: conf_editions){
+				proceedingKeys.add(d.getString(Config.CONFERENCE_EDITION_PROCEEDINGS_KEY));
+			}
+		 
+		}
+		for(String key: proceedingKeys){
+			collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+			//This would do the job. A lookup would be even better
+//			db.getCollection('proceedings').aggregate( [
+//			                                            {$unwind : "$inproceeding_keys"},
+//			                                            {$group: { _id:"$inproceeding_keys"}}
+//			                                           ])
+			Document procs = collection.find(eq("_id", key)).first();
+			List<String> inProcs = (List<String>) procs.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
+			for(String inProc: inProcs){
+				collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+				Document inProceedings= collection.find(eq("_id", inProc)).first();
+				List<String> thisauthors = (List<String>) inProceedings.get(Config.INPROCEEDINGS_AUTHOR_KEYS);
+				for(String d: thisauthors){
+					int authorID = Integer.parseInt(d);
+					if(!authors.contains(authorID)) authors.add(authorID);
+				}
+			}
+		}
+		
+		return authors.size();
+	}
+	
+	//task 10
+	public List<Person> allAuthorsOfConference(String ConferenceId){
+		Set<Integer> authors = new HashSet<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
+		Document doc = collection.find(eq("_id", ConferenceId)).first();
+		if(doc == null){
+			System.out.println("Well, this donsn't seem to be a valid Conference id");
+			return null;
+		}
+		ArrayList<String> editions = (ArrayList<String>) doc.get(Config.CONFERENCE_EDITION_KEYS);
+		ArrayList<String> proceedingKeys = new ArrayList<>();
+		for(String edition: editions){
+			//It's ugly, but in comparison to the fancy functions above it works
+			collection = mongoDB.getCollection(Config.CONFERENCE_EDITION_COLLECTION);
+			FindIterable<Document> conf_editions = collection.find(eq("_id", edition));
+			
+			for(Document d: conf_editions){
+				proceedingKeys.add(d.getString(Config.CONFERENCE_EDITION_PROCEEDINGS_KEY));
+			}
+		 
+		}
+		for(String key: proceedingKeys){
+			collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+			
+			//This would do the job. A lookup would be even better
+//			db.getCollection('proceedings').aggregate( [
+//			                                            {$unwind : "$inproceeding_keys"},
+//			                                            {$group: { _id:"$inproceeding_keys"}}
+//			                                           ])
+			Document procs = collection.find(eq("_id", key)).first();
+			List<String> editors = (List<String>) procs.get(Config.PROCEEDINGS_EDITOR_KEYS);
+			for(String editor:editors){
+				authors.add(Integer.parseInt(editor));
+			}
+			List<String> inProcs = (List<String>) procs.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
+			for(String inProc: inProcs){
+				collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+				Document inProceedings= collection.find(eq("_id", inProc)).first();
+				List<String> thisauthors = (List<String>) inProceedings.get(Config.INPROCEEDINGS_AUTHOR_KEYS);
+				for(String d: thisauthors){
+					int authorID = Integer.parseInt(d);
+					if(!authors.contains(authorID)) authors.add(authorID);
+				}
+			}
+		}
+		List<Person> authorsAndEditors = new ArrayList<>();
+		for(Integer autorID: authors){
+			authorsAndEditors.add(getPersonById(Integer.toString(autorID)));
+		}
+		return authorsAndEditors;
 		
 	}
 	
+	//task 11
+	public List<InProceedings> allTasksFromPublication(String ConferenceId){
+		Set<String> inProceedings = new HashSet<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
+		Document doc = collection.find(eq("_id", ConferenceId)).first();
+		if(doc == null){
+			System.out.println("Well, this donsn't seem to be a valid Conference id");
+			return null;
+		}
+		ArrayList<String> editions = (ArrayList<String>) doc.get(Config.CONFERENCE_EDITION_KEYS);
+		ArrayList<String> proceedingKeys = new ArrayList<>();
+		for(String edition: editions){
+			//It's ugly, but in comparison to the fancy functions above it works
+			collection = mongoDB.getCollection(Config.CONFERENCE_EDITION_COLLECTION);
+			FindIterable<Document> conf_editions = collection.find(eq("_id", edition));
+			for(Document d: conf_editions){
+				proceedingKeys.add(d.getString(Config.CONFERENCE_EDITION_PROCEEDINGS_KEY));
+			}
+
+		}
+		for(String key: proceedingKeys){
+			collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+			
+			//This would do the job. A lookup would be even better
+//			db.getCollection('proceedings').aggregate( [
+//			                                            {$unwind : "$inproceeding_keys"},
+//			                                            {$group: { _id:"$inproceeding_keys"}}
+//			                                           ])
+			Document procs = collection.find(eq("_id", key)).first();
+			List<String> inProcs = (List<String>) procs.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
+			for(String inProc: inProcs){
+				inProceedings.add(inProc);
+			}
+		}
+		ArrayList<InProceedings> inprocs = new ArrayList<>();
+		for(String InProc: inProceedings){
+			inprocs.add(getInProceedingsById(InProc));
+		} 
+		return inprocs;
+		
+	}
+
 	// George: How to query and return domain classes
 
 	public Proceedings getProceedingsById(String id) {
