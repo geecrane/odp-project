@@ -63,8 +63,31 @@ public class Database {
 
 	// George: get inProceedings by id
 	public InProceedings getInProceedingsById(String id) {
-		// TODO:implement
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+		Document doc = collection.find(eq("_id", id)).first();
+		if (doc != null){
+			InProceedings inProc = new InProceedings(doc.getString("_id"));
+			inProc.setTitle(doc.getString(Config.INPROCEEDINGS_TITLE));
+			ArrayList<String> autors = (ArrayList<String>) doc.get(Config.INPROCEEDINGS_AUTHOR_KEYS);
+			List<Person> pers = new ArrayList<>(autors.size());
+			for(String autor: autors){
+				pers.add(getPersonById(autor));
+			}
+			inProc.setAuthors(pers);
+			int year = doc.getInteger(Config.INPROCEEDINGS_YEAR, Integer.MIN_VALUE);
+			if(year>Integer.MIN_VALUE) inProc.setYear(year);
+			
+			return inProc;
+			
+		}
 		return null;
+	}
+	
+	public Publication getPublicationById(String id){
+		Publication pub;
+		pub = getInProceedingsById(id);
+		if(pub==null) pub=getProceedingsById(id);
+		return pub;
 	}
 
 	// George: get person by id
@@ -80,6 +103,15 @@ public class Database {
 		} else {
 			return null;
 		}
+	}
+	
+	public String getPersonIdFromName(String name){
+		String id;
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.PEOPLE_COLLECTION);
+		MongoCursor<Document> doc = collection.find(eq(Config.PEOPLE_NAME, name)).iterator();
+		id = doc.next().getString("_id");
+		if(doc.hasNext()) System.out.println("Warning: multiple people share the same name");
+		return id;
 	}
 
 	// George: get publisher by id
@@ -539,6 +571,7 @@ public class Database {
 	// publications as value
 	// @param: the bounds are not inclusive
 	public HashMap<Integer, Integer> noPublicationsPerYear(int yearLowerBound, int yearUpperBound) {
+		System.out.println("task 7: please look at the code. There is a bug I have not been able to find. ");
 		HashMap<Integer, Integer> result = new HashMap<>();
 
 		Block<Document> block = new Block<Document>() {
@@ -599,6 +632,7 @@ public class Database {
 	// @retrun: the key is the ConferenceID and the value the number of
 	// publications
 	public HashMap<String, Integer> noPublicationsPerConference() {
+		System.out.println("task 8: please look at the code. There is a bug I have not been able to find. ");
 		// TODO: Same as for task 7
 		// db.getCollection('conferences').aggregate( [
 		// {$unwind : "$edition_keys"},
@@ -761,7 +795,7 @@ public class Database {
 		for(String InProc: inProceedings){
 			inprocs.add(getInProceedingsById(InProc));
 		} 
-		return inprocs;
+		return inprocs; 
 		
 	}
 
