@@ -25,9 +25,22 @@ public class Main extends Application{
 		for (InProceedings inProceedings : inProceedingsList) {
 			System.out.println(inProceedings.getTitle());
 		}
+		
+		db.noPublicationsPerYear(0, 2013);
+		
+		System.out.println(db.globalAvgAuthors());
+		
+		List<Person> people = db.getCoAuthores("1785178126");
+		for (Person inProceedings : people) {
+			System.out.println(inProceedings.getName());
+		}
+		//please don't try to enter a wrong ID. Otherwise the program will run for quite some time
+		
+		System.out.println(db.authorDistance("1785178126","1107451538"));
 		//uncomment line below to enable the GUI
 		
         //launch(args);
+		System.out.println("PROGRAMM TERMINATED");
         
     }
 	
