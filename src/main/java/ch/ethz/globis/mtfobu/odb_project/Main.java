@@ -21,7 +21,7 @@ public class Main extends Application {
 		Database db = new Database(Config.DATABASE_NAME);
 		// comment out the line below, if you don't want to import the xml every
 		// time.
-		// tempXMLImport(db);
+		 //tempXMLImport(db);
 		Proceedings p = db.getProceedingsById("conf/bcshci/1988");
 		System.out.println(p.getTitle());
 
@@ -56,7 +56,7 @@ public class Main extends Application {
 //		System.out.println(db.authorDistance("1785178126", "1107451538"));
 //		// uncomment line below to enable the GUI
 //
-//		// launch(args);
+ launch(args);
 //		System.out.println("PROGRAMM TERMINATED");
 
 	}

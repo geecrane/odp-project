@@ -98,7 +98,7 @@ public class Controller {
     	setUpSeriesTab();
     	
     	// Load person tab because that's the one the application starts with
-    	personTabController.reload();
+    	//personTabController.reload(); //TODO: I comment that out. It solved the startup issue, but I don't know what side effects it had
     }
     
     
