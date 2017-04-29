@@ -19,17 +19,17 @@ public class Main extends Application {
 
 	public static void main(String[] args) throws IOException {
 
-		Database db = new Database(Config.DATABASE_NAME);
+//		Database db = new Database(Config.DATABASE_NAME);
 		// comment out the line below, if you don't want to import the xml every
 		// time.
 		 //tempXMLImport(db);
-		InProceedings p = db.getInProceedingsById("conf/kivs/Wilhelm83");
-		System.out.println(p.getTitle());
-		
-		List<Publication> pubs = db.getPublicationsByFilter("Process", 0, 5);
-		for (Publication pub:pubs){
-			System.out.println(pub.getTitle());
-		}
+//		InProceedings p = db.getInProceedingsById("conf/kivs/Wilhelm83");
+//		System.out.println(p.getTitle());
+//		
+//		List<Publication> pubs = db.getPublicationsByFilter("Process", 0, 5);
+//		for (Publication pub:pubs){
+//			System.out.println(pub.getTitle());
+//		}
 	
 
 //		// print all inproceedings where author appears last, given author id

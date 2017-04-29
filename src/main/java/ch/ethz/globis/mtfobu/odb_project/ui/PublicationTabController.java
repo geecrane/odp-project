@@ -9,7 +9,7 @@ import javax.jdo.Query;
 import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
 import ch.ethz.globis.mtfobu.odb_project.Publication;
-import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
+//import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PublicationTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
 import javafx.scene.control.Button;
@@ -37,21 +37,22 @@ public class PublicationTabController extends TabController<Publication, Publica
 	}
 	
 	public void initializeFunctions() {
+//		TODO
 		// None needed from outside
 		this.mainShowFunction = this::showPublication;
-		this.searchFunction = c.db::queryForPublications;
+//		this.searchFunction = c.db::queryForPublications;
 	}
 	
 	private void showPublication(String id) {
 		// This double querying is not very elegant or efficient
-		Proceedings proc = c.db.getProceedingsById(id);
-		InProceedings inProc = c.db.getInProceedingsById(id);
-		
-		if (null != proc) {
-			c.proceedingTabController.mainShowFunction.accept(id);
-		} else if (null != inProc){
-			c.inProceedingTabController.mainShowFunction.accept(id);
-		}
+//		Proceedings proc = c.db.getProceedingsById(id);
+//		InProceedings inProc = c.db.getInProceedingsById(id);
+//		
+//		if (null != proc) {
+//			c.proceedingTabController.mainShowFunction.accept(id);
+//		} else if (null != inProc){
+//			c.inProceedingTabController.mainShowFunction.accept(id);
+//		}
 	}
 
 
@@ -70,7 +71,7 @@ public class PublicationTabController extends TabController<Publication, Publica
 
 	@Override
 	void deleteRecord(String id) {
-		c.db.removeProceedings(id);
-		c.db.removeInProceedings(id);
+//		c.db.removeProceedings(id);
+//		c.db.removeInProceedings(id);
 	}
 }

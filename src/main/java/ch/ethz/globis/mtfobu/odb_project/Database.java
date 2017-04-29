@@ -60,7 +60,7 @@ import static com.mongodb.client.model.Sorts.*;
 public class Database {
 	private final String dbName;
 	// private final BaseXClient bsxSession;
-	private final ClientSession session;
+	private ClientSession session;
 	final String defaultHost = "localhost";
 	final int defaultPort = 1984;
 	final String defaultUsername = "admin";
@@ -72,21 +72,32 @@ public class Database {
 	// created and the document imported.
 	// TODO:Optionally we could create a new database and include the XML, but
 	// this is not a top priority
-	public Database(String dbName) throws IOException {
+	public Database(String dbName)  {
 		this.dbName = dbName;
-		BaseXServer server = new BaseXServer();
+		try {
+			BaseXServer server = new BaseXServer();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		// this.bsxSession = new BaseXClient(defaultHost, defaultPort,
 		// defaultUsername, defaultPassword);
-		this.session = new ClientSession(defaultHost, defaultPort, defaultUsername, defaultPassword);
+		try {
+			session = new ClientSession(defaultHost, defaultPort, defaultUsername, defaultPassword);
+			try {
+				session.execute(new Open(dbName));
+			} catch (IOException e) {
+				session.execute(new CreateDB(dbName, "src/main/resources/dblp_filtered.xml"));
+			}
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		// Test if database exists and create it otherwise. This is close to the
 		// command: "CHECK" except that in case of a missing database the xml
 		// file gets imported.
-		try {
-			session.execute(new Open(dbName));
-		} catch (IOException e) {
-			session.execute(new CreateDB(dbName, "src/main/resources/dblp_filtered.xml"));
-		}
+		
 
 		// This was an alternative attempt using the list command to find out if
 		// the DB exists.

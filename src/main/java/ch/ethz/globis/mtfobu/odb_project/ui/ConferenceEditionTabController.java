@@ -44,29 +44,31 @@ public class ConferenceEditionTabController extends TabController<ConferenceEdit
 	}
 	
 	public void initializeFunctions() {
-		this.mainShowFunction = this::showConferenceEdition;
-		this.searchFunction = c.db.conferenceEditionQueryHelper::queryForDomainObject;
+		//TODO
+		//this.mainShowFunction = this::showConferenceEdition;
+		//this.searchFunction = c.db.conferenceEditionQueryHelper::queryForDomainObject;
 	}
 	
 	private void showConferenceEdition(String id) {
-		ConferenceEdition confEd = c.db.getConferenceEditionById(id);
+		//TODO
+		//ConferenceEdition confEd = c.db.getConferenceEditionById(id);
 		
-		Conference conf = confEd.getConference();
-		
-		if (null != conf) {
-			conferenceEditionNameField.setText(conf.getName());
-		} else {
-			conferenceEditionNameField.setText("");
-		}
-		
-		int year = confEd.getYear();
-		if (0 != year) {
-			conferenceEditionEditionField.setText(Integer.toString(year));
-		} else {
-			conferenceEditionEditionField.setText("No year");
-		}
-		
-		c.tabPane.getSelectionModel().select(c.conferenceEditionTab);
+//		Conference conf = confEd.getConference();
+//		
+//		if (null != conf) {
+//			conferenceEditionNameField.setText(conf.getName());
+//		} else {
+//			conferenceEditionNameField.setText("");
+//		}
+//		
+//		int year = confEd.getYear();
+//		if (0 != year) {
+//			conferenceEditionEditionField.setText(Integer.toString(year));
+//		} else {
+//			conferenceEditionEditionField.setText("No year");
+//		}
+//		
+//		c.tabPane.getSelectionModel().select(c.conferenceEditionTab);
 	}
 
 	@Override
@@ -86,7 +88,7 @@ public class ConferenceEditionTabController extends TabController<ConferenceEdit
 
 	@Override
 	void deleteRecord(String id) {
-		c.db.removeConferenceEdition(id);
+		//c.db.removeConferenceEdition(id);
 	}
 
 }

@@ -13,7 +13,7 @@ import ch.ethz.globis.mtfobu.odb_project.Person;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
 import ch.ethz.globis.mtfobu.odb_project.Publisher;
 import ch.ethz.globis.mtfobu.odb_project.Series;
-import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
+//import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.ProceedingTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryPersonTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
@@ -118,54 +118,56 @@ public class ProceedingTabController extends TabController<Proceedings, Proceedi
 	}
 	
 	public void initializeFunctions(Consumer<String> secondShowFunction) {
-		this.mainShowFunction = this::showProceeding;
-		this.secondShowFunction = secondShowFunction;
-		this.searchFunction = c.db.proceedingsQueryHelper::queryForDomainObject;
+//		TODO
+//		this.mainShowFunction = this::showProceeding;
+//		this.secondShowFunction = secondShowFunction;
+//		this.searchFunction = c.db.proceedingsQueryHelper::queryForDomainObject;
 
 	}
 
 	private void showProceeding(String id) {
-		Proceedings proc = c.db.getProceedingsById(id);
-		
-		proceedingTitleField.setText(proc.getTitle());
-		proceedingIsbnField.setText(proc.getIsbn());
-		
-		Publisher pub = proc.getPublisher();
-		if (null != pub) {
-			proceedingPublisherFilterField.setText(pub.getName());
-		} else {
-			proceedingPublisherFilterField.setText("");
-		}
-		
-		ConferenceEdition edi = proc.getConferenceEdition();
-		if (null != edi) {
-			proceedingEditionFilterField.setText(Integer.toString(edi.getYear()));
-			
-			Conference conf = edi.getConference();
-			if (null != conf) {
-				proceedingConferenceFilterField.setText(conf.getName());
-			} else {
-				proceedingConferenceFilterField.setText("");
-			}
-			
-		} else {
-			proceedingEditionFilterField.setText("");
-		}
-		
-		Series ser = proc.getSeries();
-		if (null != ser) {
-			proceedingSeriesFilterField.setText(ser.getName());
-		} else {
-			proceedingSeriesFilterField.setText("");
-		}
-		
-		proceedingEditorFilterField.setText("");
-		secondTableList.clear();
-		for (Person person : proc.getAuthors()) {
-			secondTableList.add(c.new SecondaryPersonTableEntry(person));
-        }
-		
-		c.tabPane.getSelectionModel().select(c.proceedingTab);
+//		TODO
+//		Proceedings proc = c.db.getProceedingsById(id);
+//		
+//		proceedingTitleField.setText(proc.getTitle());
+//		proceedingIsbnField.setText(proc.getIsbn());
+//		
+//		Publisher pub = proc.getPublisher();
+//		if (null != pub) {
+//			proceedingPublisherFilterField.setText(pub.getName());
+//		} else {
+//			proceedingPublisherFilterField.setText("");
+//		}
+//		
+//		ConferenceEdition edi = proc.getConferenceEdition();
+//		if (null != edi) {
+//			proceedingEditionFilterField.setText(Integer.toString(edi.getYear()));
+//			
+//			Conference conf = edi.getConference();
+//			if (null != conf) {
+//				proceedingConferenceFilterField.setText(conf.getName());
+//			} else {
+//				proceedingConferenceFilterField.setText("");
+//			}
+//			
+//		} else {
+//			proceedingEditionFilterField.setText("");
+//		}
+//		
+//		Series ser = proc.getSeries();
+//		if (null != ser) {
+//			proceedingSeriesFilterField.setText(ser.getName());
+//		} else {
+//			proceedingSeriesFilterField.setText("");
+//		}
+//		
+//		proceedingEditorFilterField.setText("");
+//		secondTableList.clear();
+//		for (Person person : proc.getAuthors()) {
+//			secondTableList.add(c.new SecondaryPersonTableEntry(person));
+//        }
+//		
+//		c.tabPane.getSelectionModel().select(c.proceedingTab);
 	}
 	
 	@Override
@@ -191,7 +193,8 @@ public class ProceedingTabController extends TabController<Proceedings, Proceedi
 	
 	@Override
 	void deleteRecord(String id) {
-		c.db.removeProceedings(id);
+//		TODO
+//		c.db.removeProceedings(id);
 	}
 
 }

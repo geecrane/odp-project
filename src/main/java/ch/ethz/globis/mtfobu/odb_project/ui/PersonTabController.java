@@ -12,7 +12,7 @@ import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Person;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
 import ch.ethz.globis.mtfobu.odb_project.Publication;
-import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
+//import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PersonTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryInProceedingTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryProceedingTableEntry;
@@ -58,10 +58,11 @@ public class PersonTabController extends TabController<Person, PersonTableEntry,
 	
 	// some functions are right here so we pass them in directly
 	public void initializeFunctions(Consumer<String> secondShowFunction, Consumer<String> thirdShowFunction) {
+//		TODO
 		this.mainShowFunction = this::showPerson;
 		this.secondShowFunction = secondShowFunction;
 		this.thirdShowFunction = thirdShowFunction;
-		this.searchFunction = c.db.personQueryHelper::queryForDomainObject;
+//		this.searchFunction = c.db.personQueryHelper::queryForDomainObject;
 	}	
 	
 	// shows a specific person in the bottom
@@ -104,6 +105,7 @@ public class PersonTabController extends TabController<Person, PersonTableEntry,
 	
 	@Override
 	void deleteRecord(String id) {
-		c.db.removePerson(id);
+//		TODO
+//		c.db.removePerson(id);
 	}
 }

@@ -6,7 +6,7 @@ import java.util.OptionalLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
+//import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
 import ch.ethz.globis.mtfobu.odb_project.DomainObject;
 import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Person;
@@ -84,9 +84,10 @@ public class InProceedingTabController extends TabController<InProceedings, InPr
 	}
 
 	public void initializeFunctions(Consumer<String> secondShowFunction) {
+//		TODO
 		this.mainShowFunction = this::showInProceeding;
 		this.secondShowFunction = secondShowFunction;
-		this.searchFunction = c.db.inProceedingsQueryHelper::queryForDomainObject;
+//		this.searchFunction = c.db.inProceedingsQueryHelper::queryForDomainObject;
 	}
 	
 	
@@ -133,6 +134,7 @@ public class InProceedingTabController extends TabController<InProceedings, InPr
 
 	@Override
 	void deleteRecord(String id) {
-		c.db.removeInProceedings(id);
+//		TODO
+//		c.db.removeInProceedings(id);
 	}
 }

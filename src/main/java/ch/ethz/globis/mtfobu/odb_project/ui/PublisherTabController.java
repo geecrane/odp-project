@@ -9,7 +9,7 @@ import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
 import ch.ethz.globis.mtfobu.odb_project.Publication;
 import ch.ethz.globis.mtfobu.odb_project.Publisher;
-import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
+//import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.PublisherTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryProceedingTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
@@ -54,28 +54,29 @@ public class PublisherTabController extends TabController<Publisher, PublisherTa
 	}
 	
 	public void initializeFunctions(Consumer<String> secondShowFunction) {
-		this.mainShowFunction = this::showPublisher;
-		this.secondShowFunction = secondShowFunction;
-		this.searchFunction = c.db.publisherQueryHelper::queryForDomainObject;
+//		TODO
+//		this.mainShowFunction = this::showPublisher;
+//		this.secondShowFunction = secondShowFunction;
+//		this.searchFunction = c.db.publisherQueryHelper::queryForDomainObject;
 	}
 	
 	
 	private void showPublisher(String id) {
-		
-		Publisher puber = c.db.getPublisherById(id);
-		
-		publisherNameField.setText(puber.getName());
-		
-		publisherProceedingFilterField.setText("");
-		secondTableList.clear();
-		for (Publication pub : puber.getPublications()) {
-			if (pub instanceof Proceedings) {
-				Proceedings proc = (Proceedings) pub;
-				secondTableList.add(c.new SecondaryProceedingTableEntry(proc));
-			}
-        }
-		
-		c.tabPane.getSelectionModel().select(c.publisherTab);
+//		TODO
+//		Publisher puber = c.db.getPublisherById(id);
+//		
+//		publisherNameField.setText(puber.getName());
+//		
+//		publisherProceedingFilterField.setText("");
+//		secondTableList.clear();
+//		for (Publication pub : puber.getPublications()) {
+//			if (pub instanceof Proceedings) {
+//				Proceedings proc = (Proceedings) pub;
+//				secondTableList.add(c.new SecondaryProceedingTableEntry(proc));
+//			}
+//        }
+//		
+//		c.tabPane.getSelectionModel().select(c.publisherTab);
 	}
 
 	@Override
@@ -95,7 +96,7 @@ public class PublisherTabController extends TabController<Publisher, PublisherTa
 
 	@Override
 	void deleteRecord(String id) {
-		c.db.removePublisher(id);
+//		c.db.removePublisher(id);
 	}
 
 	

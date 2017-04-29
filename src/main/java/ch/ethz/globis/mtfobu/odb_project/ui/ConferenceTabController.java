@@ -7,7 +7,7 @@ import javax.jdo.Query;
 
 import ch.ethz.globis.mtfobu.odb_project.Conference;
 import ch.ethz.globis.mtfobu.odb_project.ConferenceEdition;
-import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
+//import ch.ethz.globis.mtfobu.odb_project.Database.QueryHelper;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.ConferenceTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.SecondaryConferenceEditionTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui.Controller.TableEntry;
@@ -49,24 +49,24 @@ public class ConferenceTabController extends TabController<Conference, Conferenc
 	}
 	
 	public void initializeFunctions(Consumer<String> secondShowFunction) {
-		mainShowFunction = this::showConference;
-		this.secondShowFunction = secondShowFunction;
-		this.searchFunction = c.db.conferenceQueryHelper::queryForDomainObject;
+//		mainShowFunction = this::showConference;
+//		this.secondShowFunction = secondShowFunction;
+//		this.searchFunction = c.db.conferenceQueryHelper::queryForDomainObject;
 	}
 
 	private void showConference(String id) {
 		
-		Conference conf = c.db.getConferenceById(id);
-		
-		conferenceNameField.setText(conf.getName());
-		
-		conferenceEditionFilterField.setText("");
-		secondTableList.clear();
-		for (ConferenceEdition confEd : conf.getEditions()) {
-			secondTableList.add(c.new SecondaryConferenceEditionTableEntry(confEd));
-		}
-		
-		c.tabPane.getSelectionModel().select(c.conferenceTab);
+//		Conference conf = c.db.getConferenceById(id);
+//		
+//		conferenceNameField.setText(conf.getName());
+//		
+//		conferenceEditionFilterField.setText("");
+//		secondTableList.clear();
+//		for (ConferenceEdition confEd : conf.getEditions()) {
+//			secondTableList.add(c.new SecondaryConferenceEditionTableEntry(confEd));
+//		}
+//		
+//		c.tabPane.getSelectionModel().select(c.conferenceTab);
 	}
 	
 	@Override
@@ -89,7 +89,7 @@ public class ConferenceTabController extends TabController<Conference, Conferenc
 
 	@Override
 	void deleteRecord(String id) {
-		c.db.removeConference(id);
+//		c.db.removeConference(id);
 	}
 
 }
