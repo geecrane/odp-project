@@ -106,20 +106,6 @@ public class Database {
 		}
 	}
 
-	// task1 queries
-	//
-	// getInProcByID
-	//
-	// for $inProc in root/inproceedings
-	// where $inProc/@key="conf/softerg/EberlehKS87"
-	// return $inProc
-	//
-	// getProceedingByID
-	//
-	// for $proc in root/proceedings
-	// where $proc/@key="conf/concur/1990"
-	// return $proc
-
 	// George: get inProceedings by id
 	public InProceedings getInProceedingsById(String id) {
 		InProceedings inProc = new InProceedings(id);
@@ -130,6 +116,9 @@ public class Database {
 			String queryResult = null;
 			if (query.more()) {
 				queryResult = query.next();
+
+				// The result is in XML format therefore JDOM is used in order
+				// to parse it
 				SAXBuilder builder = new SAXBuilder();
 				InputStream stream = new ByteArrayInputStream(queryResult.getBytes("UTF-8"));
 				try {
@@ -161,38 +150,78 @@ public class Database {
 		return inProc;
 	}
 
-	// task2 queris
-	//
-	// for $proc in root/proceedings, $inproc in root/inproceedings
-	// let $pub := ( if ( $proc/title/text()="Seminar on Concurrency,
-	// Carnegie-Mellon University, Pittsburg, PA, USA, July 9-11, 1984")
-	// then $proc
-	// else (if ( $inproc/title/text()="Seminar on Concurrency, Carnegie-Mellon
-	// University, Pittsburg, PA, USA, July 9-11, 1984" )
-	// then $inproc
-	// else $inproc))
-	// return $pub
-	//
-	// task2 with 2 queries
-	//
-	// for $proc in root/proceedings
-	// where $proc/title/text()="Seminar on Concurrency, Carnegie-Mellon
-	// University, Pittsburg, PA, USA, July 9-11, 1984"
-	// stable order by $proc/autor empty least
-	// return $proc
-	//
-	// for $proc in root/proceedings
-	// where $proc/title/text()="Seminar on Concurrency, Carnegie-Mellon
-	// University, Pittsburg, PA, USA, July 9-11, 1984"
-	// return $proc
-	//
-	//
-	// for $inproc in root/inproceedings
-	// where $inproc/title/text()="Seminar on Concurrency, Carnegie-Mellon
-	// University, Pittsburg, PA, USA, July 9-11, 1984"
-	// return $inproc
+	// TASK 1:
+	// Seba: get publication given the id. The result is either a proceeding or
+	// an inproceeding
+	// TODO: Not all attributes of a proceeding are set
 	public Publication getPublicationById(String id) {
-		return null;
+		String PublicationByIDQuery = "for $pub in root/proceedings | root/inproceedings where $pub/@key=\"" + id
+				+ "\" return $pub";
+		ClientQuery query;
+		try {
+			query = session.query(PublicationByIDQuery);
+			String queryResult = null;
+			if (query.more()) {
+				queryResult = query.next();
+				System.out.println(queryResult);
+				// The result is in XML format therefore JDOM is used in order
+				// to parse it
+				return XmlToObject.XmlToPublication(queryResult, this);
+
+			} else {
+				System.out.println("A publication with id: " + id + " could not be found");
+				return null;
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	// Helper function task 1
+	public Series getSeriesByName(String name) {
+		// TODO: there is a little bit more to be done here
+		return new Series(name);
+	}
+
+	// Helper function task 1
+	public Publisher getPublisherByName(String name) {
+		// TODO: There is a little bit more to be done here
+		return new Publisher(name);
+	}
+
+	// TASK 2:
+	public List<Publication> getPublicationsByFilter(String title, int begin_offset, int end_offset) {
+		assert (begin_offset >= 0);
+		List<Publication> pubs = new ArrayList<>();
+		String PublicationsByFilter;
+		// return all results
+		if (end_offset - begin_offset < 0) {
+			PublicationsByFilter = "let $title := \"" + title + "\" for $pub in root/proceedings | root/inproceedings"
+					+ " where contains($pub/title, $title)" + "order by $pub/title" + " return $pub";
+		}
+		// filter results by offset
+		else {
+			PublicationsByFilter = "(let $title := \"" + title + "\" for $pub in root/proceedings | root/inproceedings"
+					+ " where contains($pub/title, $title)" + "order by $pub/title" + " return $pub)[position() = "
+					+ begin_offset + " to " + end_offset + "]";
+		}
+		ClientQuery query;
+		try {
+			query = session.query(PublicationsByFilter);
+			while(query.more()){
+				String queryResult = query.next();
+				System.out.println(queryResult);
+				pubs.add(XmlToObject.XmlToPublication(queryResult, this));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return pubs;
 	}
 
 	// George: get person by id

@@ -25,6 +25,12 @@ public class Main extends Application {
 		 //tempXMLImport(db);
 		InProceedings p = db.getInProceedingsById("conf/kivs/Wilhelm83");
 		System.out.println(p.getTitle());
+		
+		List<Publication> pubs = db.getPublicationsByFilter("Process", 0, 5);
+		for (Publication pub:pubs){
+			System.out.println(pub.getTitle());
+		}
+	
 
 //		// print all inproceedings where author appears last, given author id
 //		List<InProceedings> inProceedingsList = db.getInproceedingsAuthorLast("1785178126");
