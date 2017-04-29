@@ -23,7 +23,7 @@ public class Main extends Application {
 		// comment out the line below, if you don't want to import the xml every
 		// time.
 		 //tempXMLImport(db);
-		InProceedings p = db.getInProceedingsById("conf/bcshci/1988");
+		InProceedings p = db.getInProceedingsById("conf/kivs/Wilhelm83");
 		System.out.println(p.getTitle());
 
 //		// print all inproceedings where author appears last, given author id
