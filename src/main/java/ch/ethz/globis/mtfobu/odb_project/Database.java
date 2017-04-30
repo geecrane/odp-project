@@ -175,7 +175,7 @@ public class Database{
 		return inProcs;
 	}
 
-	// George: get inProceedings by id
+	// George: get inProceedings by id 
 	public InProceedings getInProceedingsById(String id) {
 		
 		String InProcByIDQuery = String.format("//inproceedings[@key='%s']", id);
