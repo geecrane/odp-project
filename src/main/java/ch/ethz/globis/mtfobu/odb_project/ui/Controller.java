@@ -13,6 +13,7 @@ import ch.ethz.globis.mtfobu.odb_project.Conference;
 import ch.ethz.globis.mtfobu.odb_project.ConferenceEdition;
 import ch.ethz.globis.mtfobu.odb_project.Config;
 import ch.ethz.globis.mtfobu.odb_project.Database;
+import ch.ethz.globis.mtfobu.odb_project.DomainObject;
 import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Person;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
@@ -30,35 +31,38 @@ import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 
  
 public class Controller {
 	public final int PAGE_SIZE = 20;
 	public PersistenceManager pm;
     public Database db;
-	
+    
     public void initialize() {
     	db = Database.getDatabase();
-    	List<InProceedings> inProcs = db.getInProceedings();
     	
+    	initializeInproceedingsMainColumns();	
+    	loadInProceedings();
+    }
+
+	private void loadInProceedings() {
+		//init table data
+		List<InProceedings> inProcs = db.getInProceedings();
     	ObservableList<InProceedings> masterData = FXCollections.observableArrayList();
     	masterData.addAll(inProcs);
+    	FilteredList<InProceedings> filteredData = setTable(masterData,inProceedingMainTable);
     	
-    	// Initialize Columns
-    	inProceedingMainTableTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
-    	inProceedingMainTableYearColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getYear())));
-    	inProceedingMainTableProceedingsColumn.setCellValueFactory(cellData -> {
-    		Proceedings proc = cellData.getValue().getProceedings();
-    		String procTitle = "";
-    		if(proc != null) {procTitle = cellData.getValue().getProceedings().getTitle();}
-    		return new SimpleStringProperty(procTitle);
-    				});
-    	
-    	// Wrap the ObservableList in a FilteredList. Display all data (unfiltered)
-    	FilteredList<InProceedings> filteredData = new FilteredList<>(masterData, inProc -> true);
-    	
-    	// Set the filter Predicate whenever the filter changes.
+    	//search field
+    	searchSetupInproceedings(filteredData);  	
+	}
+
+	private void searchSetupInproceedings(FilteredList<InProceedings> filteredData) {
+		
+		// Set the filter Predicate whenever the filter changes.
     	inProceedingSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredData.setPredicate(inProc -> {
                 // If filter text is empty, display all
@@ -79,16 +83,60 @@ public class Controller {
                 return false; // Does not match.
             });
         });
-    	
+	}
+
+	
+	private <P extends DomainObject> FilteredList<P> setTable(ObservableList<P> masterData, TableView<P> tableView) {
+    	// Wrap the ObservableList in a FilteredList. Display all data (unfiltered)
+    	FilteredList<P> filteredData = new FilteredList<>(masterData, p -> true);
+
     	// Wrap the FilteredList in a SortedList. 
-    	SortedList<InProceedings> sortedData = new SortedList<>(filteredData);
+    	SortedList<P> sortedData = new SortedList<>(filteredData);
     	
     	//Bind the SortedList comparator to the TableView comparator
-    	sortedData.comparatorProperty().bind(inProceedingMainTable.comparatorProperty());
+    	sortedData.comparatorProperty().bind(tableView.comparatorProperty());
+    	
     	// Add sorted (and filtered) data to the table.
-    	inProceedingMainTable.setItems(sortedData);
-    }
- 
+    	tableView.setItems(sortedData);
+		return filteredData;
+	}
+    
+	private void initializeInproceedingsMainColumns() {
+		// Initialize InProceedings Columns
+		inProceedingMainTableTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
+    	inProceedingMainTableYearColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getYear())));
+    	inProceedingMainTableProceedingsColumn.setCellValueFactory(cellData -> {
+    		Proceedings proc = cellData.getValue().getProceedings();
+    		String procTitle = "";
+    		if(proc != null) {procTitle = cellData.getValue().getProceedings().getTitle();}
+    		return new SimpleStringProperty(procTitle);
+    				});
+	}
+
+	@FXML
+	public void inProceedingsMainClickItem(MouseEvent event)
+	{
+	    if (event.getClickCount() == 2) //Checking double click
+	    {
+	    	//initialize column
+	    	inProceedingAuthorTableNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
+	    	
+	    	//initialize data
+	    	InProceedings selected = inProceedingMainTable.getSelectionModel().getSelectedItem();
+	    	List<Person> authors = selected.getAuthors();
+	    	ObservableList<Person> masterData = FXCollections.observableArrayList();
+	    	masterData.addAll(authors);
+	    	
+	    	//load table
+	    	FilteredList<Person> filteredData = setTable(masterData,inProceedingAuthorTable);
+	    	
+	    	//editable fields
+	    	inProceedingTitleField.setText(selected.getTitle());
+	    	inProceedingPagesField.setText(selected.getPages());
+	    	inProceedingYearField.setText(String.valueOf(selected.getYear()));
+	    	
+	    }
+	}
     // START section for person tab
     
 	// END section for person tab
@@ -149,13 +197,12 @@ public class Controller {
     @FXML	private TableColumn<InProceedings, String> inProceedingMainTableYearColumn;
     @FXML	private TableColumn<InProceedings, String> inProceedingMainTableProceedingsColumn;
     
-    private TableColumn<Person, String> firstNameColumn;
+    @FXML	private TableView<Person> inProceedingAuthorTable;
+    @FXML	private TableColumn<Person, String> inProceedingAuthorTableNameColumn;
+    
     @FXML    private TextField inProceedingSearchField;
-    @FXML    private Button inProceedingSearchButton;
+    @FXML    private Button inProceedingSearchButton;//TODO remove this
     @FXML    private Button inProceedingDeleteButton;
-    @FXML    private Button inProceedingNextPageButton;
-    @FXML    private Button inProceedingPreviousPageButton;
-    @FXML    private TextField inProceedingCurrentPageField;
     @FXML    private Button inProceedingCreateButton;
     @FXML    private TextField inProceedingPagesField;
     @FXML    private Button inProceedingChangePagesButton;
