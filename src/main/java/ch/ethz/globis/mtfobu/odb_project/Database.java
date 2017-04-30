@@ -19,6 +19,7 @@ import org.basex.BaseXServer;
 import org.basex.api.client.ClientQuery;
 import org.basex.api.client.ClientSession;
 import org.basex.core.cmd.CreateDB;
+import org.basex.core.cmd.DropDB;
 import org.basex.core.cmd.Open;
 import org.bson.BSON;
 import org.bson.conversions.Bson;
@@ -57,64 +58,94 @@ import ch.ethz.globis.mtfobu.odb_project.BaseXClient.Query;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.*;
 
+//George: Instatiate db  only once!
+//Otherwise, creates a new server every time!
 public class Database {
 	private final String dbName;
-	// private final BaseXClient bsxSession;
-	private ClientSession session;
+	private ClientSession session = null;
 	final String defaultHost = "localhost";
 	final int defaultPort = 1984;
 	final String defaultUsername = "admin";
 	final String defaultPassword = "admin";
 	final String rootDocumentName = "dblp_filtered.xml";
-
-	// Seba: This connects to the BaseX database. Since the GUI allows us to
-	// already include the XML file it is assumed that the database is already
-	// created and the document imported.
-	// TODO:Optionally we could create a new database and include the XML, but
-	// this is not a top priority
-	public Database(String dbName)  {
+	
+	
+	private static class Singleton{
+		private static final Database instance = new Database(Config.DATABASE_NAME);
+	}
+	public static Database getDatabase() {
+		return Singleton.instance;
+	}
+	
+	
+	private Database(String dbName)  {
 		this.dbName = dbName;
-		try {
-			BaseXServer server = new BaseXServer();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		// this.bsxSession = new BaseXClient(defaultHost, defaultPort,
-		// defaultUsername, defaultPassword);
-		try {
-			session = new ClientSession(defaultHost, defaultPort, defaultUsername, defaultPassword);
-			try {
-				session.execute(new Open(dbName));
-			} catch (IOException e) {
-				session.execute(new CreateDB(dbName, "src/main/resources/dblp_filtered.xml"));
-			}
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		// Test if database exists and create it otherwise. This is close to the
-		// command: "CHECK" except that in case of a missing database the xml
-		// file gets imported.
 		
-
-		// This was an alternative attempt using the list command to find out if
-		// the DB exists.
-		// String result;
-		// result = session.execute(new org.basex.core.cmd.List());
+		this.session = createSession();
+		
+		if(this.session != null){
+			if(!openDB()){
+				//db doesnt exist. Create a new one!
+				if(create()){
+					openDB();
+				}
+			}
+		}
 
 	}
 
-	// George: This will drop the database if already exists,
-	// and create a new one automatically when documents are inserted
-	public void create() {
+
+	private boolean openDB() {
+		//try to open DB
 		try {
-			session.execute(new CreateDB(dbName, "src/main/resources/dblp_filtered.xml"));
+			session.execute(new Open(dbName));
+			return true;
 		} catch (IOException e) {
-			System.out.println("Error while creating a database called: " + dbName);
-			e.printStackTrace();
+			System.err.printf("DB: %s Not found!\n", dbName);
+			return false;
 		}
+
+	}
+
+
+	/**
+	 * Creates a connection to database
+	 * @return ClientSession
+	 */
+	private ClientSession createSession() {
+		//try to connect
+		try {
+			return new ClientSession(defaultHost, defaultPort, defaultUsername, defaultPassword);	
+		} catch (IOException e1) {
+			System.err.println("Could not connect to Server!");
+			return null;
+		}
+	}
+
+	/**
+	 * This will drop the database if already exists
+	 * Will create DB and import xml. Note:(XmlImport Not Needed)!
+	 */
+	public boolean create() {
+		
+		try {
+			//drop if exists
+			session.execute(new DropDB(dbName));
+		} catch (IOException e1) {
+			//Nothing to delete!
+		}
+		
+		try {
+			session.execute(new CreateDB(dbName, 
+					String.format("%s/src/main/resources/dblp_filtered.xml", 
+							System.getProperty("user.dir"))));
+			return true;
+		} catch (IOException e) {
+			System.err.printf("Could not create database: %s! Check XML path!\n", dbName);
+			e.printStackTrace();
+			return false;
+		}
+		
 	}
 
 	// George: get inProceedings by id

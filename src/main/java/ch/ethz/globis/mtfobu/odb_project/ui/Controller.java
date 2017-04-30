@@ -33,7 +33,7 @@ public class Controller {
     public Database db;
 	
     public void initialize() {
-    	db = new Database(Config.DATABASE_NAME);
+    	db = Database.getDatabase();
     	
     	importButton.setOnAction((event) -> {
 			//George: only for testing purposes
