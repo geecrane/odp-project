@@ -57,7 +57,11 @@ public class XmlToObject {
 				publication.setAuthors(authorList);
 				publication.setNote(rootNode.getChildText("note"));
 				if (db != null) {
-					publication.setSeries(db.getSeriesByName(rootNode.getChildText("series")));
+					String sname = rootNode.getChildText("series");
+					if(sname != null){
+						Series series = db.getSeriesByName(sname);
+						publication.setSeries(series);
+					}
 					publication.setPublisher(db.getPublisherByName(rootNode.getChildText("publisher")));
 				} else
 					System.out.println("Proceeding with id: " + rootNode.getAttributeValue("key")
@@ -137,7 +141,11 @@ public class XmlToObject {
 		proceeding.setAuthors(authorList);
 		proceeding.setNote(proceedingNode.getChildText("note"));
 		if (db != null) {
-			proceeding.setSeries(db.getSeriesByName(proceedingNode.getChildText("series")));
+			String sname = proceedingNode.getChildText("series");
+			if(sname != null){
+				Series series = db.getSeriesByName(sname);
+				proceeding.setSeries(series);
+			}
 			proceeding.setPublisher(db.getPublisherByName(proceedingNode.getChildText("publisher")));
 		} else
 			System.out.println("Proceeding with id: " + proceedingNode.getAttributeValue("key")
