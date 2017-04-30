@@ -197,9 +197,9 @@
                      <children>
                         <TableView fx:id="inProceedingMainTable" layoutY="29.0" prefHeight="310.0" prefWidth="997.0">
                            <columns>
-                              <TableColumn prefWidth="582.0" text="Title" />
-                              <TableColumn minWidth="0.0" prefWidth="71.0" text="Year" />
-                              <TableColumn minWidth="0.0" prefWidth="338.0" text="Proceeding" />
+                              <TableColumn fx:id="inProceedingMainTableTitleColumn" prefWidth="582.0" text="Title" />
+                              <TableColumn fx:id="inProceedingMainTableYearColumn" minWidth="0.0" prefWidth="71.0" text="Year" />
+                              <TableColumn fx:id="inProceedingMainTableProceedingsColumn" minWidth="0.0" prefWidth="338.0" text="Proceeding" />
                            </columns>
                         </TableView>
                         <TextField fx:id="inProceedingSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />

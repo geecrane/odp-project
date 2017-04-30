@@ -1,4 +1,4 @@
-package ch.ethz.globis.mtfobu.odb_project.ui;
+package ch.ethz.globis.mtfobu.odb_project.ui2;
 
 
 import java.util.Collection;

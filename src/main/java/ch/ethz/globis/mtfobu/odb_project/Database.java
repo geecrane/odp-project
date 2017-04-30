@@ -73,6 +73,11 @@ public class Database {
 	private static class Singleton{
 		private static final Database instance = new Database(Config.DATABASE_NAME);
 	}
+	/**
+	 * Used to retrieve the database instance.
+	 * DO NOT try to instantiate the Database class manually!
+	 * @return  The Database instance
+	 */
 	public static Database getDatabase() {
 		return Singleton.instance;
 	}
@@ -148,6 +153,22 @@ public class Database {
 		
 	}
 
+	public List<InProceedings> getInProceedings(){
+		ArrayList<InProceedings> inProcs = new ArrayList<>();
+		String queryString = "for $inProc in //inproceedings return data($inProc/@key)";
+		ClientQuery query;
+		try {
+			query = session.query(queryString);
+			while(query.more()) {
+		          inProcs.add(getInProceedingsById(query.next()));
+		    }
+			
+		} catch (IOException e) {
+			System.err.println("Could not query for inProceedings in getInProceedings()");
+		}
+		
+		return inProcs;
+	}
 	// George: get inProceedings by id
 	public InProceedings getInProceedingsById(String id) {
 		InProceedings inProc = new InProceedings(id);
@@ -180,7 +201,7 @@ public class Database {
 					e.printStackTrace();
 					return null;
 				}
-				System.out.println(queryResult);
+				//System.out.println(queryResult);
 			}
 
 		} catch (IOException e) {
