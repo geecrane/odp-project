@@ -48,7 +48,7 @@ public class Controller {
     	//initializeInproceedingsMainColumns();	
     	//loadInProceedings();
     	
-    	initializePeopleMainColumns();
+//  	initializePeopleMainColumns();
 //    	loadPeople();
     	
     	
