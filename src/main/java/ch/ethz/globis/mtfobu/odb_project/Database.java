@@ -153,27 +153,6 @@ public class Database{
 
 	}
 
-	/**
-	 * @return A list of all InProceedings
-	 */
-	public List<InProceedings> getInProceedings() {
-		ArrayList<InProceedings> inProcs = new ArrayList<>();
-		
-		try {
-			ClientQuery query = session.query("//inproceedings");
-			while(query.more()) {
-				InProceedings inProc = getInProceedingsObject(query.next());
-				if(inProc != null){
-		          inProcs.add(inProc);
-				}
-		    }
-			
-		} catch (IOException e) {
-			System.err.println("Could not query for inProceedings in getInProceedings()");
-		}
-
-		return inProcs;
-	}
 
 	// George: get inProceedings by id 
 	public InProceedings getInProceedingsById(String id) {
@@ -245,22 +224,6 @@ public class Database{
 			e.printStackTrace();
 			return null;
 		}
-	}
-	
-	public List<Person> getPeople(){
-		List<Person> people = new ArrayList<>();
-		String allPeopleQuery = "distinct-values(//proceedings/editor/text() | //inproceedings/author/text())";
-		ClientQuery query;
-		try {
-			query = session.query(allPeopleQuery);
-			while(query.more()){
-				people.add(getPersonByName(query.next()));
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return people;
 	}
 
 	// TASK 1:
@@ -1617,4 +1580,97 @@ public class Database{
 	// public int id;
 	// public int distanceFromRoot;
 	// }
+	
+	//GUI functions
+	public List<Publisher> getPublishers(){
+		List<Publisher> pubs = new ArrayList<>();
+		String allPublishersQuery = "distinct-values(for $pub in //proceedings/publisher/text() | //inproceedings/publisher/text() order by $pub return $pub)";
+		ClientQuery query;
+		try {
+			query = session.query(allPublishersQuery);
+			while(query.more()){
+				pubs.add(getPublisherByName(query.next()));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return pubs;
+	}
+	
+	public List<Publication> getPublications(){
+		List<Publication> pubs = new ArrayList<>();
+		String publicationsQuery;
+			publicationsQuery = "for $pub in root/proceedings | root/inproceedings"
+					+ "order by $pub/title return $pub";
+		ClientQuery query;
+		try {
+			query = session.query(publicationsQuery);
+			while (query.more()) {
+				String queryResult = query.next();
+				System.out.println(queryResult);
+				pubs.add(XmlToObject.XmlToPublication(queryResult, this));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return pubs;
+	}
+	
+	/**
+	 * @return A list of all InProceedings
+	 */
+	public List<InProceedings> getInProceedings() {
+		ArrayList<InProceedings> inProcs = new ArrayList<>();
+		
+		try {
+			ClientQuery query = session.query("//inproceedings");
+			while(query.more()) {
+				InProceedings inProc = getInProceedingsObject(query.next());
+				if(inProc != null){
+		          inProcs.add(inProc);
+				}
+		    }
+			
+		} catch (IOException e) {
+			System.err.println("Could not query for inProceedings in getInProceedings()");
+		}
+
+		return inProcs;
+	}
+	
+	
+	public List<Person> getPeople(){
+		List<Person> people = new ArrayList<>();
+		String allPeopleQuery = "distinct-values(//proceedings/editor/text() | //inproceedings/author/text())";
+		ClientQuery query;
+		try {
+			query = session.query(allPeopleQuery);
+			while(query.more()){
+				people.add(getPersonByName(query.next()));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return people;
+	}
+	
+	public List<Conference> getConferences(){
+		List<Conference> confs = new ArrayList<>();
+		String allConferencesQuery = "distinct-values(for $conf in //proceedings/booktitle/text() | //inproceedings/booktitle/text() order by $conf return $conf)";
+		ClientQuery query;
+		try {
+			query = session.query(allConferencesQuery);
+			while(query.more()){
+				confs.add(getConferenceByName(query.next()));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return confs;
+	}
 }

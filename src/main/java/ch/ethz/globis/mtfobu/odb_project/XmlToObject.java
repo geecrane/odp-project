@@ -57,8 +57,10 @@ public class XmlToObject {
 				publication.setAuthors(authorList);
 				publication.setNote(rootNode.getChildText("note"));
 				if (db != null) {
-					publication.setSeries(db.getSeriesByName(rootNode.getChildText("series")));
-					publication.setPublisher(db.getPublisherByName(rootNode.getChildText("publisher")));
+					String series = rootNode.getChildText("series");
+					if(series!=null) publication.setSeries(db.getSeriesByName(series));
+					String publisher = rootNode.getChildText("publisher");
+					if(publisher!=null) publication.setPublisher(db.getPublisherByName(publisher));
 				} else
 					System.out.println("Proceeding with id: " + rootNode.getAttributeValue("key")
 							+ " has not been fully initialized because of a missing context");
@@ -137,8 +139,10 @@ public class XmlToObject {
 		proceeding.setAuthors(authorList);
 		proceeding.setNote(proceedingNode.getChildText("note"));
 		if (db != null) {
-			proceeding.setSeries(db.getSeriesByName(proceedingNode.getChildText("series")));
-			proceeding.setPublisher(db.getPublisherByName(proceedingNode.getChildText("publisher")));
+			String series = proceedingNode.getChildText("series");
+			if(series!=null) proceeding.setSeries(db.getSeriesByName(series));
+			String publisher = proceedingNode.getChildText("publisher");
+			if(publisher!=null) proceeding.setPublisher(db.getPublisherByName(publisher));
 		} else
 			System.out.println("Proceeding with id: " + proceedingNode.getAttributeValue("key")
 					+ " has not been fully initialized because of a missing context");
