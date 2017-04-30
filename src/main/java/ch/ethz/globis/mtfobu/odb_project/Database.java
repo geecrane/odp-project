@@ -153,6 +153,9 @@ public class Database {
 		
 	}
 
+	/**
+	 * @return A list of all InProceedings
+	 */
 	public List<InProceedings> getInProceedings(){
 		ArrayList<InProceedings> inProcs = new ArrayList<>();
 		String queryString = "for $inProc in //inproceedings return data($inProc/@key)";
