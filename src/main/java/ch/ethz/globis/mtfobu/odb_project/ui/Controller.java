@@ -45,21 +45,47 @@ public class Controller {
     	ObservableList<InProceedings> masterData = FXCollections.observableArrayList();
     	masterData.addAll(inProcs);
     	
+    	// Initialize Columns
     	inProceedingMainTableTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
     	inProceedingMainTableYearColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getYear())));
     	inProceedingMainTableProceedingsColumn.setCellValueFactory(cellData -> {
     		Proceedings proc = cellData.getValue().getProceedings();
-    		String procTitle = String.valueOf(masterData.size());
+    		String procTitle = "";
     		if(proc != null) {procTitle = cellData.getValue().getProceedings().getTitle();}
     		return new SimpleStringProperty(procTitle);
     				});
     	
-    	//Display all data
-    	FilteredList<InProceedings> filteredData = new FilteredList<>(masterData, null);
+    	// Wrap the ObservableList in a FilteredList. Display all data (unfiltered)
+    	FilteredList<InProceedings> filteredData = new FilteredList<>(masterData, inProc -> true);
     	
+    	// Set the filter Predicate whenever the filter changes.
+    	inProceedingSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(inProc -> {
+                // If filter text is empty, display all
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Compare first name and last name of every person with filter text.
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if (inProc.getTitle().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches title.
+                } else if (String.valueOf(inProc.getYear()).contains(lowerCaseFilter)) {
+                    return true; // Filter matches year.
+                } else if(inProc.getProceedings() != null && inProc.getProceedings().getTitle().toLowerCase().contains(lowerCaseFilter)){
+                	return true; // Filter matches Proceedings
+                }
+                return false; // Does not match.
+            });
+        });
+    	
+    	// Wrap the FilteredList in a SortedList. 
     	SortedList<InProceedings> sortedData = new SortedList<>(filteredData);
     	
+    	//Bind the SortedList comparator to the TableView comparator
     	sortedData.comparatorProperty().bind(inProceedingMainTable.comparatorProperty());
+    	// Add sorted (and filtered) data to the table.
     	inProceedingMainTable.setItems(sortedData);
     }
  

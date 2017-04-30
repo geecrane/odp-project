@@ -3,6 +3,7 @@ package ch.ethz.globis.mtfobu.odb_project;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,12 +159,14 @@ public class Database {
 	 */
 	public List<InProceedings> getInProceedings(){
 		ArrayList<InProceedings> inProcs = new ArrayList<>();
-		String queryString = "for $inProc in //inproceedings return data($inProc/@key)";
-		ClientQuery query;
+		
 		try {
-			query = session.query(queryString);
+			ClientQuery query = session.query("//inproceedings");
 			while(query.more()) {
-		          inProcs.add(getInProceedingsById(query.next()));
+				InProceedings inProc = getInProceedingsObject(query.next());
+				if(inProc != null){
+		          inProcs.add(inProc);
+				}
 		    }
 			
 		} catch (IOException e) {
@@ -174,46 +177,49 @@ public class Database {
 	}
 	// George: get inProceedings by id
 	public InProceedings getInProceedingsById(String id) {
-		InProceedings inProc = new InProceedings(id);
-		String InProcByIDQuery = "for $inProc in root/inproceedings where $inProc/@key=\"" + id + "\" return $inProc";
-		ClientQuery query;
+		
+		String InProcByIDQuery = String.format("//inproceedings[@key='%s']", id);
 		try {
-			query = session.query(InProcByIDQuery);
-			String queryResult = null;
+			ClientQuery query = session.query(InProcByIDQuery);
 			if (query.more()) {
-				queryResult = query.next();
-
-				// The result is in XML format therefore JDOM is used in order
-				// to parse it
-				SAXBuilder builder = new SAXBuilder();
-				InputStream stream = new ByteArrayInputStream(queryResult.getBytes("UTF-8"));
-				try {
-					Document inprocXML = builder.build(stream);
-					Element rootNode = inprocXML.getRootElement();
-					inProc.setTitle(rootNode.getChildText("title"));
-					inProc.setYear(Integer.parseInt(rootNode.getChildText("year")));
-					List<Element> authors = rootNode.getChildren("author");
-					List<Person> authorList = new ArrayList<>();
-					for (Element author : authors)
-						authorList.add(new Person(author.getText()));
-					inProc.setAuthors(authorList);
-					inProc.setNote(rootNode.getChildText("note"));
-					inProc.setPages(rootNode.getChildText("pages"));
-				} catch (JDOMException e) {
-					System.out.println("Error: The query result was not in the expected XML format");
-					e.printStackTrace();
-					return null;
-				}
-				//System.out.println(queryResult);
+				String queryResult = query.next();
+				return getInProceedingsObject(queryResult);
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+
+	private InProceedings getInProceedingsObject(String queryResult)
+			throws UnsupportedEncodingException, IOException {
+		// The result is in XML format therefore JDOM is used in order
+		// to parse it
+		
+		SAXBuilder builder = new SAXBuilder();
+		InputStream stream = new ByteArrayInputStream(queryResult.getBytes("UTF-8"));
+		try {
+			Document inprocXML = builder.build(stream);
+			Element rootNode = inprocXML.getRootElement();
+			InProceedings inProc = new InProceedings(rootNode.getAttributeValue("key"));
+			inProc.setTitle(rootNode.getChildText("title"));
+			inProc.setYear(Integer.parseInt(rootNode.getChildText("year")));
+			List<Element> authors = rootNode.getChildren("author");
+			List<Person> authorList = new ArrayList<>();
+			for (Element author : authors)
+				authorList.add(new Person(author.getText()));
+			inProc.setAuthors(authorList);
+			inProc.setNote(rootNode.getChildText("note"));
+			inProc.setPages(rootNode.getChildText("pages"));
+			return inProc;
+		} catch (JDOMException e) {
+			System.out.println("Error: The query result was not in the expected XML format");
 			e.printStackTrace();
 			return null;
 		}
-
-		return inProc;
 	}
 
 	// TASK 1:
