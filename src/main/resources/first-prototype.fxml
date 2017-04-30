@@ -21,8 +21,7 @@
                      <children>
                         <TableView fx:id="personMainTable" layoutY="29.0" prefHeight="310.0" prefWidth="997.0">
                           <columns>
-                            <TableColumn prefWidth="299.0" text="Name" />
-                            <TableColumn minWidth="0.0" prefWidth="676.0" text="Authored / Edited" />
+                            <TableColumn fx:id="personMainTableNameColumn" prefWidth="995.0" text="Name" />
                           </columns>
                         </TableView>
                       <Button fx:id="personDeleteButton" layoutX="96.0" layoutY="341.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Person" />

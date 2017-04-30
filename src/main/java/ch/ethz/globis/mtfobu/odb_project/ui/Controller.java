@@ -45,10 +45,57 @@ public class Controller {
     public void initialize() {
     	db = Database.getDatabase();
     	
-    	initializeInproceedingsMainColumns();	
-    	loadInProceedings();
+    	//initializeInproceedingsMainColumns();	
+    	//loadInProceedings();
+    	
+    	initializePeopleMainColumns();
+//    	loadPeople();
+    	
+    	
     }
 
+	
+	
+	//START people tab
+	private void loadPeople() {
+		//init table data
+		List<Person> inProcs = db.getPeople();
+    	ObservableList<Person> masterData = FXCollections.observableArrayList();
+    	masterData.addAll(inProcs);
+    	FilteredList<Person> filteredData = setTable(masterData,personMainTable);
+    	
+    	//search field
+    	searchSetupPeople(filteredData);  
+	}
+	private void initializePeopleMainColumns() {
+		// Initialize InProceedings Columns
+		personMainTableNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
+    	
+	}
+	private void searchSetupPeople(FilteredList<Person> filteredData) {
+		
+		// Set the filter Predicate whenever the filter changes.
+		personSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(p -> {
+                // If filter text is empty, display all
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Compare first name and last name of every person with filter text.
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if (p.getName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches title.
+                }
+                return false; // Does not match.
+            });
+        });
+	}
+	//END people tab
+	
+	
+	//START InProceedings tab
 	private void loadInProceedings() {
 		//init table data
 		List<InProceedings> inProcs = db.getInProceedings();
@@ -59,7 +106,6 @@ public class Controller {
     	//search field
     	searchSetupInproceedings(filteredData);  
 	}
-
 	private void searchSetupInproceedings(FilteredList<InProceedings> filteredData) {
 		
 		// Set the filter Predicate whenever the filter changes.
@@ -84,23 +130,6 @@ public class Controller {
             });
         });
 	}
-
-	
-	private <P extends DomainObject> FilteredList<P> setTable(ObservableList<P> masterData, TableView<P> tableView) {
-    	// Wrap the ObservableList in a FilteredList. Display all data (unfiltered)
-    	FilteredList<P> filteredData = new FilteredList<>(masterData, p -> true);
-
-    	// Wrap the FilteredList in a SortedList. 
-    	SortedList<P> sortedData = new SortedList<>(filteredData);
-    	
-    	//Bind the SortedList comparator to the TableView comparator
-    	sortedData.comparatorProperty().bind(tableView.comparatorProperty());
-    	
-    	// Add sorted (and filtered) data to the table.
-    	tableView.setItems(sortedData);
-		return filteredData;
-	}
-    
 	private void initializeInproceedingsMainColumns() {
 		// Initialize InProceedings Columns
 		inProceedingMainTableTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
@@ -111,15 +140,16 @@ public class Controller {
     		if(proc != null) {procTitle = cellData.getValue().getProceedings().getTitle();}
     		return new SimpleStringProperty(procTitle);
     				});
+    	
+    	//initialize authors column
+    	inProceedingAuthorTableNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
+    	
 	}
-
 	@FXML
 	public void inProceedingsMainClickItem(MouseEvent event)
 	{
 	    if (event.getClickCount() == 2) //Checking double click
 	    {
-	    	//initialize column
-	    	inProceedingAuthorTableNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
 	    	
 	    	//initialize data
 	    	InProceedings selected = inProceedingMainTable.getSelectionModel().getSelectedItem();
@@ -137,6 +167,28 @@ public class Controller {
 	    	
 	    }
 	}
+	//END InProceedings tab
+	
+	private <P extends DomainObject> FilteredList<P> setTable(ObservableList<P> masterData, TableView<P> tableView) {
+    	// Wrap the ObservableList in a FilteredList. Display all data (unfiltered)
+    	FilteredList<P> filteredData = new FilteredList<>(masterData, p -> true);
+
+    	// Wrap the FilteredList in a SortedList. 
+    	SortedList<P> sortedData = new SortedList<>(filteredData);
+    	
+    	//Bind the SortedList comparator to the TableView comparator
+    	sortedData.comparatorProperty().bind(tableView.comparatorProperty());
+    	
+    	// Add sorted (and filtered) data to the table.
+    	tableView.setItems(sortedData);
+		return filteredData;
+	}
+    
+	
+	
+	
+
+	
     // START section for person tab
     
 	// END section for person tab
@@ -189,6 +241,14 @@ public class Controller {
     
     // START section for fields that reference FXML
     @FXML TabPane tabPane;
+    
+    //Start People
+    @FXML   Tab personTab;
+    @FXML   private TableView<Person> personMainTable;
+    @FXML	private TableColumn<Person, String> personMainTableNameColumn;
+    @FXML   private TextField personSearchField;
+    
+    //End People
 
     //Start Inproceedings
     @FXML   Tab inProceedingTab;
