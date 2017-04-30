@@ -279,8 +279,25 @@ public class Database {
 
 	// Helper function task 1
 	public Publisher getPublisherByName(String name) {
-		// TODO: There is a little bit more to be done here
-		return new Publisher(name);
+		Publisher pub = new Publisher(name);
+		Set<Publication> pubs = new HashSet<>();
+		String getPublicationsFromPublisher = "let $publisherName := \"" + name
+				+ "\" for $pub in //proceedings | //inproceedings where $pub/publisher=$publisherName return $pub";
+		// TODO: Verify that it is sound to use the publisher name as an ID
+		pub.setId(name);
+		ClientQuery query;
+		try {
+			query = session.query(getPublicationsFromPublisher);
+			while (query.more()) {
+				String publication = query.next();
+				pubs.add(XmlToObject.XmlToPublication(publication, this));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		pub.setPublications(pubs);
+		return pub;
 	}
 
 	// TASK 2+3:
@@ -390,6 +407,23 @@ public class Database {
 	// return local:getAuthorDist($author,local:getCoAuthors($author/name,1,
 	// root), "Fred Brown", root )
 
+
+	
+	// TASK 6:
+	public double getAvgAuthorsInProceedings(){
+		String avgAuthorsInProceedingsQuery = "avg(for $inProc in //inproceedings return count($inProc/author))";
+		ClientQuery query;
+		try {
+			query = session.query(avgAuthorsInProceedingsQuery);
+			assert(query.more());
+			return Double.parseDouble(query.next());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return Double.NaN;
+		
+	}
 	// Seba: get person by id
 	// id is expected to be the name of the person
 	public Person getPersonById(String id) {
@@ -446,13 +480,13 @@ public class Database {
 	public Set<ConferenceEdition> getConfEditionsForConf(Conference conference) {
 		Set<ConferenceEdition> confEdits = new HashSet<>();
 		String confEditionsGivenConfQuery = "let $confName := \"" + conference.getName()
-				+ "\" for $proc in root/proceedings where $proc/booktitle=$confName" 
+				+ "\" for $proc in root/proceedings where $proc/booktitle=$confName"
 				+ " return <ConfEdit>{$proc/year,$proc}</ConfEdit>";
 		ClientQuery query;
-		
+
 		try {
 			query = session.query(confEditionsGivenConfQuery);
-			while(query.more()){
+			while (query.more()) {
 				String confedit = query.next();
 				confEdits.add(XmlToObject.XmlToConferenceEdition(confedit, conference, this));
 			}
@@ -460,7 +494,7 @@ public class Database {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return confEdits;
 	}
 
