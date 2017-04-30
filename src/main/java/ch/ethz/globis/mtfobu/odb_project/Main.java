@@ -19,7 +19,7 @@ public class Main extends Application {
 
 	public static void main(String[] args) throws IOException {
 
-//		Database db = new Database(Config.DATABASE_NAME);
+		//Database db = new Database(Config.DATABASE_NAME);
 		// comment out the line below, if you don't want to import the xml every
 		// time.
 		 //tempXMLImport(db);
@@ -31,6 +31,10 @@ public class Main extends Application {
 //			System.out.println(pub.getTitle());
 //		}
 	
+//		List<Person> coAuthors = db.getCoAuthors("Peter Buneman");
+//		for (Person coAuthor: coAuthors){
+//			System.out.println(coAuthor.getName());
+//		}
 
 //		// print all inproceedings where author appears last, given author id
 //		List<InProceedings> inProceedingsList = db.getInproceedingsAuthorLast("1785178126");
