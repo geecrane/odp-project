@@ -347,21 +347,88 @@ public class Database {
 	}
 	
 	// TASK 5:
+	//Query to use: TODO: There is a bug at line 369
+//	declare function local:buildOrigin($authorName as xs:string){
+//		<author><name>{string($authorName)}</name><dist>{number(0)}</dist></author>
+//	};
+//	declare function local:getCoAuthors($author as xs:string, $dist as xs:integer, $rootNode as element()){
+//		for $coauthor in distinct-values(
+//			for $pub in $rootNode/proceedings | $rootNode/inproceedings
+//			let $index := index-of(($pub/author | $pub/editor), $author)
+//			let $coAuthor := if ($index > 0)
+//			then remove(($pub/author | $pub/editor), $index)
+//			else ()
+//			return $coAuthor)
+//		return <author><name>{string($coauthor)}</name><dist>{number($dist)}</dist></author>
+//	};
+//	declare function local:updateWorkingSet($workingSet, $updateSet){
+//		for $authorOld in $workingSet, $authorNew in $updateSet
+//		let $author := ( if($authorOld/name=$authorNew/name)
+//			then (if ($authorOld/dist<=$authorNew/dist)
+//				then $authorOld
+//				else $authorNew)
+//			else $authorOld)
+//		return $author
+//	};
+//	declare function local:getAuthorDist($doneSet, $workingSet, $authorName as xs:string, $rootNode as element())
+//	{
+//		for $author in $workingSet
+//		where $author/dist=min($workingSet/dist)
+//			let $newDoneSet := ($doneSet | $author)
+//			let $newWorkingSet := local:updateWorkingSet($workingSet,local:getCoAuthors($author, $author/dist,$rootNode))
+//			let $dist := (if($author/name=$authorName)
+//				then $author/dist
+//				else local:getAuthorDist($newDoneSet, $newWorkingSet, $authorName, $rootNode))
+//			return $dist
+//			
+//	};
+//	let $author := local:buildOrigin("Peter Buneman")
+//	return local:getAuthorDist($author,local:getCoAuthors($author/name,1, root), "Fred Brown", root )
+	
 	
 	// Seba: get person by id
-	// id is expected to be the sha1 hash of the name of the person
+	// id is expected to be the name of the person
 	public Person getPersonById(String id) {
-		// MongoCollection<Document> collection =
-		// mongoDB.getCollection(Config.PEOPLE_COLLECTION);
-		// Document doc = collection.find(eq("_id", id)).first();
-		//
-		// if (doc != null) {
-		// String name = doc.get(Config.PEOPLE_NAME).toString();
-		// Person p = new Person(name);
-		// return p;
-		//
-		// } else {
-		return null;
+		Person per = new Person(id);
+		per.setId(id);
+		per.setAuthoredPublications(getAuthoredPublications(per.getName()));
+		per.setEditedPublications(getEditedPublications(per.getName()));
+		return per;
+	}
+	
+	public Set<Publication> getAuthoredPublications(String personName) {
+		Set<Publication> authoredPubs = new HashSet<>();
+		String AuthoredInProceedings = "let $PersonName := \"" + personName
+				+ "\" for $inproc in root/inproceedings where index-of(($inproc/author), $PersonName)!=0 return $inproc";
+		ClientQuery query;
+		try{
+			query = session.query(AuthoredInProceedings);
+			while(query.more()){
+				String authoredInProceeding = query.next();
+				authoredPubs.add(XmlToObject.XmlToInProceeding(authoredInProceeding, this));
+			}
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+		
+		return authoredPubs;
+	}
+	public Set<Publication> getEditedPublications(String personName) {
+		Set<Publication> authoredPubs = new HashSet<>();
+		String editedProceedings = "let $PersonName := \"" + personName
+				+ "\" for $proc in root/proceedings where index-of(($proc/editor), $PersonName)!=0 return $proc";
+		ClientQuery query;
+		try{
+			query = session.query(editedProceedings);
+			while(query.more()){
+				String editedProceeding = query.next();
+				authoredPubs.add(XmlToObject.XmlToProceeding(editedProceeding, this));
+			}
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+		
+		return authoredPubs;
 	}
 
 	// public String getPersonIdFromName(String name) {

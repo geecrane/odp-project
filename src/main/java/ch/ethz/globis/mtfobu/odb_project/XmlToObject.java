@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.IOExceptionWithCause;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -123,5 +124,33 @@ public class XmlToObject {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public static InProceedings XmlToInProceeding(String xml, Database db) throws IOException {
+		InProceedings inProc;
+		// The result is in XML format therefore JDOM is used in order
+		// to parse it
+		SAXBuilder builder = new SAXBuilder();
+		InputStream stream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
+		try {
+			Document inprocXML = builder.build(stream);
+			Element rootNode = inprocXML.getRootElement();
+			inProc = new InProceedings(rootNode.getAttributeValue("key"));
+			inProc.setTitle(rootNode.getChildText("title"));
+			inProc.setYear(Integer.parseInt(rootNode.getChildText("year")));
+			List<Element> authors = rootNode.getChildren("author");
+			List<Person> authorList = new ArrayList<>();
+			for (Element author : authors)
+				authorList.add(new Person(author.getText()));
+			inProc.setAuthors(authorList);
+			inProc.setNote(rootNode.getChildText("note"));
+			inProc.setPages(rootNode.getChildText("pages"));
+		} catch (JDOMException e) {
+			System.out.println("Error: The query result was not in the expected XML format");
+			e.printStackTrace();
+			return null;
+		}
+		//System.out.println(queryResult);
+		return inProc;
 	}
 }
