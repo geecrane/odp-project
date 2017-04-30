@@ -174,6 +174,7 @@ public class XmlToObject {
 			Element rootNode = inprocXML.getRootElement();
 			String year = rootNode.getChildText("year");
 			Proceedings proc = proceedingFromElement(rootNode.getChild("proceedings"), db);
+			//Here I assume that the conferencEdition id is the same as the year. TODO: Verify that this assertion is valid
 			cE = new ConferenceEdition(year, conf, Integer.parseInt(year), proc );
 		} catch (JDOMException e) {
 			System.out.println("Error: The conference edition XML was not in the expected format");
