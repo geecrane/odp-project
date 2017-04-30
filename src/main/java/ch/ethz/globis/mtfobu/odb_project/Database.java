@@ -72,7 +72,7 @@ public class Database {
 	// created and the document imported.
 	// TODO:Optionally we could create a new database and include the XML, but
 	// this is not a top priority
-	public Database(String dbName)  {
+	public Database(String dbName) {
 		this.dbName = dbName;
 		try {
 			BaseXServer server = new BaseXServer();
@@ -97,7 +97,6 @@ public class Database {
 		// Test if database exists and create it otherwise. This is close to the
 		// command: "CHECK" except that in case of a missing database the xml
 		// file gets imported.
-		
 
 		// This was an alternative attempt using the list command to find out if
 		// the DB exists.
@@ -160,6 +159,32 @@ public class Database {
 
 		return inProc;
 	}
+	
+	public Proceedings getProceedingById(String id){
+		String proceedingByIDQuery = "for $proc in root/proceedings where $proc/@key=\"" + id
+				+ "\" return $proc";
+		ClientQuery query;
+		try {
+			query = session.query(proceedingByIDQuery);
+			String queryResult = null;
+			if (query.more()) {
+				queryResult = query.next();
+				System.out.println(queryResult);
+				// The result is in XML format therefore JDOM is used in order
+				// to parse it
+				return XmlToObject.XmlToProceeding(queryResult, this);
+
+			} else {
+				System.out.println("A proceeding with id: " + id + " could not be found");
+				return null;
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 	// TASK 1:
 	// Seba: get publication given the id. The result is either a proceeding or
@@ -203,7 +228,7 @@ public class Database {
 		return new Publisher(name);
 	}
 
-	// TASK 2:
+	// TASK 2+3:
 	public List<Publication> getPublicationsByFilter(String title, int begin_offset, int end_offset) {
 		assert (begin_offset >= 0);
 		List<Publication> pubs = new ArrayList<>();
@@ -222,7 +247,7 @@ public class Database {
 		ClientQuery query;
 		try {
 			query = session.query(PublicationsByFilter);
-			while(query.more()){
+			while (query.more()) {
 				String queryResult = query.next();
 				System.out.println(queryResult);
 				pubs.add(XmlToObject.XmlToPublication(queryResult, this));
@@ -231,11 +256,41 @@ public class Database {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return pubs;
 	}
 
-	// George: get person by id
+	// TASK 4:
+	public List<Person> getCoAuthors(String name) {
+		List<Person> coAuthors = new ArrayList<>();
+		String CoAuthorsGivenAuthor = "distinct-values(let $author := \"" + name
+				+ "\" for $pub in root/proceedings | root/inproceedings"
+				+ " let $index := index-of(($pub/author | $pub/editor), $author)" + " let $coAuthor := if ($index > 0)"
+				+ " then remove(($pub/author | $pub/editor), $index) else ()" + " return $coAuthor)";
+		ClientQuery query;
+		try{
+			query = session.query(CoAuthorsGivenAuthor);
+			while (query.more()){
+				String coAutherName = query.next();
+				//this uses the characteristic of the above query to only return the names
+				coAuthors.add(getPersonByName(coAutherName));
+				System.out.println("Found co-auther: " + coAutherName);
+			}
+		} catch(IOException e){
+			e.printStackTrace();
+		}
+		return coAuthors;
+	}
+	// Helper function task 4
+	public Person getPersonByName(String name){
+		//TODO: There is a little bit more to be done here
+		return new Person(name);
+	}
+	
+	// TASK 5:
+	
+	// Seba: get person by id
+	// id is expected to be the sha1 hash of the name of the person
 	public Person getPersonById(String id) {
 		// MongoCollection<Document> collection =
 		// mongoDB.getCollection(Config.PEOPLE_COLLECTION);

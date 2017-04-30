@@ -58,8 +58,9 @@ public class XmlToObject {
 				if (db != null) {
 					publication.setSeries(db.getSeriesByName(rootNode.getChildText("series")));
 					publication.setPublisher(db.getPublisherByName(rootNode.getChildText("publisher")));
-				}
-				else System.out.println("Proceeding with id: "+ rootNode.getAttributeValue("key") +" has not been fully initialized because of a missing context");
+				} else
+					System.out.println("Proceeding with id: " + rootNode.getAttributeValue("key")
+							+ " has not been fully initialized because of a missing context");
 				publication.setConferenceEdition(new ConferenceEdition(rootNode.getChildText("year"),
 						new Conference(rootNode.getChildText("booktitle")),
 						Integer.parseInt(rootNode.getChildText("year")), publication)); // The
@@ -82,4 +83,45 @@ public class XmlToObject {
 		}
 	}
 
+	public static Proceedings XmlToProceeding(String xml, Database db) throws IOException {
+		SAXBuilder builder = new SAXBuilder();
+		InputStream stream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
+		try {
+			Document inprocXML = builder.build(stream);
+			Element rootNode = inprocXML.getRootElement();
+
+			Proceedings proceeding = new Proceedings(rootNode.getAttributeValue("key"));
+			proceeding.setTitle(rootNode.getChildText("title"));
+			proceeding.setYear(Integer.parseInt(rootNode.getChildText("year")));
+			List<Element> authors = rootNode.getChildren("editor");
+			List<Person> authorList = new ArrayList<>();
+			for (Element author : authors)
+				authorList.add(new Person(author.getText()));
+			proceeding.setAuthors(authorList);
+			proceeding.setNote(rootNode.getChildText("note"));
+			if (db != null) {
+				proceeding.setSeries(db.getSeriesByName(rootNode.getChildText("series")));
+				proceeding.setPublisher(db.getPublisherByName(rootNode.getChildText("publisher")));
+			} else
+				System.out.println("Proceeding with id: " + rootNode.getAttributeValue("key")
+						+ " has not been fully initialized because of a missing context");
+			proceeding.setConferenceEdition(new ConferenceEdition(rootNode.getChildText("year"),
+					new Conference(rootNode.getChildText("booktitle")), Integer.parseInt(rootNode.getChildText("year")),
+					proceeding)); // The
+									// conference
+									// edition
+									// is
+									// given
+									// by
+									// the
+									// year
+									// tag
+			proceeding.setIsbn(rootNode.getChildText("isbn"));
+			return proceeding;
+		} catch (JDOMException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return null;
+		}
+	}
 }
