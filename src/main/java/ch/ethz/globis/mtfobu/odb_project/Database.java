@@ -190,6 +190,7 @@ public class Database{
 			List<Person> authorList = new ArrayList<>();
 			for (Element author : authors)
 				authorList.add(new Person(author.getText()));
+			
 			inProc.setAuthors(authorList);
 			inProc.setNote(rootNode.getChildText("note"));
 			inProc.setPages(rootNode.getChildText("pages"));

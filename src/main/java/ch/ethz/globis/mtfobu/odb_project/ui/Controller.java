@@ -57,7 +57,7 @@ public class Controller {
     	FilteredList<InProceedings> filteredData = setTable(masterData,inProceedingMainTable);
     	
     	//search field
-    	searchSetupInproceedings(filteredData);  	
+    	searchSetupInproceedings(filteredData);  
 	}
 
 	private void searchSetupInproceedings(FilteredList<InProceedings> filteredData) {
