@@ -69,31 +69,30 @@ public class Database {
 	final String defaultPassword = "admin";
 	final String rootDocumentName = "dblp_filtered.xml";
 
-	
-	
-	private static class Singleton{
+	private static class Singleton {
 		private static final Database instance = new Database(Config.DATABASE_NAME);
 	}
+
 	/**
-	 * Used to retrieve the database instance.
-	 * DO NOT try to instantiate the Database class manually!
-	 * @return  The Database instance
+	 * Used to retrieve the database instance. DO NOT try to instantiate the
+	 * Database class manually!
+	 * 
+	 * @return The Database instance
 	 */
 	public static Database getDatabase() {
 		return Singleton.instance;
 	}
-	
-	
-	private Database(String dbName)  {
+
+	private Database(String dbName) {
 
 		this.dbName = dbName;
-		
+
 		this.session = createSession();
-		
-		if(this.session != null){
-			if(!openDB()){
-				//db doesnt exist. Create a new one!
-				if(create()){
+
+		if (this.session != null) {
+			if (!openDB()) {
+				// db doesnt exist. Create a new one!
+				if (create()) {
 					openDB();
 				}
 			}
@@ -101,9 +100,8 @@ public class Database {
 
 	}
 
-
 	private boolean openDB() {
-		//try to open DB
+		// try to open DB
 		try {
 			session.execute(new Open(dbName));
 			return true;
@@ -112,18 +110,17 @@ public class Database {
 			return false;
 		}
 
-
 	}
-
 
 	/**
 	 * Creates a connection to database
+	 * 
 	 * @return ClientSession
 	 */
 	private ClientSession createSession() {
-		//try to connect
+		// try to connect
 		try {
-			return new ClientSession(defaultHost, defaultPort, defaultUsername, defaultPassword);	
+			return new ClientSession(defaultHost, defaultPort, defaultUsername, defaultPassword);
 		} catch (IOException e1) {
 			System.err.println("Could not connect to Server!");
 			return null;
@@ -131,50 +128,50 @@ public class Database {
 	}
 
 	/**
-	 * This will drop the database if already exists
-	 * Will create DB and import xml. Note:(XmlImport Not Needed)!
+	 * This will drop the database if already exists Will create DB and import
+	 * xml. Note:(XmlImport Not Needed)!
 	 */
 	public boolean create() {
-		
+
 		try {
-			//drop if exists
+			// drop if exists
 			session.execute(new DropDB(dbName));
 		} catch (IOException e1) {
-			//Nothing to delete!
+			// Nothing to delete!
 		}
-		
+
 		try {
-			session.execute(new CreateDB(dbName, 
-					String.format("%s/src/main/resources/dblp_filtered.xml", 
-							System.getProperty("user.dir"))));
+			session.execute(new CreateDB(dbName,
+					String.format("%s/src/main/resources/dblp_filtered.xml", System.getProperty("user.dir"))));
 			return true;
 		} catch (IOException e) {
 			System.err.printf("Could not create database: %s! Check XML path!\n", dbName);
 			e.printStackTrace();
 			return false;
 		}
-		
+
 	}
 
 	/**
 	 * @return A list of all InProceedings
 	 */
-	public List<InProceedings> getInProceedings(){
+	public List<InProceedings> getInProceedings() {
 		ArrayList<InProceedings> inProcs = new ArrayList<>();
 		String queryString = "for $inProc in //inproceedings return data($inProc/@key)";
 		ClientQuery query;
 		try {
 			query = session.query(queryString);
-			while(query.more()) {
-		          inProcs.add(getInProceedingsById(query.next()));
-		    }
-			
+			while (query.more()) {
+				inProcs.add(getInProceedingsById(query.next()));
+			}
+
 		} catch (IOException e) {
 			System.err.println("Could not query for inProceedings in getInProceedings()");
 		}
-		
+
 		return inProcs;
 	}
+
 	// George: get inProceedings by id
 	public InProceedings getInProceedingsById(String id) {
 		InProceedings inProc = new InProceedings(id);
@@ -207,7 +204,7 @@ public class Database {
 					e.printStackTrace();
 					return null;
 				}
-				//System.out.println(queryResult);
+				// System.out.println(queryResult);
 			}
 
 		} catch (IOException e) {
@@ -218,10 +215,9 @@ public class Database {
 
 		return inProc;
 	}
-	
-	public Proceedings getProceedingById(String id){
-		String proceedingByIDQuery = "for $proc in root/proceedings where $proc/@key=\"" + id
-				+ "\" return $proc";
+
+	public Proceedings getProceedingById(String id) {
+		String proceedingByIDQuery = "for $proc in root/proceedings where $proc/@key=\"" + id + "\" return $proc";
 		ClientQuery query;
 		try {
 			query = session.query(proceedingByIDQuery);
@@ -327,65 +323,73 @@ public class Database {
 				+ " let $index := index-of(($pub/author | $pub/editor), $author)" + " let $coAuthor := if ($index > 0)"
 				+ " then remove(($pub/author | $pub/editor), $index) else ()" + " return $coAuthor)";
 		ClientQuery query;
-		try{
+		try {
 			query = session.query(CoAuthorsGivenAuthor);
-			while (query.more()){
+			while (query.more()) {
 				String coAutherName = query.next();
-				//this uses the characteristic of the above query to only return the names
+				// this uses the characteristic of the above query to only
+				// return the names
 				coAuthors.add(getPersonByName(coAutherName));
 				System.out.println("Found co-auther: " + coAutherName);
 			}
-		} catch(IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return coAuthors;
 	}
+
 	// Helper function task 4
-	public Person getPersonByName(String name){
-		//TODO: There is a little bit more to be done here
+	public Person getPersonByName(String name) {
+		// TODO: There is a little bit more to be done here
 		return new Person(name);
 	}
-	
+
 	// TASK 5:
-	//Query to use: TODO: There is a bug at line 369
-//	declare function local:buildOrigin($authorName as xs:string){
-//		<author><name>{string($authorName)}</name><dist>{number(0)}</dist></author>
-//	};
-//	declare function local:getCoAuthors($author as xs:string, $dist as xs:integer, $rootNode as element()){
-//		for $coauthor in distinct-values(
-//			for $pub in $rootNode/proceedings | $rootNode/inproceedings
-//			let $index := index-of(($pub/author | $pub/editor), $author)
-//			let $coAuthor := if ($index > 0)
-//			then remove(($pub/author | $pub/editor), $index)
-//			else ()
-//			return $coAuthor)
-//		return <author><name>{string($coauthor)}</name><dist>{number($dist)}</dist></author>
-//	};
-//	declare function local:updateWorkingSet($workingSet, $updateSet){
-//		for $authorOld in $workingSet, $authorNew in $updateSet
-//		let $author := ( if($authorOld/name=$authorNew/name)
-//			then (if ($authorOld/dist<=$authorNew/dist)
-//				then $authorOld
-//				else $authorNew)
-//			else $authorOld)
-//		return $author
-//	};
-//	declare function local:getAuthorDist($doneSet, $workingSet, $authorName as xs:string, $rootNode as element())
-//	{
-//		for $author in $workingSet
-//		where $author/dist=min($workingSet/dist)
-//			let $newDoneSet := ($doneSet | $author)
-//			let $newWorkingSet := local:updateWorkingSet($workingSet,local:getCoAuthors($author, $author/dist,$rootNode))
-//			let $dist := (if($author/name=$authorName)
-//				then $author/dist
-//				else local:getAuthorDist($newDoneSet, $newWorkingSet, $authorName, $rootNode))
-//			return $dist
-//			
-//	};
-//	let $author := local:buildOrigin("Peter Buneman")
-//	return local:getAuthorDist($author,local:getCoAuthors($author/name,1, root), "Fred Brown", root )
-	
-	
+	// Query to use: TODO: There is a bug at line 369
+	// declare function local:buildOrigin($authorName as xs:string){
+	// <author><name>{string($authorName)}</name><dist>{number(0)}</dist></author>
+	// };
+	// declare function local:getCoAuthors($author as xs:string, $dist as
+	// xs:integer, $rootNode as element()){
+	// for $coauthor in distinct-values(
+	// for $pub in $rootNode/proceedings | $rootNode/inproceedings
+	// let $index := index-of(($pub/author | $pub/editor), $author)
+	// let $coAuthor := if ($index > 0)
+	// then remove(($pub/author | $pub/editor), $index)
+	// else ()
+	// return $coAuthor)
+	// return
+	// <author><name>{string($coauthor)}</name><dist>{number($dist)}</dist></author>
+	// };
+	// declare function local:updateWorkingSet($workingSet, $updateSet){
+	// for $authorOld in $workingSet, $authorNew in $updateSet
+	// let $author := ( if($authorOld/name=$authorNew/name)
+	// then (if ($authorOld/dist<=$authorNew/dist)
+	// then $authorOld
+	// else $authorNew)
+	// else $authorOld)
+	// return $author
+	// };
+	// declare function local:getAuthorDist($doneSet, $workingSet, $authorName
+	// as xs:string, $rootNode as element())
+	// {
+	// for $author in $workingSet
+	// where $author/dist=min($workingSet/dist)
+	// let $newDoneSet := ($doneSet | $author)
+	// let $newWorkingSet :=
+	// local:updateWorkingSet($workingSet,local:getCoAuthors($author,
+	// $author/dist,$rootNode))
+	// let $dist := (if($author/name=$authorName)
+	// then $author/dist
+	// else local:getAuthorDist($newDoneSet, $newWorkingSet, $authorName,
+	// $rootNode))
+	// return $dist
+	//
+	// };
+	// let $author := local:buildOrigin("Peter Buneman")
+	// return local:getAuthorDist($author,local:getCoAuthors($author/name,1,
+	// root), "Fred Brown", root )
+
 	// Seba: get person by id
 	// id is expected to be the name of the person
 	public Person getPersonById(String id) {
@@ -395,40 +399,69 @@ public class Database {
 		per.setEditedPublications(getEditedPublications(per.getName()));
 		return per;
 	}
-	
+
 	public Set<Publication> getAuthoredPublications(String personName) {
 		Set<Publication> authoredPubs = new HashSet<>();
 		String AuthoredInProceedings = "let $PersonName := \"" + personName
 				+ "\" for $inproc in root/inproceedings where index-of(($inproc/author), $PersonName)!=0 return $inproc";
 		ClientQuery query;
-		try{
+		try {
 			query = session.query(AuthoredInProceedings);
-			while(query.more()){
+			while (query.more()) {
 				String authoredInProceeding = query.next();
 				authoredPubs.add(XmlToObject.XmlToInProceeding(authoredInProceeding, this));
 			}
-		}catch(IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return authoredPubs;
 	}
+
 	public Set<Publication> getEditedPublications(String personName) {
 		Set<Publication> authoredPubs = new HashSet<>();
 		String editedProceedings = "let $PersonName := \"" + personName
 				+ "\" for $proc in root/proceedings where index-of(($proc/editor), $PersonName)!=0 return $proc";
 		ClientQuery query;
-		try{
+		try {
 			query = session.query(editedProceedings);
-			while(query.more()){
+			while (query.more()) {
 				String editedProceeding = query.next();
 				authoredPubs.add(XmlToObject.XmlToProceeding(editedProceeding, this));
 			}
-		}catch(IOException e){
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return authoredPubs;
+	}
+
+	public Conference getConferenceByName(String confName) {
+		Conference conf = new Conference(confName);
+		conf.setId(confName);
+		conf.setEditions(getConfEditionsForConf(conf));
+		return conf;
+	}
+
+	public Set<ConferenceEdition> getConfEditionsForConf(Conference conference) {
+		Set<ConferenceEdition> confEdits = new HashSet<>();
+		String confEditionsGivenConfQuery = "let $confName := \"" + conference.getName()
+				+ "\" for $proc in root/proceedings where $proc/booktitle=$confName" 
+				+ " return <ConfEdit>{$proc/year,$proc}</ConfEdit>";
+		ClientQuery query;
+		
+		try {
+			query = session.query(confEditionsGivenConfQuery);
+			while(query.more()){
+				String confedit = query.next();
+				confEdits.add(XmlToObject.XmlToConferenceEdition(confedit, conference, this));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		return authoredPubs;
+		return confEdits;
 	}
 
 	// public String getPersonIdFromName(String name) {
