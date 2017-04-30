@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 
+import ch.ethz.globis.mtfobu.odb_project.zoodb.Conference;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -30,11 +31,19 @@ public class Main extends Application {
 //		for (Publication pub:pubs){
 //			System.out.println(pub.getTitle());
 //		}
-		System.out.println("test");
-		Publisher pub = db.getPublisherByName("Springer");
-		System.out.println(pub.getName());
-		List<Person> people = db.getPeople();
-		for(Person per: people){
+//		System.out.println("test");
+//		Publisher pub = db.getPublisherByName("Springer");
+//		System.out.println(pub.getName());
+//		List<Person> people = db.getPeople();
+//		for(Person per: people){
+//			System.out.println(per.getName());
+//		}
+		List<ch.ethz.globis.mtfobu.odb_project.Conference> confs = db.getConferences();
+		for(ch.ethz.globis.mtfobu.odb_project.Conference per: confs){
+			System.out.println(per.getName());
+		}
+		List<Publisher> confs2 = db.getPublishers();
+		for(Publisher per: confs2){
 			System.out.println(per.getName());
 		}
 //		List<Person> coAuthors = db.getCoAuthors("Peter Buneman");

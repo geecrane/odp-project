@@ -460,18 +460,19 @@ public class Database {
 		return authoredPubs;
 	}
 
-	public Conference getConferenceByName(String confName) {
+	public Conference getConferenceByName(String confName, boolean lazy) {
 		Conference conf = new Conference(confName);
 		conf.setId(confName);
-		conf.setEditions(getConfEditionsForConf(conf));
+		if(lazy==false) conf.setEditions(getConfEditionsForConf(conf));
 		return conf;
 	}
 
 	public Set<ConferenceEdition> getConfEditionsForConf(Conference conference) {
+		assert(conference.getName() != null);
 		Set<ConferenceEdition> confEdits = new HashSet<>();
-		String confEditionsGivenConfQuery = "let $confName := \"" + conference.getName()
-				+ "\" for $proc in root/proceedings where $proc/booktitle=$confName"
-				+ " return <ConfEdit>{$proc/year,$proc}</ConfEdit>";
+		//TODO: Conference with name: <<Informatik und "Dritte Welt">> will cause an error in the query. I counldn't find out how to escape it properly
+		String confEditionsGivenConfQuery = String.format("let $confName := \"%s\" for $proc in root/proceedings where $proc/booktitle=$confName"
+		+ " return <ConfEdit>{$proc/year,$proc}</ConfEdit>", conference.getName().replace("\"", "&quot"));
 		ClientQuery query;
 
 		try {
@@ -481,6 +482,7 @@ public class Database {
 				confEdits.add(XmlToObject.XmlToConferenceEdition(confedit, conference, this));
 			}
 		} catch (IOException e) {
+			System.out.println(confEditionsGivenConfQuery);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -1668,7 +1670,7 @@ public class Database {
 		try {
 			query = session.query(allConferencesQuery);
 			while (query.more()) {
-				confs.add(getConferenceByName(query.next()));
+				confs.add(getConferenceByName(query.next(), true));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
