@@ -247,6 +247,22 @@ public class Database{
 			return null;
 		}
 	}
+	
+	public List<Person> getPeople(){
+		List<Person> people = new ArrayList<>();
+		String allPeopleQuery = "distinct-values(//proceedings/editor/text() | //inproceedings/author/text())";
+		ClientQuery query;
+		try {
+			query = session.query(allPeopleQuery);
+			while(query.more()){
+				people.add(getPersonByName(query.next()));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return people;
+	}
 
 	// TASK 1:
 	// Seba: get publication given the id. The result is either a proceeding or
@@ -364,8 +380,8 @@ public class Database{
 
 	// Helper function task 4
 	public Person getPersonByName(String name) {
-		// TODO: There is a little bit more to be done here
-		return new Person(name);
+		// TODO: Verify this assumption
+		return getPersonById(name);
 	}
 
 	// TASK 5:
