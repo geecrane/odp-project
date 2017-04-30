@@ -213,7 +213,7 @@ public class Database{
 				System.out.println(queryResult);
 				// The result is in XML format therefore JDOM is used in order
 				// to parse it
-				return XmlToObject.XmlToProceeding(queryResult, this);
+				return XmlToObject.XmlToProceeding(queryResult, null, this, false);
 
 			} else {
 				System.out.println("A proceeding with id: " + id + " could not be found");
@@ -243,7 +243,7 @@ public class Database{
 				System.out.println(queryResult);
 				// The result is in XML format therefore JDOM is used in order
 				// to parse it
-				return XmlToObject.XmlToPublication(queryResult, this);
+				return XmlToObject.XmlToPublication(queryResult, null, this, false);
 
 			} else {
 				System.out.println("A publication with id: " + id + " could not be found");
@@ -264,6 +264,11 @@ public class Database{
 	}
 
 	// Helper function task 1
+	/**
+	 * 
+	 * @param name Publisher name
+	 * @return a partially initialized publisher Object.
+	 */
 	public Publisher getPublisherByName(String name) {
 		Publisher pub = new Publisher(name);
 		Set<Publication> pubs = new HashSet<>();
@@ -276,7 +281,7 @@ public class Database{
 			query = session.query(getPublicationsFromPublisher);
 			while (query.more()) {
 				String publication = query.next();
-				pubs.add(XmlToObject.XmlToPublication(publication, this));
+				pubs.add(XmlToObject.XmlToPublication(publication, pub, this, true));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -308,7 +313,7 @@ public class Database{
 			while (query.more()) {
 				String queryResult = query.next();
 				System.out.println(queryResult);
-				pubs.add(XmlToObject.XmlToPublication(queryResult, this));
+				pubs.add(XmlToObject.XmlToPublication(queryResult, null, this, false));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -415,12 +420,12 @@ public class Database{
 	public Person getPersonById(String id) {
 		Person per = new Person(id);
 		per.setId(id);
-		per.setAuthoredPublications(getAuthoredPublications(per.getName()));
-		per.setEditedPublications(getEditedPublications(per.getName()));
+		//per.setAuthoredPublications(getAuthoredPublications(per.getName(), true));
+		//per.setEditedPublications(getEditedPublications(per.getName(), true));
 		return per;
 	}
 
-	public Set<Publication> getAuthoredPublications(String personName) {
+	public Set<Publication> getAuthoredPublications(String personName, boolean lazy) {
 		Set<Publication> authoredPubs = new HashSet<>();
 		String AuthoredInProceedings = "let $PersonName := \"" + personName
 				+ "\" for $inproc in root/inproceedings where index-of(($inproc/author), $PersonName)!=0 return $inproc";
@@ -429,7 +434,7 @@ public class Database{
 			query = session.query(AuthoredInProceedings);
 			while (query.more()) {
 				String authoredInProceeding = query.next();
-				authoredPubs.add(XmlToObject.XmlToInProceeding(authoredInProceeding, this));
+				authoredPubs.add(XmlToObject.XmlToInProceeding(authoredInProceeding, this, lazy));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -438,7 +443,7 @@ public class Database{
 		return authoredPubs;
 	}
 
-	public Set<Publication> getEditedPublications(String personName) {
+	public Set<Publication> getEditedPublications(String personName, boolean lazy) {
 		Set<Publication> authoredPubs = new HashSet<>();
 		String editedProceedings = "let $PersonName := \"" + personName
 				+ "\" for $proc in root/proceedings where index-of(($proc/editor), $PersonName)!=0 return $proc";
@@ -447,7 +452,7 @@ public class Database{
 			query = session.query(editedProceedings);
 			while (query.more()) {
 				String editedProceeding = query.next();
-				authoredPubs.add(XmlToObject.XmlToProceeding(editedProceeding, this));
+				authoredPubs.add(XmlToObject.XmlToProceeding(editedProceeding, null, this, lazy));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1610,7 +1615,7 @@ public class Database{
 			while (query.more()) {
 				String queryResult = query.next();
 				System.out.println(queryResult);
-				pubs.add(XmlToObject.XmlToPublication(queryResult, this));
+				pubs.add(XmlToObject.XmlToPublication(queryResult, null, this, true));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

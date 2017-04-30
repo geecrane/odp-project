@@ -19,7 +19,7 @@ public class Main extends Application {
 
 	public static void main(String[] args) throws IOException {
 
-		//Database db = new Database(Config.DATABASE_NAME);
+		Database db = Database.getDatabase();
 		// comment out the line below, if you don't want to import the xml every
 		// time.
 		 //tempXMLImport(db);
@@ -30,7 +30,13 @@ public class Main extends Application {
 //		for (Publication pub:pubs){
 //			System.out.println(pub.getTitle());
 //		}
-	
+		System.out.println("test");
+		Publisher pub = db.getPublisherByName("Springer");
+		System.out.println(pub.getName());
+		List<Person> people = db.getPeople();
+		for(Person per: people){
+			System.out.println(per.getName());
+		}
 //		List<Person> coAuthors = db.getCoAuthors("Peter Buneman");
 //		for (Person coAuthor: coAuthors){
 //			System.out.println(coAuthor.getName());
@@ -67,7 +73,7 @@ public class Main extends Application {
 //		System.out.println(db.authorDistance("1785178126", "1107451538"));
 //		// uncomment line below to enable the GUI
 //
- launch(args);
+// launch(args);
 //		System.out.println("PROGRAMM TERMINATED");
 
 	}
