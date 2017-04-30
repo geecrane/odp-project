@@ -19,7 +19,6 @@ import org.basex.BaseXServer;
 import org.basex.api.client.ClientQuery;
 import org.basex.api.client.ClientSession;
 import org.basex.core.cmd.CreateDB;
-import org.basex.core.cmd.DropDB;
 import org.basex.core.cmd.Open;
 import org.bson.BSON;
 import org.bson.conversions.Bson;
@@ -58,123 +57,65 @@ import ch.ethz.globis.mtfobu.odb_project.BaseXClient.Query;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.*;
 
-//George: Instatiate db  only once!
-//Otherwise, creates a new server every time!
 public class Database {
 	private final String dbName;
-	private ClientSession session = null;
+	// private final BaseXClient bsxSession;
+	private ClientSession session;
 	final String defaultHost = "localhost";
 	final int defaultPort = 1984;
 	final String defaultUsername = "admin";
 	final String defaultPassword = "admin";
 	final String rootDocumentName = "dblp_filtered.xml";
 
-	
-	
-	private static class Singleton{
-		private static final Database instance = new Database(Config.DATABASE_NAME);
-	}
-	/**
-	 * Used to retrieve the database instance.
-	 * DO NOT try to instantiate the Database class manually!
-	 * @return  The Database instance
-	 */
-	public static Database getDatabase() {
-		return Singleton.instance;
-	}
-	
-	
-	private Database(String dbName)  {
-
+	// Seba: This connects to the BaseX database. Since the GUI allows us to
+	// already include the XML file it is assumed that the database is already
+	// created and the document imported.
+	// TODO:Optionally we could create a new database and include the XML, but
+	// this is not a top priority
+	public Database(String dbName) {
 		this.dbName = dbName;
-		
-		this.session = createSession();
-		
-		if(this.session != null){
-			if(!openDB()){
-				//db doesnt exist. Create a new one!
-				if(create()){
-					openDB();
-				}
+		try {
+			BaseXServer server = new BaseXServer();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		// this.bsxSession = new BaseXClient(defaultHost, defaultPort,
+		// defaultUsername, defaultPassword);
+		try {
+			session = new ClientSession(defaultHost, defaultPort, defaultUsername, defaultPassword);
+			try {
+				session.execute(new Open(dbName));
+			} catch (IOException e) {
+				session.execute(new CreateDB(dbName, "src/main/resources/dblp_filtered.xml"));
 			}
-		}
-
-	}
-
-
-	private boolean openDB() {
-		//try to open DB
-		try {
-			session.execute(new Open(dbName));
-			return true;
-		} catch (IOException e) {
-			System.err.printf("DB: %s Not found!\n", dbName);
-			return false;
-		}
-
-
-	}
-
-
-	/**
-	 * Creates a connection to database
-	 * @return ClientSession
-	 */
-	private ClientSession createSession() {
-		//try to connect
-		try {
-			return new ClientSession(defaultHost, defaultPort, defaultUsername, defaultPassword);	
 		} catch (IOException e1) {
-			System.err.println("Could not connect to Server!");
-			return null;
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
+
+		// Test if database exists and create it otherwise. This is close to the
+		// command: "CHECK" except that in case of a missing database the xml
+		// file gets imported.
+
+		// This was an alternative attempt using the list command to find out if
+		// the DB exists.
+		// String result;
+		// result = session.execute(new org.basex.core.cmd.List());
+
 	}
 
-	/**
-	 * This will drop the database if already exists
-	 * Will create DB and import xml. Note:(XmlImport Not Needed)!
-	 */
-	public boolean create() {
-		
+	// George: This will drop the database if already exists,
+	// and create a new one automatically when documents are inserted
+	public void create() {
 		try {
-			//drop if exists
-			session.execute(new DropDB(dbName));
-		} catch (IOException e1) {
-			//Nothing to delete!
-		}
-		
-		try {
-			session.execute(new CreateDB(dbName, 
-					String.format("%s/src/main/resources/dblp_filtered.xml", 
-							System.getProperty("user.dir"))));
-			return true;
+			session.execute(new CreateDB(dbName, "src/main/resources/dblp_filtered.xml"));
 		} catch (IOException e) {
-			System.err.printf("Could not create database: %s! Check XML path!\n", dbName);
+			System.out.println("Error while creating a database called: " + dbName);
 			e.printStackTrace();
-			return false;
 		}
-		
 	}
 
-	/**
-	 * @return A list of all InProceedings
-	 */
-	public List<InProceedings> getInProceedings(){
-		ArrayList<InProceedings> inProcs = new ArrayList<>();
-		String queryString = "for $inProc in //inproceedings return data($inProc/@key)";
-		ClientQuery query;
-		try {
-			query = session.query(queryString);
-			while(query.more()) {
-		          inProcs.add(getInProceedingsById(query.next()));
-		    }
-			
-		} catch (IOException e) {
-			System.err.println("Could not query for inProceedings in getInProceedings()");
-		}
-		
-		return inProcs;
-	}
 	// George: get inProceedings by id
 	public InProceedings getInProceedingsById(String id) {
 		InProceedings inProc = new InProceedings(id);
@@ -207,7 +148,7 @@ public class Database {
 					e.printStackTrace();
 					return null;
 				}
-				//System.out.println(queryResult);
+				System.out.println(queryResult);
 			}
 
 		} catch (IOException e) {

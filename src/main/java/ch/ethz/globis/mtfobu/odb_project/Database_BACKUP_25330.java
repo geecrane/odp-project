@@ -68,7 +68,15 @@ public class Database {
 	final String defaultUsername = "admin";
 	final String defaultPassword = "admin";
 	final String rootDocumentName = "dblp_filtered.xml";
+<<<<<<< HEAD
 
+	// Seba: This connects to the BaseX database. Since the GUI allows us to
+	// already include the XML file it is assumed that the database is already
+	// created and the document imported.
+	// TODO:Optionally we could create a new database and include the XML, but
+	// this is not a top priority
+	public Database(String dbName) {
+=======
 	
 	
 	private static class Singleton{
@@ -85,7 +93,7 @@ public class Database {
 	
 	
 	private Database(String dbName)  {
-
+>>>>>>> bfec0f1c1065f1fe72714d420dbc9a4351237ee9
 		this.dbName = dbName;
 		
 		this.session = createSession();
@@ -112,8 +120,13 @@ public class Database {
 			return false;
 		}
 
-
+<<<<<<< HEAD
+		// Test if database exists and create it otherwise. This is close to the
+		// command: "CHECK" except that in case of a missing database the xml
+		// file gets imported.
+=======
 	}
+>>>>>>> bfec0f1c1065f1fe72714d420dbc9a4351237ee9
 
 
 	/**
