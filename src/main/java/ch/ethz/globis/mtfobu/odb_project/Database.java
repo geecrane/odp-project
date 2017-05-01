@@ -61,7 +61,7 @@ import static com.mongodb.client.model.Sorts.*;
 
 //George: Instatiate db  only once!
 //Otherwise, creates a new server every time!
-public class Database{
+public class Database {
 	private final String dbName;
 	private ClientSession session = null;
 	final String defaultHost = "localhost";
@@ -153,10 +153,9 @@ public class Database{
 
 	}
 
-
-	// George: get inProceedings by id 
+	// George: get inProceedings by id
 	public InProceedings getInProceedingsById(String id) {
-		
+
 		String InProcByIDQuery = String.format("//inproceedings[@key='%s']", id);
 		try {
 			ClientQuery query = session.query(InProcByIDQuery);
@@ -166,18 +165,16 @@ public class Database{
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace(); 
+			e.printStackTrace();
 		}
 
 		return null;
 	}
 
-
-	private InProceedings getInProceedingsObject(String queryResult)
-			throws UnsupportedEncodingException, IOException {
+	private InProceedings getInProceedingsObject(String queryResult) throws UnsupportedEncodingException, IOException {
 		// The result is in XML format therefore JDOM is used in order
 		// to parse it
-		
+
 		SAXBuilder builder = new SAXBuilder();
 		InputStream stream = new ByteArrayInputStream(queryResult.getBytes("UTF-8"));
 		try {
@@ -190,7 +187,7 @@ public class Database{
 			List<Person> authorList = new ArrayList<>();
 			for (Element author : authors)
 				authorList.add(new Person(author.getText()));
-			
+
 			inProc.setAuthors(authorList);
 			inProc.setNote(rootNode.getChildText("note"));
 			inProc.setPages(rootNode.getChildText("pages"));
@@ -213,7 +210,7 @@ public class Database{
 				System.out.println(queryResult);
 				// The result is in XML format therefore JDOM is used in order
 				// to parse it
-				return XmlToObject.XmlToProceeding(queryResult, this);
+				return XmlToObject.XmlToProceeding(queryResult, null, this, false);
 
 			} else {
 				System.out.println("A proceeding with id: " + id + " could not be found");
@@ -243,7 +240,7 @@ public class Database{
 				System.out.println(queryResult);
 				// The result is in XML format therefore JDOM is used in order
 				// to parse it
-				return XmlToObject.XmlToPublication(queryResult, this);
+				return XmlToObject.XmlToPublication(queryResult, null, this, false);
 
 			} else {
 				System.out.println("A publication with id: " + id + " could not be found");
@@ -264,6 +261,12 @@ public class Database{
 	}
 
 	// Helper function task 1
+	/**
+	 * 
+	 * @param name
+	 *            Publisher name
+	 * @return a partially initialized publisher Object.
+	 */
 	public Publisher getPublisherByName(String name) {
 		Publisher pub = new Publisher(name);
 		Set<Publication> pubs = new HashSet<>();
@@ -276,7 +279,7 @@ public class Database{
 			query = session.query(getPublicationsFromPublisher);
 			while (query.more()) {
 				String publication = query.next();
-				pubs.add(XmlToObject.XmlToPublication(publication, this));
+				pubs.add(XmlToObject.XmlToPublication(publication, pub, this, true));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -308,7 +311,7 @@ public class Database{
 			while (query.more()) {
 				String queryResult = query.next();
 				System.out.println(queryResult);
-				pubs.add(XmlToObject.XmlToPublication(queryResult, this));
+				pubs.add(XmlToObject.XmlToPublication(queryResult, null, this, false));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -332,7 +335,7 @@ public class Database{
 				String coAutherName = query.next();
 				// this uses the characteristic of the above query to only
 				// return the names
-				coAuthors.add(getPersonByName(coAutherName));
+				coAuthors.add(getPersonByName(coAutherName, true));
 				System.out.println("Found co-auther: " + coAutherName);
 			}
 		} catch (IOException e) {
@@ -342,9 +345,9 @@ public class Database{
 	}
 
 	// Helper function task 4
-	public Person getPersonByName(String name) {
+	public Person getPersonByName(String name, boolean lazy) {
 		// TODO: Verify this assumption
-		return getPersonById(name);
+		return getPersonById(name,lazy);
 	}
 
 	// TASK 5:
@@ -393,34 +396,35 @@ public class Database{
 	// return local:getAuthorDist($author,local:getCoAuthors($author/name,1,
 	// root), "Fred Brown", root )
 
-
-	
 	// TASK 6:
-	public double getAvgAuthorsInProceedings(){
+	public double getAvgAuthorsInProceedings() {
 		String avgAuthorsInProceedingsQuery = "avg(for $inProc in //inproceedings return count($inProc/author))";
 		ClientQuery query;
 		try {
 			query = session.query(avgAuthorsInProceedingsQuery);
-			assert(query.more());
+			assert (query.more());
 			return Double.parseDouble(query.next());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return Double.NaN;
-		
+
 	}
+
 	// Seba: get person by id
 	// id is expected to be the name of the person
-	public Person getPersonById(String id) {
+	public Person getPersonById(String id, boolean lazy) {
 		Person per = new Person(id);
 		per.setId(id);
-		per.setAuthoredPublications(getAuthoredPublications(per.getName()));
-		per.setEditedPublications(getEditedPublications(per.getName()));
+		if (lazy == false) {
+			per.setAuthoredPublications(getAuthoredPublications(per.getName(), true));
+			per.setEditedPublications(getEditedPublications(per.getName(), true));
+		}
 		return per;
 	}
 
-	public Set<Publication> getAuthoredPublications(String personName) {
+	public Set<Publication> getAuthoredPublications(String personName, boolean lazy) {
 		Set<Publication> authoredPubs = new HashSet<>();
 		String AuthoredInProceedings = "let $PersonName := \"" + personName
 				+ "\" for $inproc in root/inproceedings where index-of(($inproc/author), $PersonName)!=0 return $inproc";
@@ -429,7 +433,7 @@ public class Database{
 			query = session.query(AuthoredInProceedings);
 			while (query.more()) {
 				String authoredInProceeding = query.next();
-				authoredPubs.add(XmlToObject.XmlToInProceeding(authoredInProceeding, this));
+				authoredPubs.add(XmlToObject.XmlToInProceeding(authoredInProceeding, this, lazy));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -438,7 +442,7 @@ public class Database{
 		return authoredPubs;
 	}
 
-	public Set<Publication> getEditedPublications(String personName) {
+	public Set<Publication> getEditedPublications(String personName, boolean lazy) {
 		Set<Publication> authoredPubs = new HashSet<>();
 		String editedProceedings = "let $PersonName := \"" + personName
 				+ "\" for $proc in root/proceedings where index-of(($proc/editor), $PersonName)!=0 return $proc";
@@ -447,7 +451,7 @@ public class Database{
 			query = session.query(editedProceedings);
 			while (query.more()) {
 				String editedProceeding = query.next();
-				authoredPubs.add(XmlToObject.XmlToProceeding(editedProceeding, this));
+				authoredPubs.add(XmlToObject.XmlToProceeding(editedProceeding, null, this, lazy));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -456,18 +460,19 @@ public class Database{
 		return authoredPubs;
 	}
 
-	public Conference getConferenceByName(String confName) {
+	public Conference getConferenceByName(String confName, boolean lazy) {
 		Conference conf = new Conference(confName);
 		conf.setId(confName);
-		conf.setEditions(getConfEditionsForConf(conf));
+		if(lazy==false) conf.setEditions(getConfEditionsForConf(conf));
 		return conf;
 	}
 
 	public Set<ConferenceEdition> getConfEditionsForConf(Conference conference) {
+		assert(conference.getName() != null);
 		Set<ConferenceEdition> confEdits = new HashSet<>();
-		String confEditionsGivenConfQuery = "let $confName := \"" + conference.getName()
-				+ "\" for $proc in root/proceedings where $proc/booktitle=$confName"
-				+ " return <ConfEdit>{$proc/year,$proc}</ConfEdit>";
+		//TODO: Conference with name: <<Informatik und "Dritte Welt">> will cause an error in the query. I counldn't find out how to escape it properly
+		String confEditionsGivenConfQuery = String.format("let $confName := \"%s\" for $proc in root/proceedings where $proc/booktitle=$confName"
+		+ " return <ConfEdit>{$proc/year,$proc}</ConfEdit>", conference.getName().replace("\"", "&quot"));
 		ClientQuery query;
 
 		try {
@@ -477,6 +482,7 @@ public class Database{
 				confEdits.add(XmlToObject.XmlToConferenceEdition(confedit, conference, this));
 			}
 		} catch (IOException e) {
+			System.out.println(confEditionsGivenConfQuery);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -1581,15 +1587,15 @@ public class Database{
 	// public int id;
 	// public int distanceFromRoot;
 	// }
-	
-	//GUI functions
-	public List<Publisher> getPublishers(){
+
+	// GUI functions
+	public List<Publisher> getPublishers() {
 		List<Publisher> pubs = new ArrayList<>();
 		String allPublishersQuery = "distinct-values(for $pub in //proceedings/publisher/text() | //inproceedings/publisher/text() order by $pub return $pub)";
 		ClientQuery query;
 		try {
 			query = session.query(allPublishersQuery);
-			while(query.more()){
+			while (query.more()) {
 				pubs.add(getPublisherByName(query.next()));
 			}
 		} catch (IOException e) {
@@ -1598,19 +1604,18 @@ public class Database{
 		}
 		return pubs;
 	}
-	
-	public List<Publication> getPublications(){
+
+	public List<Publication> getPublications() {
 		List<Publication> pubs = new ArrayList<>();
 		String publicationsQuery;
-			publicationsQuery = "for $pub in root/proceedings | root/inproceedings"
-					+ "order by $pub/title return $pub";
+		publicationsQuery = "for $pub in root/proceedings | root/inproceedings" + "order by $pub/title return $pub";
 		ClientQuery query;
 		try {
 			query = session.query(publicationsQuery);
 			while (query.more()) {
 				String queryResult = query.next();
 				System.out.println(queryResult);
-				pubs.add(XmlToObject.XmlToPublication(queryResult, this));
+				pubs.add(XmlToObject.XmlToPublication(queryResult, null, this, true));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -1619,38 +1624,37 @@ public class Database{
 
 		return pubs;
 	}
-	
+
 	/**
 	 * @return A list of all InProceedings
 	 */
 	public List<InProceedings> getInProceedings() {
 		ArrayList<InProceedings> inProcs = new ArrayList<>();
-		
+
 		try {
 			ClientQuery query = session.query("//inproceedings");
-			while(query.more()) {
+			while (query.more()) {
 				InProceedings inProc = getInProceedingsObject(query.next());
-				if(inProc != null){
-		          inProcs.add(inProc);
+				if (inProc != null) {
+					inProcs.add(inProc);
 				}
-		    }
-			
+			}
+
 		} catch (IOException e) {
 			System.err.println("Could not query for inProceedings in getInProceedings()");
 		}
 
 		return inProcs;
 	}
-	
-	
-	public List<Person> getPeople(){
+
+	public List<Person> getPeople() {
 		List<Person> people = new ArrayList<>();
 		String allPeopleQuery = "distinct-values(//proceedings/editor/text() | //inproceedings/author/text())";
 		ClientQuery query;
 		try {
 			query = session.query(allPeopleQuery);
-			while(query.more()){
-				people.add(getPersonByName(query.next()));
+			while (query.more()) {
+				people.add(getPersonByName(query.next(), true));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -1658,15 +1662,15 @@ public class Database{
 		}
 		return people;
 	}
-	
-	public List<Conference> getConferences(){
+
+	public List<Conference> getConferences() {
 		List<Conference> confs = new ArrayList<>();
 		String allConferencesQuery = "distinct-values(for $conf in //proceedings/booktitle/text() | //inproceedings/booktitle/text() order by $conf return $conf)";
 		ClientQuery query;
 		try {
 			query = session.query(allConferencesQuery);
-			while(query.more()){
-				confs.add(getConferenceByName(query.next()));
+			while (query.more()) {
+				confs.add(getConferenceByName(query.next(), true));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
