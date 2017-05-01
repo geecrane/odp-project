@@ -24,9 +24,11 @@ import ch.ethz.globis.mtfobu.odb_project.Publication;
 import ch.ethz.globis.mtfobu.odb_project.Publisher;
 import ch.ethz.globis.mtfobu.odb_project.Series;
 import ch.ethz.globis.mtfobu.odb_project.XmlImport;
+import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.ConferenceTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.ProceedingTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.PublicationTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.PublisherTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.SecondaryConferenceEditionTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.SecondaryPersonTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.SecondaryProceedingTableEntry;
 import javafx.beans.property.SimpleStringProperty;
@@ -56,6 +58,7 @@ public class Controller {
     private ObservableList<Proceedings> proceedingsMasterData = FXCollections.observableArrayList();
     private ObservableList<Publication> publicationsMasterData = FXCollections.observableArrayList();
     private ObservableList<Publisher> publishersMasterData = FXCollections.observableArrayList();
+    private ObservableList<Conference> confMasterData = FXCollections.observableArrayList();
     
     public void initialize() {
     	db = Database.getDatabase();
@@ -69,11 +72,13 @@ public class Controller {
 	         public void run()
 	         {
 	        	 initAllColumns();
+	        	 
 	        	 loadPeople();
 	        	 loadProceedings();
 	        	 loadPublications();
 	        	 loadPublishers();
 	        	 loadInProceedings();
+	        	 loadConf();
 	        	 
 	        	 
 
@@ -93,10 +98,119 @@ public class Controller {
 		initializeInproceedingsMainColumns();	
 		initializePublicationsMainColumns();
 		initializePublishersMainColumns();
+		initializeConfMainColumns();
     	
 	}
 
     //general
+	
+	//START Conferences
+		private void loadConf() {
+				//init table data
+				List<Conference> ps = db.getConferences();
+				confMasterData.addAll(ps);
+		    	FilteredList<Conference> filteredData = setTable(confMasterData,conferenceMainTable);
+		    	
+		    	//search field
+		    	searchSetupConf(filteredData); 
+		    	conferenceTab.setDisable(false);
+			}
+		private void searchSetupConf(FilteredList<Conference> filteredData) {
+				
+				// Set the filter Predicate whenever the filter changes.
+				conferenceSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+		            filteredData.setPredicate(inProc -> {
+		                // If filter text is empty, display all
+		                if (newValue == null || newValue.isEmpty()) {
+		                    return true;
+		                }
+
+		                // Compare first name and last name of every person with filter text.
+		                String lowerCaseFilter = newValue.toLowerCase();
+
+		                if (inProc.getName().toLowerCase().contains(lowerCaseFilter)) {
+		                    return true; // Filter matches title.
+		                } else {
+		                	for(ConferenceEdition p : inProc.getEditions()){
+		                		if(String.valueOf(p.getYear()).toLowerCase().contains(lowerCaseFilter))
+		                			return true;
+		                	}
+		                }
+		                return false; // Does not match.
+		            });
+		        });
+			}
+		private void initializeConfMainColumns() {
+				// Initialize InProceedings Columns
+				confMainTableNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
+		    	
+				confMainTableEditionsColumn.setCellValueFactory(cellData -> {
+		    		String editions = "";
+		    		for(ConferenceEdition p : cellData.getValue().getEditions()){
+		    			editions += p.getYear()+", ";
+		    		}
+		    		return new SimpleStringProperty(editions);
+		    				});
+		    	
+		    	//initialize authors column
+		    	confEditionsYearColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getYear())));
+		    	
+			}
+			
+		@FXML
+		public void confMainClickItem(MouseEvent event)
+			{
+			    if (event.getClickCount() > 0) //Checking double click
+			    {
+			    	
+			    	//initialize data
+			    	Conference selected = conferenceMainTable.getSelectionModel().getSelectedItem();
+			    	loadConfEditions(selected);
+			    	
+			    	//editable fields
+			    	conferenceNameField.setText(selected.getName());
+			    	
+			    }
+			}
+
+		private void loadConfEditions(Conference selected) {
+				Set<ConferenceEdition> ce = selected.getEditions();
+				ObservableList<ConferenceEdition> masterData = FXCollections.observableArrayList();
+				masterData.addAll(ce);
+				
+				//load table
+				FilteredList<ConferenceEdition> filteredData = setTable(masterData,conferenceEditionTable);
+			}
+		
+		
+		@FXML
+		private void updateConf(ActionEvent event) {
+			     // Button was clicked, do something...
+				 String srcId = ((Button)event.getSource()).getId();
+				 Conference selected = conferenceMainTable.getSelectionModel().getSelectedItem();
+				 switch (srcId) {
+					 case "conferenceChangeNameButton":
+						selected.setName(conferenceNameField.getText());
+						conferenceMainTable.refresh();
+						break;
+					 case "conferenceDeleteButton":
+						 confMasterData.remove(selected);
+						 conferenceMainTable.refresh();
+						 break;
+					 case "conferenceRemoveEditionButton":
+						 ConferenceEdition p = conferenceEditionTable.getSelectionModel().getSelectedItem();
+						 selected.getEditions().remove(p);
+						 loadConfEditions(selected);
+						 conferenceMainTable.refresh();
+						 break;
+					 default:
+						break;
+				}
+				
+			}
+
+		
+		//END Conferences
 	
 	//START Publishers
 	private void loadPublishers() {
@@ -668,6 +782,28 @@ public class Controller {
     
     // START section for fields that reference FXML
     @FXML TabPane tabPane;
+    
+    //START Conference
+    @FXML    Tab conferenceTab;
+    @FXML    private TableView<Conference> conferenceMainTable;
+    @FXML	private TableColumn<Conference, String> confMainTableEditionsColumn;
+    @FXML	private TableColumn<Conference, String> confMainTableNameColumn;
+    @FXML	private TableColumn<ConferenceEdition, String> confEditionsYearColumn;
+    @FXML    private Button conferenceDeleteButton;
+    @FXML    private TextField conferenceSearchField;
+    @FXML    private Button conferenceSearchButton;
+    @FXML    private Button conferenceCreateButton;
+    @FXML    private Button conferenceNextPageButton;
+    @FXML    private Button conferencePreviousPageButton;
+    @FXML    private TextField conferenceCurrentPageField;
+    @FXML    private TextField conferenceNameField;
+    @FXML    private Button conferenceChangeNameButton;
+    @FXML    private ChoiceBox<?> conferenceEditionDropdown;
+    @FXML    private Button conferenceAddEditionButton;
+    @FXML    private TextField conferenceEditionFilterField;
+    @FXML    private TableView<ConferenceEdition> conferenceEditionTable;
+    @FXML    private Button conferenceRemoveEditionButton;
+    //END Conference
     
     //Start Publications
     @FXML    Tab publicationTab;

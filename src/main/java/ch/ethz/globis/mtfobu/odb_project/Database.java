@@ -1878,7 +1878,7 @@ public class Database {
 		try {
 			query = session.query(allConferencesQuery);
 			while (query.more()) {
-				confs.add(getConferenceByName(query.next(), true));
+				confs.add(getConferenceByName(query.next(), false));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

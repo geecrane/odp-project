@@ -319,13 +319,13 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView fx:id="conferenceMainTable" layoutY="29.0" prefHeight="310.0" prefWidth="997.0">
+                        <TableView fx:id="conferenceMainTable" layoutY="29.0" onMouseClicked="#confMainClickItem" prefHeight="310.0" prefWidth="997.0">
                            <columns>
-                              <TableColumn prefWidth="527.0" text="Name" />
-                              <TableColumn minWidth="0.0" prefWidth="469.0" text="Editions" />
+                              <TableColumn fx:id="confMainTableNameColumn" prefWidth="527.0" text="Name" />
+                              <TableColumn fx:id="confMainTableEditionsColumn" minWidth="0.0" prefWidth="469.0" text="Editions" />
                            </columns>
                         </TableView>
-                        <Button fx:id="conferenceDeleteButton" layoutX="141.0" layoutY="341.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Conference" />
+                        <Button fx:id="conferenceDeleteButton" layoutX="141.0" layoutY="341.0" mnemonicParsing="false" onAction="#updateConf" prefHeight="25.0" text="Delete Conference" />
                         <TextField fx:id="conferenceSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
                         <Button fx:id="conferenceCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create Conference" />
                         <Group layoutX="677.0" layoutY="341.0" />
@@ -335,7 +335,7 @@
                      <children>
                         <TextField fx:id="conferenceNameField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Name" />
-                        <Button fx:id="conferenceChangeNameButton" layoutX="190.0" layoutY="43.0" mnemonicParsing="false" text="Change Name" />
+                        <Button fx:id="conferenceChangeNameButton" layoutX="190.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateConf" text="Change Name" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="469.0">
@@ -350,11 +350,11 @@
                      <children>
                         <TableView fx:id="conferenceEditionTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
                            <columns>
-                              <TableColumn prefWidth="314.0" text="Year" />
+                              <TableColumn fx:id="confEditionsYearColumn" prefWidth="314.0" text="Year" />
                            </columns>
                         </TableView>
                         <Label text="Editions" />
-                        <Button fx:id="conferenceRemoveEditionButton" layoutX="195.0" layoutY="296.0" mnemonicParsing="false" text="Remove Edition" />
+                        <Button fx:id="conferenceRemoveEditionButton" layoutX="195.0" layoutY="296.0" mnemonicParsing="false" onAction="#updateConf" text="Remove Edition" />
                      </children>
                   </Group>
                </children>
