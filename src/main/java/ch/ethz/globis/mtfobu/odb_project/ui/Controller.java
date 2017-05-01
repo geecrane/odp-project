@@ -67,12 +67,12 @@ public class Controller {
     	
 		new Thread(new Runnable() {
 	         public void run(){
-	        	 //loadPeople();
+	        	 loadPeople();
 	        	 loadProceedings();
-	        	 //loadPublications();
-	        	 //loadPublishers();
+	        	 loadPublications();
+	        	 loadPublishers();
 	        	 loadInProceedings();
-	        	 //loadConf();
+	        	 loadConf();
 	         }}).start();
 		
 		
