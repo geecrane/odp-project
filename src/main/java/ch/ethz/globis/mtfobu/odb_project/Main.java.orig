@@ -40,16 +40,38 @@ public class Main extends Application {
 //			System.out.println(per.getName());
 //		}
 <<<<<<< HEAD
-		// task 13
-		List<InProceedings> inProcs = db.getPublicationsWhereAuthorIsLast("Antónia Lopes");
-		for(InProceedings inProc: inProcs){
-			System.out.println(inProc.getTitle());
+		List<Publisher> pubs = db.getPublishers();
+		for(Publisher pub: pubs){
+			System.out.println(pub.getName());
 		}
-		// task 12
-		List<Person> pers = db.getPeopleThatAreAuthorsAndEditors();
-		for(Person per: pers){
-			System.out.println(per.getName());
+		// task 14
+//		List<Publisher> pubs = db.task14(1900, 1990);
+//		for(Publisher pub: pubs){
+//			System.out.println(pub.getName());
+//		}
+||||||| merged common ancestors
+		// task 14
+		List<Publisher> pubs = db.task14(1900, 1990);
+		for(Publisher pub: pubs){
+			System.out.println(pub.getName());
 		}
+=======
+		// task 14
+//		List<Publisher> pubs = db.task14(1900, 1990);
+//		for(Publisher pub: pubs){
+//			System.out.println(pub.getName());
+//		}
+>>>>>>> 28127b28dc0b810a42d94477416f672292e94205
+//		// task 13
+//		List<InProceedings> inProcs = db.getPublicationsWhereAuthorIsLast("Antónia Lopes");
+//		for(InProceedings inProc: inProcs){
+//			System.out.println(inProc.getTitle());
+//		}
+//		// task 12
+//		List<Person> pers = db.getPeopleThatAreAuthorsAndEditors();
+//		for(Person per: pers){
+//			System.out.println(per.getName());
+//		}
 //		Set<Publication> pubs2 = db.getAuthoredPublications("Sanjay Sharma", true);
 //		for(Publication pub:pubs2){
 //			if(((InProceedings)pub).getProceedings() != null) System.out.println(((InProceedings)pub).getProceedings().getTitle());
@@ -75,25 +97,6 @@ public class Main extends Application {
 //		
 //		InProceedings inproc = db.getInProceedingsById("conf/ifip5-7/Jagdev88a");
 //		System.out.println(inproc.getProceedings().getTitle());
-||||||| merged common ancestors
-		//Test task 7
-		List<String> res = db.getNumberPublicationsPerYearInterval(1900, 1990);
-		for(String str: res){
-			System.out.println(str);
-		}
-		
-		InProceedings inproc = db.getInProceedingsById("conf/ifip5-7/Jagdev88a");
-		System.out.println(inproc.getProceedings().getTitle());
-=======
-		//Test task 7
-//		List<String> res = db.getNumberPublicationsPerYearInterval(1900, 1990);
-//		for(String str: res){
-//			System.out.println(str);
-//		}
-//		
-//		InProceedings inproc = db.getInProceedingsById("conf/ifip5-7/Jagdev88a");
-//		System.out.println(inproc.getProceedings().getTitle());
->>>>>>> 9c1fd83ec65933b6664adf188e655ee6a7726587
 //		List<ch.ethz.globis.mtfobu.odb_project.Conference> confs = db.getConferences();
 //		for(ch.ethz.globis.mtfobu.odb_project.Conference per: confs){
 //			System.out.println(per.getName());

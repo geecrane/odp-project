@@ -439,20 +439,23 @@ public class Database {
 	}
 
 	// TASK 8:
-	//TODO: This query returns the number of InProceedings associated with a conference. 
-	//Verify that this is the right interpretation: "[...] featured in all editions of a given conference [...]"
+	// TODO: This query returns the number of InProceedings associated with a
+	// conference.
+	// Verify that this is the right interpretation: "[...] featured in all
+	// editions of a given conference [...]"
 	public int getNumberOfPublicationsPerConferenceByName(String conferenceName) {
 		String numberOfPublicationsPerConferenceQuery = String.format("count(let $conference := \"%s\""
 				+ " let $proc := //proceedings[booktitle=$conference]" + " for $inproc in //inproceedings"
 				+ " where $inproc/crossref=$proc/@key" + " order by $inproc/title" + " return $inproc)",
 				conferenceName);
 		ClientQuery query;
-		try{
+		try {
 			query = session.query(numberOfPublicationsPerConferenceQuery);
-			if(query.more()) return Integer.parseInt(query.next());
-			else System.out.println("Error in task 8: Query did not return a result");
-		}
-		catch(IOException e){
+			if (query.more())
+				return Integer.parseInt(query.next());
+			else
+				System.out.println("Error in task 8: Query did not return a result");
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return Integer.MIN_VALUE;
@@ -1810,6 +1813,24 @@ public class Database {
 		}
 
 		return pubs;
+	}
+
+	public List<Proceedings> getProceedings() {
+		List<Proceedings> procs = new ArrayList<>();
+
+		try {
+			ClientQuery query = session.query("data(//proceedings/@key)");
+			while (query.more()) {
+				Proceedings proc = getProceedingById(query.next());
+				if (proc != null) {
+					procs.add(proc);
+				} else
+					System.err.println("Query \"getProceedings\": proceeding could not be found given the correct id");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return procs;
 	}
 
 	/**

@@ -39,7 +39,11 @@ public class Main extends Application {
 //		for(Person per: people){
 //			System.out.println(per.getName());
 //		}
-		List<Publisher> pubs = db.getPublishers();
+		List<Proceedings> proccs = db.getProceedings();
+		for(Proceedings proc: proccs){
+			System.out.println(proc.getTitle());
+		}
+//		List<Publisher> pubs = db.getPublishers();
 //		for(Publisher pub: pubs){
 //			System.out.println(pub.getName());
 //		}
@@ -127,7 +131,7 @@ public class Main extends Application {
 //		System.out.println(db.authorDistance("1785178126", "1107451538"));
 //		// uncomment line below to enable the GUI
 //
- launch(args);
+// launch(args);
 //		System.out.println("PROGRAMM TERMINATED");
 
 	}
