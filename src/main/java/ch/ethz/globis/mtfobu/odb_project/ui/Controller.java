@@ -2,11 +2,13 @@ package ch.ethz.globis.mtfobu.odb_project.ui;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
 import javax.jdo.PersistenceManager;
 
+import org.basex.query.value.item.Int;
 import org.zoodb.jdo.ZooJdoHelper;
 
 import ch.ethz.globis.mtfobu.odb_project.Conference;
@@ -42,11 +44,15 @@ public class Controller {
 	public PersistenceManager pm;
     public Database db;
     
+    //mainTable DATA
+    private ObservableList<Person> peopleMasterData = FXCollections.observableArrayList();
+    private ObservableList<InProceedings> inProceedingsMasterData = FXCollections.observableArrayList();
+    
     public void initialize() {
     	db = Database.getDatabase();
     	
-    	//initializeInproceedingsMainColumns();	
-    	//loadInProceedings();
+    	initializeInproceedingsMainColumns();	
+    	loadInProceedings();
     	
 //  	initializePeopleMainColumns();
 //    	loadPeople();
@@ -54,15 +60,16 @@ public class Controller {
     	 
     }
 
+    
 	
 	
 	//START people tab
 	private void loadPeople() {
 		//init table data
 		List<Person> inProcs = db.getPeople();
-    	ObservableList<Person> masterData = FXCollections.observableArrayList();
-    	masterData.addAll(inProcs);
-    	FilteredList<Person> filteredData = setTable(masterData,personMainTable);
+    	peopleMasterData.addAll(inProcs);
+    	
+    	FilteredList<Person> filteredData = setTable(peopleMasterData,personMainTable);
     	
     	//search field
     	searchSetupPeople(filteredData);  
@@ -99,9 +106,8 @@ public class Controller {
 	private void loadInProceedings() {
 		//init table data
 		List<InProceedings> inProcs = db.getInProceedings();
-    	ObservableList<InProceedings> masterData = FXCollections.observableArrayList();
-    	masterData.addAll(inProcs);
-    	FilteredList<InProceedings> filteredData = setTable(masterData,inProceedingMainTable);
+    	inProceedingsMasterData.addAll(inProcs);
+    	FilteredList<InProceedings> filteredData = setTable(inProceedingsMasterData,inProceedingMainTable);
     	
     	//search field
     	searchSetupInproceedings(filteredData);  
@@ -145,28 +151,71 @@ public class Controller {
     	inProceedingAuthorTableNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
     	
 	}
+	
 	@FXML
 	public void inProceedingsMainClickItem(MouseEvent event)
 	{
-	    if (event.getClickCount() == 2) //Checking double click
+	    if (event.getClickCount() > 0) //Checking double click
 	    {
 	    	
 	    	//initialize data
 	    	InProceedings selected = inProceedingMainTable.getSelectionModel().getSelectedItem();
-	    	List<Person> authors = selected.getAuthors();
-	    	ObservableList<Person> masterData = FXCollections.observableArrayList();
-	    	masterData.addAll(authors);
-	    	
-	    	//load table
-	    	FilteredList<Person> filteredData = setTable(masterData,inProceedingAuthorTable);
+	    	loadInProceedingsAuthors(selected);
 	    	
 	    	//editable fields
 	    	inProceedingTitleField.setText(selected.getTitle());
 	    	inProceedingPagesField.setText(selected.getPages());
 	    	inProceedingYearField.setText(String.valueOf(selected.getYear()));
+
 	    	
 	    }
 	}
+
+
+
+
+	private void loadInProceedingsAuthors(InProceedings selected) {
+		List<Person> authors = selected.getAuthors();
+		ObservableList<Person> masterData = FXCollections.observableArrayList();
+		masterData.addAll(authors);
+		
+		//load table
+		FilteredList<Person> filteredData = setTable(masterData,inProceedingAuthorTable);
+	}
+	
+	@FXML
+	private void updateInProceedings(ActionEvent event) {
+	     // Button was clicked, do something...
+		 String srcId = ((Button)event.getSource()).getId();
+		 InProceedings selected = inProceedingMainTable.getSelectionModel().getSelectedItem();
+		 switch (srcId) {
+			 case "inProceedingChangeTitleButton":
+				selected.setTitle(inProceedingTitleField.getText());
+				inProceedingMainTable.refresh();
+				break;
+			 case "inProceedingChangePagesButton":
+				 selected.setPages(inProceedingPagesField.getText());
+				 inProceedingMainTable.refresh();
+				 break;
+			 case "inProceedingChangeYearButton":
+				 selected.setYear(Integer.parseInt(inProceedingYearField.getText()));
+				 inProceedingMainTable.refresh();
+				 break;
+			 case "inProceedingDeleteButton":
+				 inProceedingsMasterData.remove(selected);
+				 inProceedingMainTable.refresh();
+				 break;
+			 case "inProceedingRemoveAuthorButton":
+				 Person p = inProceedingAuthorTable.getSelectionModel().getSelectedItem();
+				 selected.getAuthors().remove(p);
+				 loadInProceedingsAuthors(selected); 
+				 break;
+			 default:
+				break;
+		}
+		
+	}
+	
 	//END InProceedings tab
 	
 	private <P extends DomainObject> FilteredList<P> setTable(ObservableList<P> masterData, TableView<P> tableView) {
