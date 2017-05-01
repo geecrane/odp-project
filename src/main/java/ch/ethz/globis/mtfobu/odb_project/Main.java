@@ -38,14 +38,22 @@ public class Main extends Application {
 //		for(Person per: people){
 //			System.out.println(per.getName());
 //		}
-		List<ch.ethz.globis.mtfobu.odb_project.Conference> confs = db.getConferences();
-		for(ch.ethz.globis.mtfobu.odb_project.Conference per: confs){
-			System.out.println(per.getName());
+		//Test task 7
+		List<String> res = db.getNumberPublicationsPerYearInterval(1900, 1990);
+		for(String str: res){
+			System.out.println(str);
 		}
-		List<Publisher> confs2 = db.getPublishers();
-		for(Publisher per: confs2){
-			System.out.println(per.getName());
-		}
+		
+		InProceedings inproc = db.getInProceedingsById("conf/ifip5-7/Jagdev88a");
+		System.out.println(inproc.getProceedings().getTitle());
+//		List<ch.ethz.globis.mtfobu.odb_project.Conference> confs = db.getConferences();
+//		for(ch.ethz.globis.mtfobu.odb_project.Conference per: confs){
+//			System.out.println(per.getName());
+//		}
+//		List<Publisher> confs2 = db.getPublishers();
+//		for(Publisher per: confs2){
+//			System.out.println(per.getName());
+//		}
 //		List<Person> coAuthors = db.getCoAuthors("Peter Buneman");
 //		for (Person coAuthor: coAuthors){
 //			System.out.println(coAuthor.getName());

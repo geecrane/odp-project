@@ -191,6 +191,7 @@ public class Database {
 			inProc.setAuthors(authorList);
 			inProc.setNote(rootNode.getChildText("note"));
 			inProc.setPages(rootNode.getChildText("pages"));
+			inProc.setProceedings(getProceedingById(rootNode.getChildText("crossref")));
 			return inProc;
 		} catch (JDOMException e) {
 			System.out.println("Error: The query result was not in the expected XML format");
@@ -347,7 +348,7 @@ public class Database {
 	// Helper function task 4
 	public Person getPersonByName(String name, boolean lazy) {
 		// TODO: Verify this assumption
-		return getPersonById(name,lazy);
+		return getPersonById(name, lazy);
 	}
 
 	// TASK 5:
@@ -412,6 +413,30 @@ public class Database {
 
 	}
 
+	// TASK 7:
+	public List<String> getNumberPublicationsPerYearInterval(int yearLowerBound, int yearUpperBound) {
+		List<String> result = new ArrayList<>();
+		String numberOfPublicationsPerYearIntervalQuery = String.format(
+				"declare function local:buildInterval($lowB as xs:integer, $upperB as xs:integer){ "
+						+ "for $n in $lowB to $upperB return $n };"
+						+ " let $interval := local:buildInterval(%d, %d) for $year in $interval"
+						+ " return concat(string($year),\": \","
+						+ " count(for $pub in //proceedings | //inproceedings where $pub/year=$year return $pub))",
+				yearLowerBound, yearUpperBound);
+		ClientQuery query;
+		try {
+			query = session.query(numberOfPublicationsPerYearIntervalQuery);
+			while (query.more()) {
+				result.add(query.next());
+			}
+		} catch (IOException e) {
+			System.out.println(numberOfPublicationsPerYearIntervalQuery);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
+
 	// Seba: get person by id
 	// id is expected to be the name of the person
 	public Person getPersonById(String id, boolean lazy) {
@@ -463,16 +488,21 @@ public class Database {
 	public Conference getConferenceByName(String confName, boolean lazy) {
 		Conference conf = new Conference(confName);
 		conf.setId(confName);
-		if(lazy==false) conf.setEditions(getConfEditionsForConf(conf));
+		if (lazy == false)
+			conf.setEditions(getConfEditionsForConf(conf));
 		return conf;
 	}
 
 	public Set<ConferenceEdition> getConfEditionsForConf(Conference conference) {
-		assert(conference.getName() != null);
+		assert (conference.getName() != null);
 		Set<ConferenceEdition> confEdits = new HashSet<>();
-		//TODO: Conference with name: <<Informatik und "Dritte Welt">> will cause an error in the query. I counldn't find out how to escape it properly
-		String confEditionsGivenConfQuery = String.format("let $confName := \"%s\" for $proc in root/proceedings where $proc/booktitle=$confName"
-		+ " return <ConfEdit>{$proc/year,$proc}</ConfEdit>", conference.getName().replace("\"", "&quot"));
+		// TODO: Conference with name: <<Informatik und "Dritte Welt">> will
+		// cause an error in the query. I counldn't find out how to escape it
+		// properly
+		String confEditionsGivenConfQuery = String.format(
+				"let $confName := \"%s\" for $proc in root/proceedings where $proc/booktitle=$confName"
+						+ " return <ConfEdit>{$proc/year,$proc}</ConfEdit>",
+				conference.getName().replace("\"", "&quot"));
 		ClientQuery query;
 
 		try {
