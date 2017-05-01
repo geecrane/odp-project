@@ -133,6 +133,7 @@ public class XmlToObject {
 				for (Element author : authors)
 					authorList.add(new Person(author.getText()));
 				inProc.setAuthors(authorList);
+				inProc.setProceedings(db.getProceedingById(rootNode.getChildText("crossref")));
 			}
 			inProc.setNote(rootNode.getChildText("note"));
 			inProc.setPages(rootNode.getChildText("pages"));

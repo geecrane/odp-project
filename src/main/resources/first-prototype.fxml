@@ -24,7 +24,7 @@
                             <TableColumn fx:id="personMainTableNameColumn" prefWidth="995.0" text="Name" />
                           </columns>
                         </TableView>
-                      <Button fx:id="personDeleteButton" layoutX="96.0" layoutY="341.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Person" />
+                      <Button fx:id="personDeleteButton" layoutX="96.0" layoutY="341.0" mnemonicParsing="false" onAction="#updatePeople" prefHeight="25.0" text="Delete Person" />
                         <TextField fx:id="personSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
                         <Button fx:id="personSearchButton" layoutX="934.0" mnemonicParsing="false" text="Search" />
                         <Group layoutX="677.0" layoutY="341.0">
@@ -42,7 +42,7 @@
                      <children>
                         <TextField fx:id="personNameField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Name" />
-                        <Button fx:id="personChangeNameButton" layoutX="190.0" layoutY="43.0" mnemonicParsing="false" text="Change Name" />
+                        <Button fx:id="personChangeNameButton" layoutX="190.0" layoutY="43.0" mnemonicParsing="false" onAction="#updatePeople" text="Change Name" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="469.0">
@@ -62,7 +62,7 @@
                           </columns>
                         </TableView>
                         <Label text="Edited Proceedings" />
-                        <Button fx:id="personRemoveProceedingButton" layoutX="167.0" layoutY="296.0" mnemonicParsing="false" text="Remove Proceeding" />
+                        <Button fx:id="personRemoveProceedingButton" layoutX="167.0" layoutY="296.0" mnemonicParsing="false" onAction="#updatePeople" text="Remove Proceeding" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="562.0">
@@ -82,7 +82,7 @@
                             <TableColumn fx:id="peopleInProceedingsTableProceedingsColumn" prefWidth="161.0" text="Proceedings" />
                           </columns>
                         </TableView>
-                        <Button fx:id="personRemoveInProceedingButton" layoutX="155.0" layoutY="296.0" mnemonicParsing="false" text="Remove InProceeding" />
+                        <Button fx:id="personRemoveInProceedingButton" layoutX="155.0" layoutY="296.0" mnemonicParsing="false" onAction="#updatePeople" text="Remove InProceeding" />
                      </children>
                   </Group>
                </children>
