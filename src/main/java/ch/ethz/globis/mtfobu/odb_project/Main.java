@@ -38,14 +38,14 @@ public class Main extends Application {
 //		for(Person per: people){
 //			System.out.println(per.getName());
 //		}
-		List<ch.ethz.globis.mtfobu.odb_project.Conference> confs = db.getConferences();
-		for(ch.ethz.globis.mtfobu.odb_project.Conference per: confs){
-			System.out.println(per.getName());
-		}
-		List<Publisher> confs2 = db.getPublishers();
-		for(Publisher per: confs2){
-			System.out.println(per.getName());
-		}
+//		List<ch.ethz.globis.mtfobu.odb_project.Conference> confs = db.getConferences();
+//		for(ch.ethz.globis.mtfobu.odb_project.Conference per: confs){
+//			System.out.println(per.getName());
+//		}
+//		List<Publisher> confs2 = db.getPublishers();
+//		for(Publisher per: confs2){
+//			System.out.println(per.getName());
+//		}
 //		List<Person> coAuthors = db.getCoAuthors("Peter Buneman");
 //		for (Person coAuthor: coAuthors){
 //			System.out.println(coAuthor.getName());
@@ -82,7 +82,7 @@ public class Main extends Application {
 //		System.out.println(db.authorDistance("1785178126", "1107451538"));
 //		// uncomment line below to enable the GUI
 //
-// launch(args);
+ launch(args);
 //		System.out.println("PROGRAMM TERMINATED");
 
 	}

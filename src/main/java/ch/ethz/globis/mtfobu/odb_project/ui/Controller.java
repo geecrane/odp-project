@@ -201,6 +201,10 @@ public class Controller {
 				 selected.setYear(Integer.parseInt(inProceedingYearField.getText()));
 				 inProceedingMainTable.refresh();
 				 break;
+			 case "inProceedingDeleteButton":
+				 inProceedingsMasterData.remove(selected);
+				 inProceedingMainTable.refresh();
+				 break;
 			 case "inProceedingRemoveAuthorButton":
 				 Person p = inProceedingAuthorTable.getSelectionModel().getSelectedItem();
 				 selected.getAuthors().remove(p);

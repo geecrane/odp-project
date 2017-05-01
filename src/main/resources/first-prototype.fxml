@@ -203,7 +203,7 @@
 	                        </TableView>
                         <TextField fx:id="inProceedingSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
                         <Button fx:id="inProceedingSearchButton" layoutX="934.0" mnemonicParsing="false" text="Search" />
-                        <Button fx:id="inProceedingDeleteButton" layoutX="152.0" layoutY="341.0" mnemonicParsing="false" text="Delete InProceeding" />
+                        <Button fx:id="inProceedingDeleteButton" layoutX="152.0" layoutY="341.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Delete InProceeding" />
                         <Group layoutX="677.0" layoutY="341.0" />
                         <Button fx:id="inProceedingCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create InProceeding" />
                      </children>
