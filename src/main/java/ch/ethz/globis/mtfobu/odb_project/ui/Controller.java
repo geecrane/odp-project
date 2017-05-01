@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import javax.jdo.PersistenceManager;
@@ -51,11 +52,11 @@ public class Controller {
     public void initialize() {
     	db = Database.getDatabase();
     	
-    	initializeInproceedingsMainColumns();	
-    	loadInProceedings();
+//    	initializeInproceedingsMainColumns();	
+//    	loadInProceedings();
     	
-//  	initializePeopleMainColumns();
-//    	loadPeople();
+    	initializePeopleMainColumns();
+    	loadPeople();
     	
     	 
     }
@@ -77,7 +78,20 @@ public class Controller {
 	private void initializePeopleMainColumns() {
 		// Initialize InProceedings Columns
 		personMainTableNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
-    	
+		
+		//proceedings
+		peopleProceedingsTableTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
+		peopleProceedingsTableConferenceColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getConferenceEdition().getConference().getName()));
+		
+		//inproceedings
+		peopleInProceedingsTableTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
+		peopleInProceedingsTableProceedingsColumn.setCellValueFactory(cellData -> 
+			{
+				Proceedings proc = cellData.getValue().getProceedings();
+				if(proc != null) return new SimpleStringProperty(proc.getTitle());
+				else return new SimpleStringProperty("");
+			});
+
 	}
 	private void searchSetupPeople(FilteredList<Person> filteredData) {
 		
@@ -98,6 +112,42 @@ public class Controller {
                 return false; // Does not match.
             });
         });
+	}
+	
+	
+	@FXML
+	public void peopleMainClickItem(MouseEvent event)
+	{
+	    if (event.getClickCount() > 0) //Checking double click
+	    {
+	    	
+	    	//initialize data
+	    	Person selected = personMainTable.getSelectionModel().getSelectedItem();
+	    	loadPeopleProceedings(selected);
+	    	
+	    	//editable fields
+	    	personNameField.setText(selected.getName());
+
+	    	
+	    }
+	}
+	
+	private void loadPeopleProceedings(Person selected) {	
+		//proceedings
+		Set<Publication> pubs = db.getEditedPublications(selected.getName(), false);
+		ObservableList<Publication> masterData = FXCollections.observableArrayList();
+		masterData.addAll(pubs);
+		
+		//load table
+		FilteredList<Publication> filteredData = setTable(masterData,personProceedingTable);
+		
+		//inproceedings
+		pubs = db.getAuthoredPublications(selected.getName(), false);
+		masterData = FXCollections.observableArrayList();
+		masterData.addAll(pubs);
+		
+		//load table
+		filteredData = setTable(masterData,personInProceedingTable);
 	}
 	//END people tab
 	
@@ -296,6 +346,13 @@ public class Controller {
     @FXML   private TableView<Person> personMainTable;
     @FXML	private TableColumn<Person, String> personMainTableNameColumn;
     @FXML   private TextField personSearchField;
+    @FXML	private TextField personNameField;
+    @FXML   private TableView<Publication> personProceedingTable;
+    @FXML	private TableColumn<Proceedings, String> peopleProceedingsTableTitleColumn;
+    @FXML	private TableColumn<Proceedings, String> peopleProceedingsTableConferenceColumn;
+    @FXML   private TableView<Publication>  personInProceedingTable;
+    @FXML	private TableColumn<InProceedings, String> peopleInProceedingsTableTitleColumn;
+    @FXML	private TableColumn<InProceedings, String> peopleInProceedingsTableProceedingsColumn;
     
     //End People
 

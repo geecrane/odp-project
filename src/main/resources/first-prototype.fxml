@@ -19,7 +19,7 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView fx:id="personMainTable" layoutY="29.0" prefHeight="310.0" prefWidth="997.0">
+                        <TableView fx:id="personMainTable" layoutY="29.0" onMouseClicked="#peopleMainClickItem" prefHeight="310.0" prefWidth="997.0">
                           <columns>
                             <TableColumn fx:id="personMainTableNameColumn" prefWidth="995.0" text="Name" />
                           </columns>
@@ -57,8 +57,8 @@
                      <children>
                         <TableView fx:id="personProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
                           <columns>
-                            <TableColumn prefWidth="220.0" text="Title" />
-                            <TableColumn minWidth="0.0" prefWidth="94.0" text="Conference" />
+                            <TableColumn fx:id="peopleProceedingsTableTitleColumn" prefWidth="220.0" text="Title" />
+                            <TableColumn fx:id="peopleProceedingsTableConferenceColumn" minWidth="0.0" prefWidth="94.0" text="Conference" />
                           </columns>
                         </TableView>
                         <Label text="Edited Proceedings" />
@@ -78,8 +78,8 @@
                         <Label text="Authored InProceedings" />
                         <TableView fx:id="personInProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
                           <columns>
-                            <TableColumn prefWidth="153.0" text="Title" />
-                            <TableColumn prefWidth="161.0" text="Proceedings" />
+                            <TableColumn fx:id="peopleInProceedingsTableTitleColumn" prefWidth="153.0" text="Title" />
+                            <TableColumn fx:id="peopleInProceedingsTableProceedingsColumn" prefWidth="161.0" text="Proceedings" />
                           </columns>
                         </TableView>
                         <Button fx:id="personRemoveInProceedingButton" layoutX="155.0" layoutY="296.0" mnemonicParsing="false" text="Remove InProceeding" />
