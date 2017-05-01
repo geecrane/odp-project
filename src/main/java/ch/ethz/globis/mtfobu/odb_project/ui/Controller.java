@@ -24,6 +24,9 @@ import ch.ethz.globis.mtfobu.odb_project.Publication;
 import ch.ethz.globis.mtfobu.odb_project.Publisher;
 import ch.ethz.globis.mtfobu.odb_project.Series;
 import ch.ethz.globis.mtfobu.odb_project.XmlImport;
+import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.ProceedingTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.PublicationTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.SecondaryPersonTableEntry;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -48,6 +51,9 @@ public class Controller {
     //mainTable DATA
     private ObservableList<Person> peopleMasterData = FXCollections.observableArrayList();
     private ObservableList<InProceedings> inProceedingsMasterData = FXCollections.observableArrayList();
+    private ObservableList<Proceedings> proceedingsMasterData = FXCollections.observableArrayList();
+    private ObservableList<Publication> publicationsMasterData = FXCollections.observableArrayList();
+    
     
     public void initialize() {
     	db = Database.getDatabase();
@@ -61,8 +67,11 @@ public class Controller {
 	         public void run()
 	         {
 	        	 initAllColumns();
-	        	 loadPeople();
-	        	 loadInProceedings();
+	        	 //loadPeople();
+	        	//loadProceedings();
+//	        	 loadInProceedings();
+	        	 loadPublications();
+	        	 
 	        	 
 
 	         }
@@ -76,19 +85,153 @@ public class Controller {
     }
 
 	private void initAllColumns() {
+		initializePeopleMainColumns();
+		initializeProceedingsMainColumns();
 		initializeInproceedingsMainColumns();	
-    	initializePeopleMainColumns();
+		initializePublicationsMainColumns();
+    	
 	}
 
     //general
     
+	//START Publications Tab
+	private void initializePublicationsMainColumns() {
+		// Initialize Proceedings Columns
+		publicationMainTableTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
+		publicationMainTableAuthorsColumn.setCellValueFactory(cellData -> {
+			String authors = "";
+			for(Person p : cellData.getValue().getAuthors()){
+				authors += p.getName()+", ";
+			}
+		 return new SimpleStringProperty(authors);
+		});
+	}
+	
+	private void loadPublications() {
+		//init table data
+		List<Publication> pubs = db.getPublications();
+		publicationsMasterData.addAll(pubs);
+   	
+		FilteredList<Publication> filteredData = setTable(publicationsMasterData,publicationMainTable);
+   	
+		//search field
+		searchSetupPublications(filteredData);  
+		publicationTab.setDisable(false);
+	}
+	
+	private void searchSetupPublications(FilteredList<Publication> filteredData) {
+		
+		// Set the filter Predicate whenever the filter changes.
+		publicationSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+           filteredData.setPredicate(p -> {
+               // If filter text is empty, display all
+               if (newValue == null || newValue.isEmpty()) {
+                   return true;
+               }
+
+               // Compare first name and last name of every person with filter text.
+               String lowerCaseFilter = newValue.toLowerCase();
+
+               if (p.getTitle().toLowerCase().contains(lowerCaseFilter)) {
+                   return true; // Filter matches title.
+               }else {
+            	   for(Person per : p.getAuthors()){
+            		   if(per.getName().toLowerCase().contains(lowerCaseFilter))
+            			   return true; //filter matches author
+            	   }
+                   return false; 
+               }
+              
+           });
+       });
+	}
+	
+	@FXML
+	public void publicationsMainClickItem(MouseEvent event)
+	{
+	    if (event.getClickCount() > 0) //Checking double click
+	    {
+
+	    }
+	}
+	
+	//END Publications Tab
+	
+	
+	
+	//START Proceedings Tab
+	private void initializeProceedingsMainColumns() {
+		// Initialize Proceedings Columns
+		proceedingsMainTableTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
+		proceedingsMainTablePublisherColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPublisher().getName()));
+		proceedingsMainTableConferenceColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getConferenceEdition().getConference().getName()));
+		
+    	//initialize editors column
+		proceedingEditorTableNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
+    	
+	}
+	
+	private void loadProceedings() {
+		//init table data
+		List<Proceedings> procs = db.getProceedings();
+    	proceedingsMasterData.addAll(procs);
+    	
+    	FilteredList<Proceedings> filteredData = setTable(proceedingsMasterData,proceedingMainTable);
+    	
+    	//search field
+    	searchSetupProceedings(filteredData);  
+    	proceedingTab.setDisable(false);
+	}
+	
+	private void searchSetupProceedings(FilteredList<Proceedings> filteredData) {
+		
+		// Set the filter Predicate whenever the filter changes.
+		proceedingSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(p -> {
+                // If filter text is empty, display all
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Compare first name and last name of every person with filter text.
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if (p.getTitle().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches title.
+                }else if (p.getPublisher().getName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches title.
+                }else if (p.getConferenceEdition().getConference().getName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches title.
+                }
+                return false; // Does not match.
+            });
+        });
+	}
+	
+	@FXML
+	public void proceedingsMainClickItem(MouseEvent event)
+	{
+	    if (event.getClickCount() > 0) //Checking double click
+	    {
+	    	//initialize data
+	    	Proceedings selected = proceedingMainTable.getSelectionModel().getSelectedItem();
+	    	//preloadPeopleProceedings(selected);
+	    	
+	    	//editable fields
+	    	proceedingTitleField.setText(selected.getTitle());
+	    	proceedingIsbnField.setText(selected.getIsbn());
+
+	    }
+	}
+	
+	//END Proceedings Tab
 	
 	
 	//START people tab
 	private void loadPeople() {
 		//init table data
-		List<Person> inProcs = db.getPeople();
-    	peopleMasterData.addAll(inProcs);
+		List<Person> people = db.getPeople();
+    	peopleMasterData.addAll(people);
     	
     	FilteredList<Person> filteredData = setTable(peopleMasterData,personMainTable);
     	
@@ -397,6 +540,57 @@ public class Controller {
     // START section for fields that reference FXML
     @FXML TabPane tabPane;
     
+    //Start Publications
+    @FXML    Tab publicationTab;
+    @FXML	private TableColumn<Publication, String> publicationMainTableTitleColumn;
+    @FXML	private TableColumn<Publication, String> publicationMainTableAuthorsColumn;
+    @FXML    private TableView<Publication> publicationMainTable;
+    @FXML    private TextField publicationSearchField;
+    @FXML    private Button publicationSearchButton;
+    @FXML    private Button publicationDeleteButton;
+    @FXML    private Button publicationNextPageButton;
+    @FXML    private Button publicationPreviousPageButton;
+    @FXML    private TextField publicationCurrentPageField;
+    //End Publications
+    
+    
+    //Start Proceedings
+    @FXML Tab proceedingTab;
+    @FXML	private TableColumn<Proceedings, String> proceedingsMainTableTitleColumn;
+    @FXML	private TableColumn<Proceedings, String> proceedingsMainTablePublisherColumn;
+    @FXML	private TableColumn<Proceedings, String> proceedingsMainTableConferenceColumn;  
+    @FXML	private TableColumn<Person, String> proceedingEditorTableNameColumn;
+    @FXML    private TableView<Proceedings> proceedingMainTable;
+    @FXML    private TextField proceedingSearchField;
+    @FXML    private Button proceedingSearchButton;
+    @FXML    private Button proceedingDeleteButton;
+    @FXML    private Button proceedingNewButton;
+    @FXML    private Button proceedingNextPageButton;
+    @FXML    private Button proceedingPreviousPageButton;
+    @FXML    private TextField proceedingCurrentPageField;
+    @FXML    private TextField proceedingTitleField;
+    @FXML    private Button proceedingChangeTitleButton;
+    @FXML    private ChoiceBox<?> proceedingPublisherDropdown;
+    @FXML    private Button proceedingChangePublisherButton;
+    @FXML    private TextField proceedingPublisherFilterField;
+    @FXML    private ChoiceBox<?> proceedingSeriesDropdown;
+    @FXML    private Button proceedingChangeSeriesButton;
+    @FXML    private TextField proceedingSeriesFilterField;
+    @FXML    private TextField proceedingIsbnField;
+    @FXML    private Button proceedingChangeIsbnButton;
+    @FXML    private ChoiceBox<?> proceedingConferenceDropdown;
+    @FXML    private Button proceedingChangeConferenceButton;
+    @FXML    private TextField proceedingConferenceFilterField;
+    @FXML    private TextField proceedingEditionFilterField;
+    @FXML    private ChoiceBox<?> proceedingEditionDropdown;
+    @FXML    private Button proceedingChangeEditionButton;
+    @FXML    private TextField proceedingEditorFilterField;
+    @FXML    private TableView<SecondaryPersonTableEntry> proceedingEditorTable;
+    @FXML    private Button proceedingRemoveEditorButton;
+    @FXML    private ChoiceBox<?> proceedingEditorDropdown;
+    @FXML    private Button proceedingAddEditorButton;
+    //End Proceedings
+    
     //Start People
     @FXML   Tab personTab;
     @FXML   private TableView<Person> personMainTable;
@@ -412,6 +606,10 @@ public class Controller {
     
     //End People
 
+    // Start Publishers
+    
+    // END Publishers
+    
     //Start Inproceedings
     @FXML   Tab inProceedingTab;
     @FXML   private TableView<InProceedings> inProceedingMainTable;
