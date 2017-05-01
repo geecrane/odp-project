@@ -204,7 +204,7 @@ public class Controller {
 			 case "inProceedingRemoveAuthorButton":
 				 Person p = inProceedingAuthorTable.getSelectionModel().getSelectedItem();
 				 selected.getAuthors().remove(p);
-				 loadInProceedingsAuthors(selected);
+				 loadInProceedingsAuthors(selected); 
 				 break;
 			 default:
 				break;
