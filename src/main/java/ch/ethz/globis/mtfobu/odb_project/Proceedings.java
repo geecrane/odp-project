@@ -146,6 +146,12 @@ public class Proceedings implements Publication {
 		this.series = series;
 		
 	}
+	public Conference getConference(){
+		return this.conf;
+	}
+	public void setConference(Conference conf){
+		this.conf = conf;
+	}
 
 	public ConferenceEdition getConferenceEdition() {
 		return confEdition;
@@ -203,6 +209,7 @@ public class Proceedings implements Publication {
 	private Series series;
 	private int year;
 	private String isbn;
+	private Conference conf;
 	private ConferenceEdition confEdition;
 	private String id;
 	private Publisher publisher;

@@ -17,6 +17,7 @@ import org.jdom.output.XMLOutputter;
 
 public class XmlToObject {
 	private static XMLOutputter xmOut = new XMLOutputter();
+
 	/**
 	 * 
 	 * @param xml
@@ -83,16 +84,17 @@ public class XmlToObject {
 				} else
 					System.out.println("Proceeding with id: " + rootNode.getAttributeValue("key")
 							+ " has not been fully initialized because of a missing context");
-				publication.setConferenceEdition(new ConferenceEdition(new Conference(rootNode.getChildText("booktitle")),
-						Integer.parseInt(rootNode.getChildText("year")), publication)); // The
-																						// conference
-																						// edition
-																						// is
-																						// given
-																						// by
-																						// the
-																						// year
-																						// tag
+				publication
+						.setConferenceEdition(new ConferenceEdition(new Conference(rootNode.getChildText("booktitle")),
+								Integer.parseInt(rootNode.getChildText("year")), publication)); // The
+																								// conference
+																								// edition
+																								// is
+																								// given
+																								// by
+																								// the
+																								// year
+																								// tag
 				publication.setIsbn(rootNode.getChildText("isbn"));
 				return publication;
 			}
@@ -141,7 +143,8 @@ public class XmlToObject {
 			inProc.setNote(rootNode.getChildText("note"));
 			inProc.setPages(rootNode.getChildText("pages"));
 			String proceedingId = rootNode.getChildText("crossref");
-			if(proceedingId!=null) inProc.setProceedings(db.getProceedingById(proceedingId));
+			if (proceedingId != null)
+				inProc.setProceedings(db.getProceedingById(proceedingId));
 		} catch (JDOMException e) {
 			System.out.println("Error: The query result was not in the expected XML format");
 			e.printStackTrace();
@@ -219,8 +222,9 @@ public class XmlToObject {
 		}
 		return cE;
 	}
-	
-	public static ConferenceEdition XmlProceedingToConferenceEdition(String proceedingXml, Database db) throws IOException{
+
+	public static ConferenceEdition XmlProceedingToConferenceEdition(String proceedingXml, Database db)
+			throws IOException {
 		ConferenceEdition cE;
 		SAXBuilder builder = new SAXBuilder();
 		InputStream stream = new ByteArrayInputStream(proceedingXml.getBytes("UTF-8"));
@@ -229,9 +233,11 @@ public class XmlToObject {
 			Element rootNode = inprocXML.getRootElement();
 			String ConferenceName = rootNode.getChildText("booktitle");
 			Conference conf;
-			if(ConferenceName!=null) conf = db.getConferenceByName(rootNode.getChildText("booktitle"), true);
-			else{
-				System.out.println("(function: XmlProceedingToConferenceEdition) Warning the given proceeding doesn't have a conference!");
+			if (ConferenceName != null)
+				conf = db.getConferenceByName(rootNode.getChildText("booktitle"), true);
+			else {
+				System.out.println(
+						"(function: XmlProceedingToConferenceEdition) Warning the given proceeding doesn't have a conference!");
 				return null;
 			}
 			Proceedings proc = XmlToObject.XmlToProceeding(proceedingXml, null, db, true);
@@ -243,8 +249,8 @@ public class XmlToObject {
 		}
 		return cE;
 	}
-	
-	public static String inProcToXml(InProceedings inProc){
+
+	public static String inProcToXml(InProceedings inProc) {
 		String resultingXml;
 		Element inproceeding = new Element("inproceedings");
 		Document doc = new Document(inproceeding);
@@ -253,17 +259,50 @@ public class XmlToObject {
 		root.setAttribute(new Attribute("key", inProc.getId()));
 		root.addContent(new Element("title").setText(inProc.getTitle()));
 		List<Person> authors = inProc.getAuthors();
-		for( Person author: authors){
+		for (Person author : authors) {
 			root.addContent(new Element("author").setText(author.getName()));
 		}
 		root.addContent(new Element("year").setText(Integer.toString(inProc.getYear())));
-		if(inProc.getPages()!=null) root.addContent(new Element("pages").setText(inProc.getPages()));
-		if(inProc.getProceedings()!=null) root.addContent(new Element("crossref").setText(inProc.getProceedings().getId()));
-		if(inProc.getNote()!=null) root.addContent(new Element("note").setText(inProc.getNote()));
-		//root.addContent(new Element("booktitle").setText(inProc.))
+		if (inProc.getPages() != null)
+			root.addContent(new Element("pages").setText(inProc.getPages()));
+		if (inProc.getProceedings() != null)
+			root.addContent(new Element("crossref").setText(inProc.getProceedings().getId()));
+		if (inProc.getNote() != null)
+			root.addContent(new Element("note").setText(inProc.getNote()));
+		// root.addContent(new Element("booktitle").setText(inProc.))
 		resultingXml = xmOut.outputString(doc.getRootElement());
-		
+
 		System.out.println(resultingXml);
+		return resultingXml;
+	}
+
+	public static String procToXml(Proceedings proc) {
+		String resultingXml;
+		Element proceeding = new Element("proceedings");
+		Document doc = new Document(proceeding);
+		doc.setRootElement(proceeding);
+		Element root = doc.getRootElement();
+		root.setAttribute(new Attribute("key", proc.getId()));
+		List<Person> editors = proc.getAuthors();
+		for (Person per : editors) {
+			root.addContent(new Element("editor").setText(per.getName()));
+		}
+		root.addContent(new Element("title").setText(proc.getTitle()));
+		Conference conf = proc.getConference();
+		if (conf != null) {
+			root.addContent(new Element("booktitle").setText(conf.getName()));
+		}
+		if (proc.getSeries() != null)
+			root.addContent(new Element("series").setText(proc.getSeries().getName()));
+		Publisher pub = proc.getPublisher();
+		if (pub != null) {
+			root.addContent(new Element("publisher").setText(pub.getName()));
+		}
+		root.addContent(new Element("year").setText(Integer.toString(proc.getYear())));
+		String isbn = proc.getIsbn();
+		if (isbn != null)
+			root.addContent(new Element("isbn").setText(isbn));
+		resultingXml = xmOut.outputString(root);
 		return resultingXml;
 	}
 }

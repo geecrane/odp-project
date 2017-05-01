@@ -1777,18 +1777,20 @@ public class Database {
 	// public int id;
 	// public int distanceFromRoot;
 	// }
-	public Series getSeriesByName(String name, boolean lazy){
+	public Series getSeriesByName(String name, boolean lazy) {
 		Series serie = new Series(name);
 		Set<Publication> pubs = new HashSet<>();
 		String getPublicationsFormSeriesQuery = String.format("//proceedings[series=\"%s\"]", name);
 		ClientQuery query;
 		try {
 			query = session.query(getPublicationsFormSeriesQuery);
-			while(query.more()){
+			while (query.more()) {
 				String xml = query.next();
 				Publication pub = XmlToObject.XmlToPublication(xml, null, this, true);
-				if(pub!=null) pubs.add(pub);
-				else System.out.println("Error is function getSeriesByName. Publication");
+				if (pub != null)
+					pubs.add(pub);
+				else
+					System.out.println("Error is function getSeriesByName. Publication");
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -1796,8 +1798,9 @@ public class Database {
 		}
 		serie.setPublications(pubs);
 		return serie;
-		
+
 	}
+
 	// GUI functions
 	public List<Publisher> getPublishers() {
 		List<Publisher> pubs = new ArrayList<>();
@@ -1906,8 +1909,8 @@ public class Database {
 		}
 		return confs;
 	}
-	
-	public List<Series> getSeries(){
+
+	public List<Series> getSeries() {
 		List<Series> series = new ArrayList<>();
 		String allSeriesQuery = "distinct-values(//proceedings/series)";
 		ClientQuery query;
@@ -1922,7 +1925,8 @@ public class Database {
 		}
 		return series;
 	}
-	public List<ConferenceEdition> getConferenceEditions(){
+
+	public List<ConferenceEdition> getConferenceEditions() {
 		List<ConferenceEdition> confEditions = new ArrayList<>();
 		String allConferencEditionsQuery = "//proceedings[exists(booktitle)]";
 		ClientQuery query;
@@ -1937,7 +1941,6 @@ public class Database {
 		}
 		return confEditions;
 	}
-	
 
 	// ADD Function
 	public void addInProceeding(InProceedings inProc) {
@@ -1945,6 +1948,7 @@ public class Database {
 			String xml = XmlToObject.inProcToXml(inProc);
 			String query = String.format("insert node %s into /root", xml);
 			try {
+				System.out.println(query);
 				session.query(query);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -1954,5 +1958,57 @@ public class Database {
 		} else
 			System.out.println("(function: \"addInProceeding\") Refuse to add Inproceeding with id: + " + inProc.getId()
 					+ " id already exists");
+	}
+
+	public void addProceeding(Proceedings proc) {
+		if (getProceedingById(proc.getId()) == null) {
+			String xml = XmlToObject.procToXml(proc);
+			String query = String.format("insert node %s into /root", xml);
+			try {
+				System.out.println(query);
+				session.query(query);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return;
+			}
+			System.out.println("Added proceeding: " + proc.getId() + " to database");
+		} else
+			System.out.println("(function: \"addProceeding\") Refuse to add proceeding with id: + " + proc.getId()
+					+ " id already exists");
+
+	}
+
+	// DELETE Function
+	public void deleteProceedingById(String id) {
+		assert getProceedingById(id) != null : "It is assumend the proceeding to be deleted also exists. Faulty id: "
+				+ id;
+		String deleteProceedingQuery = String.format("delete node //proceedins[@key=\"%s\"]", id);
+		try {
+			System.out.println(deleteProceedingQuery);
+			session.query(deleteProceedingQuery);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
+		System.out.println("Deleted proceeding with id: " + id + " in database");
+
+	}
+
+	public void deleteInProceedingById(String id) {
+		assert getInProceedingsById(
+				id) != null : "It is assumend the InProceeding to be deleted also exists. Faulty id: " + id;
+		String deleteInProceedingQuery = String.format("delete node //inproceedins[@key=\"%s\"]", id);
+		try {
+			System.out.println(deleteInProceedingQuery);
+			session.query(deleteInProceedingQuery);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
+		System.out.println("Deleted inproceeding with id: " + id + " in database");
+
 	}
 }

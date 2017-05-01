@@ -39,21 +39,26 @@ public class Main extends Application {
 //		for(Person per: people){
 //			System.out.println(per.getName());
 //		}
-		List<ConferenceEdition> confEdits = db.getConferenceEditions();
-		for(ConferenceEdition confEd: confEdits){
-			System.out.println(confEd.getId());
-		}
+//		List<ConferenceEdition> confEdits = db.getConferenceEditions();
+//		for(ConferenceEdition confEd: confEdits){
+//			System.out.println(confEd.getId());
+//		}
 //		List<Series> series = db.getSeries();
 //		for(Series ser: series){
 //			System.out.println(ser.getName() + " ; " + ser.getPublications().size());
 //		}
-//		InProceedings inProc = db.getInProceedingsById("conf/icail/Purdy87");
-//		inProc.setId("test");
-//		db.addInProceeding(inProc);
-		//XmlToObject.inProcToXml(inProc);
+		InProceedings inProc = db.getInProceedingsById("conf/icail/Purdy87");
+		inProc.setId("test");
+		db.addInProceeding(inProc);
+		XmlToObject.inProcToXml(inProc);
+		db.deleteInProceedingById("test");
 //		List<Proceedings> proccs = db.getProceedings();
 //		for(Proceedings proc: proccs){
 //			System.out.println(proc.getTitle());
+//		}
+//		List<ch.ethz.globis.mtfobu.odb_project.Conference> confs = db.getConferences();
+//		for(ch.ethz.globis.mtfobu.odb_project.Conference conf: confs){
+//			System.out.println(conf.getName());
 //		}
 //		List<Publisher> pubs = db.getPublishers();
 //		for(Publisher pub: pubs){
