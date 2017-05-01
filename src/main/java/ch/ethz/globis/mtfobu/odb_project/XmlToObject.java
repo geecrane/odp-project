@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOExceptionWithCause;
+import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 
 public class XmlToObject {
+	private static XMLOutputter xmOut = new XMLOutputter();
 	/**
 	 * 
 	 * @param xml
@@ -218,5 +221,28 @@ public class XmlToObject {
 			return null;
 		}
 		return cE;
+	}
+	
+	public static String inProcToXml(InProceedings inProc){
+		String resultingXml;
+		Element inproceeding = new Element("inproceedings");
+		Document doc = new Document(inproceeding);
+		doc.setRootElement(inproceeding);
+		Element root = doc.getRootElement();
+		root.setAttribute(new Attribute("key", inProc.getId()));
+		root.addContent(new Element("title").setText(inProc.getTitle()));
+		List<Person> authors = inProc.getAuthors();
+		for( Person author: authors){
+			root.addContent(new Element("author").setText(author.getName()));
+		}
+		root.addContent(new Element("year").setText(Integer.toString(inProc.getYear())));
+		if(inProc.getPages()!=null) root.addContent(new Element("pages").setText(inProc.getPages()));
+		if(inProc.getProceedings()!=null) root.addContent(new Element("crossref").setText(inProc.getProceedings().getId()));
+		if(inProc.getNote()!=null) root.addContent(new Element("note").setText(inProc.getNote()));
+		//root.addContent(new Element("booktitle").setText(inProc.))
+		resultingXml = xmOut.outputString(doc.getRootElement());
+		
+		System.out.println(resultingXml);
+		return resultingXml;
 	}
 }

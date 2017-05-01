@@ -39,10 +39,18 @@ public class Main extends Application {
 //		for(Person per: people){
 //			System.out.println(per.getName());
 //		}
-		List<Proceedings> proccs = db.getProceedings();
-		for(Proceedings proc: proccs){
-			System.out.println(proc.getTitle());
+		List<Series> series = db.getSeries();
+		for(Series ser: series){
+			System.out.println(ser.getName() + " ; " + ser.getPublications().size());
 		}
+//		InProceedings inProc = db.getInProceedingsById("conf/icail/Purdy87");
+//		inProc.setId("test");
+//		db.addInProceeding(inProc);
+		//XmlToObject.inProcToXml(inProc);
+//		List<Proceedings> proccs = db.getProceedings();
+//		for(Proceedings proc: proccs){
+//			System.out.println(proc.getTitle());
+//		}
 //		List<Publisher> pubs = db.getPublishers();
 //		for(Publisher pub: pubs){
 //			System.out.println(pub.getName());

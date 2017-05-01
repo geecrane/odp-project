@@ -1777,7 +1777,27 @@ public class Database {
 	// public int id;
 	// public int distanceFromRoot;
 	// }
-
+	public Series getSeriesByName(String name, boolean lazy){
+		Series serie = new Series(name);
+		Set<Publication> pubs = new HashSet<>();
+		String getPublicationsFormSeriesQuery = String.format("//proceedings[series=\"%s\"]", name);
+		ClientQuery query;
+		try {
+			query = session.query(getPublicationsFormSeriesQuery);
+			while(query.more()){
+				String xml = query.next();
+				Publication pub = XmlToObject.XmlToPublication(xml, null, this, true);
+				if(pub!=null) pubs.add(pub);
+				else System.out.println("Error is function getSeriesByName. Publication");
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		serie.setPublications(pubs);
+		return serie;
+		
+	}
 	// GUI functions
 	public List<Publisher> getPublishers() {
 		List<Publisher> pubs = new ArrayList<>();
@@ -1886,9 +1906,37 @@ public class Database {
 		}
 		return confs;
 	}
+	
+	public List<Series> getSeries(){
+		List<Series> series = new ArrayList<>();
+		String allSeriesQuery = "distinct-values(//proceedings/series)";
+		ClientQuery query;
+		try {
+			query = session.query(allSeriesQuery);
+			while (query.more()) {
+				series.add(getSeriesByName(query.next(), true));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return series;
+	}
 
 	// ADD Function
-	public void addPerson(Person person) {
-
+	public void addInProceeding(InProceedings inProc) {
+		if (getInProceedingsById(inProc.getId()) == null) {
+			String xml = XmlToObject.inProcToXml(inProc);
+			String query = String.format("insert node %s into /root", xml);
+			try {
+				session.query(query);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("Added Inproceeding: " + inProc.getId() + " to database");
+		} else
+			System.out.println("(function: \"addInProceeding\") Refuse to add Inproceeding with id: + " + inProc.getId()
+					+ " id already exists");
 	}
 }
