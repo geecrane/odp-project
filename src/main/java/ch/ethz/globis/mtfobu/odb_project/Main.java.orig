@@ -40,28 +40,38 @@ public class Main extends Application {
 //			System.out.println(per.getName());
 //		}
 <<<<<<< HEAD
-		List<Publisher> pubs = db.getPublishers();
-		for(Publisher pub: pubs){
-			System.out.println(pub.getName());
+		List<Series> series = db.getSeries();
+		for(Series ser: series){
+			System.out.println(ser.getName() + " ; " + ser.getPublications().size());
 		}
-		// task 14
-//		List<Publisher> pubs = db.task14(1900, 1990);
-//		for(Publisher pub: pubs){
-//			System.out.println(pub.getName());
+//		InProceedings inProc = db.getInProceedingsById("conf/icail/Purdy87");
+//		inProc.setId("test");
+//		db.addInProceeding(inProc);
+		//XmlToObject.inProcToXml(inProc);
+//		List<Proceedings> proccs = db.getProceedings();
+//		for(Proceedings proc: proccs){
+//			System.out.println(proc.getTitle());
 //		}
 ||||||| merged common ancestors
-		// task 14
-		List<Publisher> pubs = db.task14(1900, 1990);
-		for(Publisher pub: pubs){
-			System.out.println(pub.getName());
+		List<Proceedings> proccs = db.getProceedings();
+		for(Proceedings proc: proccs){
+			System.out.println(proc.getTitle());
 		}
 =======
+//		List<Proceedings> proccs = db.getProceedings();
+//		for(Proceedings proc: proccs){
+//			System.out.println(proc.getTitle());
+//		}
+>>>>>>> 58859c61d93039783f55d7f40133bd5eefe3e0b3
+//		List<Publisher> pubs = db.getPublishers();
+//		for(Publisher pub: pubs){
+//			System.out.println(pub.getName());
+//		}
 		// task 14
 //		List<Publisher> pubs = db.task14(1900, 1990);
 //		for(Publisher pub: pubs){
 //			System.out.println(pub.getName());
 //		}
->>>>>>> 28127b28dc0b810a42d94477416f672292e94205
 //		// task 13
 //		List<InProceedings> inProcs = db.getPublicationsWhereAuthorIsLast("Antónia Lopes");
 //		for(InProceedings inProc: inProcs){
@@ -141,7 +151,7 @@ public class Main extends Application {
 //		System.out.println(db.authorDistance("1785178126", "1107451538"));
 //		// uncomment line below to enable the GUI
 //
- launch(args);
+		launch(args);
 //		System.out.println("PROGRAMM TERMINATED");
 
 	}

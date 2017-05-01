@@ -12,8 +12,9 @@ public class ConferenceEdition implements DomainObject {
 	private Proceedings proceedings;
 	
 	
-	public ConferenceEdition(String id, Conference conference, int year, Proceedings proceedings) {
-		this.id = id;
+	public ConferenceEdition(Conference conference, int year, Proceedings proceedings) {
+		String idhash = Integer.toString(year)+proceedings.getId()+conference.getId();
+		this.id = String.valueOf(idhash.hashCode());
 		this.conference = conference;
 		this.year = year;
 		this.proceedings = proceedings;

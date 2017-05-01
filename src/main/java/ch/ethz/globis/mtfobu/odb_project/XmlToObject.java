@@ -3,6 +3,7 @@ package ch.ethz.globis.mtfobu.odb_project;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,8 +83,7 @@ public class XmlToObject {
 				} else
 					System.out.println("Proceeding with id: " + rootNode.getAttributeValue("key")
 							+ " has not been fully initialized because of a missing context");
-				publication.setConferenceEdition(new ConferenceEdition(rootNode.getChildText("year"),
-						new Conference(rootNode.getChildText("booktitle")),
+				publication.setConferenceEdition(new ConferenceEdition(new Conference(rootNode.getChildText("booktitle")),
 						Integer.parseInt(rootNode.getChildText("year")), publication)); // The
 																						// conference
 																						// edition
@@ -178,8 +178,7 @@ public class XmlToObject {
 		} else
 			System.out.println("Proceeding with id: " + proceedingNode.getAttributeValue("key")
 					+ " has not been fully initialized because of a missing context");
-		proceeding.setConferenceEdition(new ConferenceEdition(proceedingNode.getChildText("year"),
-				new Conference(proceedingNode.getChildText("booktitle")),
+		proceeding.setConferenceEdition(new ConferenceEdition(new Conference(proceedingNode.getChildText("booktitle")),
 				Integer.parseInt(proceedingNode.getChildText("year")), proceeding)); // The
 																						// conference
 																						// edition
@@ -212,11 +211,33 @@ public class XmlToObject {
 			Element rootNode = inprocXML.getRootElement();
 			String year = rootNode.getChildText("year");
 			Proceedings proc = proceedingFromElement(rootNode.getChild("proceedings"), null, db, true);
-			// Here I assume that the conferencEdition id is the same as the
-			// year. TODO: Verify that this assertion is valid
-			cE = new ConferenceEdition(year, conf, Integer.parseInt(year), proc);
+			cE = new ConferenceEdition(conf, Integer.parseInt(year), proc);
 		} catch (JDOMException e) {
 			System.out.println("Error: The conference edition XML was not in the expected format");
+			e.printStackTrace();
+			return null;
+		}
+		return cE;
+	}
+	
+	public static ConferenceEdition XmlProceedingToConferenceEdition(String proceedingXml, Database db) throws IOException{
+		ConferenceEdition cE;
+		SAXBuilder builder = new SAXBuilder();
+		InputStream stream = new ByteArrayInputStream(proceedingXml.getBytes("UTF-8"));
+		try {
+			Document inprocXML = builder.build(stream);
+			Element rootNode = inprocXML.getRootElement();
+			String ConferenceName = rootNode.getChildText("booktitle");
+			Conference conf;
+			if(ConferenceName!=null) conf = db.getConferenceByName(rootNode.getChildText("booktitle"), true);
+			else{
+				System.out.println("(function: XmlProceedingToConferenceEdition) Warning the given proceeding doesn't have a conference!");
+				return null;
+			}
+			Proceedings proc = XmlToObject.XmlToProceeding(proceedingXml, null, db, true);
+			String year = rootNode.getChildText("year");
+			cE = new ConferenceEdition(conf, Integer.parseInt(year), proc);
+		} catch (JDOMException e) {
 			e.printStackTrace();
 			return null;
 		}

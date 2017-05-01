@@ -1922,6 +1922,22 @@ public class Database {
 		}
 		return series;
 	}
+	public List<ConferenceEdition> getConferenceEditions(){
+		List<ConferenceEdition> confEditions = new ArrayList<>();
+		String allConferencEditionsQuery = "//proceedings[exists(booktitle)]";
+		ClientQuery query;
+		try {
+			query = session.query(allConferencEditionsQuery);
+			while (query.more()) {
+				confEditions.add(XmlToObject.XmlProceedingToConferenceEdition(query.next(), this));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return confEditions;
+	}
+	
 
 	// ADD Function
 	public void addInProceeding(InProceedings inProc) {
