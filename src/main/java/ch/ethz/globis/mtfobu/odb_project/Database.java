@@ -543,6 +543,37 @@ public class Database {
 		return inProcs;
 	}
 
+	// TASK 14:
+	// let $lowerBound := 1960
+	// let $upperBound := 1962
+	// let $inProcs := (for $inProc in //inproceedings
+	// where $inProc/year>=$lowerBound and $inProc/year<=$upperBound
+	// return $inProc)
+	// for $proc in //proceedings
+	// where $proc/editor/text()=$inProcs/author/text()
+	//
+	// return $proc
+	public List<Publisher> task14(int yearLowerBound, int yearUpperBound) {
+		List<Publisher> pubs = new ArrayList<>();
+		String task14Query = String.format("distinct-values(let $lowerBound := %d" + " let $upperBound := %d"
+				+ " let $inProcs := (for $inProc in //inproceedings"
+				+ " where $inProc/year>=$lowerBound and $inProc/year<=$upperBound return $inProc)"
+				+ " for $proc in //proceedings where $proc/editor/text()=$inProcs/author/text()"
+				+ " order by $proc/publisher return $proc/publisher)", yearLowerBound, yearUpperBound);
+		ClientQuery query;
+		try {
+			query = session.query(task14Query);
+			while(query.more()){
+				pubs.add(getPublisherByName(query.next().replace("&", "&amp;")));
+			}
+		} catch (IOException e) {
+			System.out.println(task14Query);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return pubs;
+	}
+
 	// Seba: get person by id
 	// id is expected to be the name of the person
 	public Person getPersonById(String id, boolean lazy) {

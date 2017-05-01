@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.Set;
 
 import ch.ethz.globis.mtfobu.odb_project.zoodb.Conference;
 import javafx.application.Application;
@@ -39,6 +40,42 @@ public class Main extends Application {
 //			System.out.println(per.getName());
 //		}
 <<<<<<< HEAD
+		// task 13
+		List<InProceedings> inProcs = db.getPublicationsWhereAuthorIsLast("Antónia Lopes");
+		for(InProceedings inProc: inProcs){
+			System.out.println(inProc.getTitle());
+		}
+		// task 12
+		List<Person> pers = db.getPeopleThatAreAuthorsAndEditors();
+		for(Person per: pers){
+			System.out.println(per.getName());
+		}
+//		Set<Publication> pubs2 = db.getAuthoredPublications("Sanjay Sharma", true);
+//		for(Publication pub:pubs2){
+//			if(((InProceedings)pub).getProceedings() != null) System.out.println(((InProceedings)pub).getProceedings().getTitle());
+//		}
+//		// task 11
+//		List<Publication> pubs = db.getAllPublicationsOfConferenceByName("BMVC");
+//		for( Publication pub: pubs){
+//			System.out.println(pub.getTitle());
+//		}
+//		// task 10
+//		List<Person> pers = db.getAllAuthorsOfConferenceByName("BMVC");
+//		for(Person per: pers){
+//			System.out.println(per.getName());
+//		}
+//	
+//		// task 9
+//		System.out.println(db.countEditorsAndAuthorsOfConferenceByName("BMVC"));
+//		//Test task 7
+//		List<String> res = db.getNumberPublicationsPerYearInterval(1900, 1990);
+//		for(String str: res){
+//			System.out.println(str);
+//		}
+//		
+//		InProceedings inproc = db.getInProceedingsById("conf/ifip5-7/Jagdev88a");
+//		System.out.println(inproc.getProceedings().getTitle());
+||||||| merged common ancestors
 		//Test task 7
 		List<String> res = db.getNumberPublicationsPerYearInterval(1900, 1990);
 		for(String str: res){
@@ -47,24 +84,16 @@ public class Main extends Application {
 		
 		InProceedings inproc = db.getInProceedingsById("conf/ifip5-7/Jagdev88a");
 		System.out.println(inproc.getProceedings().getTitle());
-//		List<ch.ethz.globis.mtfobu.odb_project.Conference> confs = db.getConferences();
-//		for(ch.ethz.globis.mtfobu.odb_project.Conference per: confs){
-//			System.out.println(per.getName());
-//		}
-//		List<Publisher> confs2 = db.getPublishers();
-//		for(Publisher per: confs2){
-//			System.out.println(per.getName());
-//		}
-||||||| merged common ancestors
-		List<ch.ethz.globis.mtfobu.odb_project.Conference> confs = db.getConferences();
-		for(ch.ethz.globis.mtfobu.odb_project.Conference per: confs){
-			System.out.println(per.getName());
-		}
-		List<Publisher> confs2 = db.getPublishers();
-		for(Publisher per: confs2){
-			System.out.println(per.getName());
-		}
 =======
+		//Test task 7
+//		List<String> res = db.getNumberPublicationsPerYearInterval(1900, 1990);
+//		for(String str: res){
+//			System.out.println(str);
+//		}
+//		
+//		InProceedings inproc = db.getInProceedingsById("conf/ifip5-7/Jagdev88a");
+//		System.out.println(inproc.getProceedings().getTitle());
+>>>>>>> 9c1fd83ec65933b6664adf188e655ee6a7726587
 //		List<ch.ethz.globis.mtfobu.odb_project.Conference> confs = db.getConferences();
 //		for(ch.ethz.globis.mtfobu.odb_project.Conference per: confs){
 //			System.out.println(per.getName());
@@ -73,7 +102,6 @@ public class Main extends Application {
 //		for(Publisher per: confs2){
 //			System.out.println(per.getName());
 //		}
->>>>>>> d51a6013ef263688685f9aad6d821bfc1a294515
 //		List<Person> coAuthors = db.getCoAuthors("Peter Buneman");
 //		for (Person coAuthor: coAuthors){
 //			System.out.println(coAuthor.getName());

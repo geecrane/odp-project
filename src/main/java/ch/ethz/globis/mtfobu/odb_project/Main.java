@@ -39,16 +39,21 @@ public class Main extends Application {
 //		for(Person per: people){
 //			System.out.println(per.getName());
 //		}
-		// task 13
-		List<InProceedings> inProcs = db.getPublicationsWhereAuthorIsLast("Antónia Lopes");
-		for(InProceedings inProc: inProcs){
-			System.out.println(inProc.getTitle());
+		// task 14
+		List<Publisher> pubs = db.task14(1900, 1990);
+		for(Publisher pub: pubs){
+			System.out.println(pub.getName());
 		}
-		// task 12
-		List<Person> pers = db.getPeopleThatAreAuthorsAndEditors();
-		for(Person per: pers){
-			System.out.println(per.getName());
-		}
+//		// task 13
+//		List<InProceedings> inProcs = db.getPublicationsWhereAuthorIsLast("Antónia Lopes");
+//		for(InProceedings inProc: inProcs){
+//			System.out.println(inProc.getTitle());
+//		}
+//		// task 12
+//		List<Person> pers = db.getPeopleThatAreAuthorsAndEditors();
+//		for(Person per: pers){
+//			System.out.println(per.getName());
+//		}
 //		Set<Publication> pubs2 = db.getAuthoredPublications("Sanjay Sharma", true);
 //		for(Publication pub:pubs2){
 //			if(((InProceedings)pub).getProceedings() != null) System.out.println(((InProceedings)pub).getProceedings().getTitle());
@@ -118,7 +123,7 @@ public class Main extends Application {
 //		System.out.println(db.authorDistance("1785178126", "1107451538"));
 //		// uncomment line below to enable the GUI
 //
- launch(args);
+// launch(args);
 //		System.out.println("PROGRAMM TERMINATED");
 
 	}
