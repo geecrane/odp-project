@@ -26,14 +26,7 @@
                         </TableView>
                       <Button fx:id="personDeleteButton" layoutX="96.0" layoutY="341.0" mnemonicParsing="false" onAction="#updatePeople" prefHeight="25.0" text="Delete Person" />
                         <TextField fx:id="personSearchField" layoutX="547.0" prefHeight="26.0" prefWidth="450.0" />
-                        <Group layoutX="677.0" layoutY="341.0">
-                           <children>
-                              <Button fx:id="personNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
-                              <Button fx:id="personPreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Label alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
-                              <TextField fx:id="personCurrentPageField" layoutX="154.0" prefHeight="26.0" prefWidth="80.0" text="1" />
-                           </children>
-                        </Group>
+                        <Group layoutX="677.0" layoutY="341.0" />
                         <Button fx:id="personNewButton" layoutY="341.0" mnemonicParsing="false" text="New Person" />
                      </children>
                   </Group>
@@ -102,18 +95,11 @@
                            </columns>
                         </TableView>
                         <TextField fx:id="proceedingSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
-                        <Button fx:id="proceedingDeleteButton" layoutX="124.0" layoutY="341.0" mnemonicParsing="false" text="Delete Proceeding" />
+                        <Button fx:id="proceedingDeleteButton" layoutX="124.0" layoutY="341.0" mnemonicParsing="false" onAction="#updateProceedings" text="Delete Proceeding" />
                         <Button fx:id="proceedingNewButton" layoutY="341.0" mnemonicParsing="false" text="New Proceeding" />
                         <Group layoutX="677.0" layoutY="341.0">
                            <children>
-                              <Button fx:id="proceedingNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
-                              <Button fx:id="proceedingPreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Group layoutX="112.0">
-                                 <children>
-                                    <Label alignment="CENTER" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
-                                    <TextField fx:id="proceedingCurrentPageField" layoutX="42.0" prefHeight="26.0" prefWidth="80.0" text="1" />
-                                 </children>
-                              </Group>
+                              <Group layoutX="112.0" />
                            </children>
                         </Group>
                      </children>
@@ -122,7 +108,7 @@
                      <children>
                         <TextField fx:id="proceedingTitleField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Title" />
-                        <Button fx:id="proceedingChangeTitleButton" layoutX="200.0" layoutY="43.0" mnemonicParsing="false" text="Change Title" />
+                        <Button fx:id="proceedingChangeTitleButton" layoutX="200.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateProceedings" text="Change Title" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="469.0">
@@ -145,7 +131,7 @@
                      <children>
                         <TextField fx:id="proceedingIsbnField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="ISBN" />
-                        <Button fx:id="proceedingChangeIsbnButton" layoutX="197.0" layoutY="43.0" mnemonicParsing="false" text="Change ISBN" />
+                        <Button fx:id="proceedingChangeIsbnButton" layoutX="197.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateProceedings" text="Change ISBN" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="630.0">
@@ -172,7 +158,7 @@
                            </columns>
                         </TableView>
                         <Label text="Editors" />
-                        <Button fx:id="proceedingRemoveEditorButton" layoutX="201.0" layoutY="296.0" mnemonicParsing="false" text="Remove Editor" />
+                        <Button fx:id="proceedingRemoveEditorButton" layoutX="201.0" layoutY="296.0" mnemonicParsing="false" onAction="#updateProceedings" text="Remove Editor" />
                      </children>
                   </Group>
                   <Group layoutX="363.0" layoutY="584.0">
@@ -270,15 +256,8 @@
                            </columns>
                         </TableView>
                         <TextField fx:id="publicationSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
-                        <Button fx:id="publicationDeleteButton" layoutY="681.0" mnemonicParsing="false" text="Delete Publication" />
-                        <Group layoutX="678.0" layoutY="681.0">
-                           <children>
-                              <Button fx:id="publicationNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
-                              <Button fx:id="publicationPreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Label alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
-                              <TextField fx:id="publicationCurrentPageField" layoutX="154.0" prefHeight="26.0" prefWidth="80.0" text="1" />
-                           </children>
-                        </Group>
+                        <Button fx:id="publicationDeleteButton" layoutY="681.0" mnemonicParsing="false" onAction="#updatePublications" text="Delete Publication" />
+                        <Group layoutX="678.0" layoutY="681.0" />
                      </children>
                   </Group>
                </children>
@@ -291,30 +270,23 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView fx:id="publisherMainTable" layoutY="29.0" prefHeight="310.0" prefWidth="997.0">
+                        <TableView fx:id="publisherMainTable" layoutY="29.0" onMouseClicked="#publishersMainClickItem" prefHeight="310.0" prefWidth="997.0">
                            <columns>
-                              <TableColumn prefWidth="311.0" text="Name" />
-                              <TableColumn minWidth="0.0" prefWidth="685.0" text="Published" />
+                              <TableColumn fx:id="publisherMainTableNameColumn" prefWidth="311.0" text="Name" />
+                              <TableColumn fx:id="publisherMainTablePublishedColumn" minWidth="0.0" prefWidth="685.0" text="Published" />
                            </columns>
                         </TableView>
-                        <Button fx:id="publisherDeleteButton" layoutX="127.0" layoutY="341.0" mnemonicParsing="false" text="Delete Publisher" />
+                        <Button fx:id="publisherDeleteButton" layoutX="127.0" layoutY="341.0" mnemonicParsing="false" onAction="#updatePublishers" text="Delete Publisher" />
                         <TextField fx:id="publisherSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
                         <Button fx:id="publisherCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create Publisher" />
-                        <Group layoutX="677.0" layoutY="341.0">
-                           <children>
-                              <Button fx:id="publisherNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
-                              <Button fx:id="publisherPreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Label alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
-                              <TextField fx:id="publisherCurrentPageField" layoutX="154.0" prefHeight="26.0" prefWidth="80.0" text="1" />
-                           </children>
-                        </Group>
+                        <Group layoutX="677.0" layoutY="341.0" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="401.0">
                      <children>
                         <TextField fx:id="publisherNameField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Name" />
-                        <Button fx:id="publisherChangeNameButton" layoutX="190.0" layoutY="43.0" mnemonicParsing="false" text="Change Name" />
+                        <Button fx:id="publisherChangeNameButton" layoutX="190.0" layoutY="43.0" mnemonicParsing="false" onAction="#updatePublishers" text="Change Name" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="469.0">
@@ -329,12 +301,12 @@
                      <children>
                         <TableView fx:id="publisherProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="656.0">
                            <columns>
-                              <TableColumn prefWidth="450.0" text="Title" />
-                              <TableColumn minWidth="0.0" prefWidth="199.0" text="Conference" />
+                              <TableColumn fx:id="publisherProceedingsTitleColumn" prefWidth="450.0" text="Title" />
+                              <TableColumn fx:id="publisherProceedingsConferenceColumn" minWidth="0.0" prefWidth="199.0" text="Conference" />
                            </columns>
                         </TableView>
                         <Label text="Published Proceedings" />
-                        <Button fx:id="publisherRemoveProceedingButton" layoutX="507.0" layoutY="296.0" mnemonicParsing="false" text="Remove Proceeding" />
+                        <Button fx:id="publisherRemoveProceedingButton" layoutX="507.0" layoutY="296.0" mnemonicParsing="false" onAction="#updatePublishers" text="Remove Proceeding" />
                      </children>
                   </Group>
                </children>
@@ -356,14 +328,7 @@
                         <Button fx:id="conferenceDeleteButton" layoutX="141.0" layoutY="341.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Conference" />
                         <TextField fx:id="conferenceSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
                         <Button fx:id="conferenceCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create Conference" />
-                        <Group layoutX="677.0" layoutY="341.0">
-                           <children>
-                              <Button fx:id="conferenceNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
-                              <Button fx:id="conferencePreviousPageButton" mnemonicParsing="false" text="Previous Page" />
-                              <Label alignment="CENTER" layoutX="112.0" layoutY="5.0" prefHeight="16.0" prefWidth="38.0" text="Page" />
-                              <TextField fx:id="conferenceCurrentPageField" layoutX="154.0" prefHeight="26.0" prefWidth="80.0" text="1" />
-                           </children>
-                        </Group>
+                        <Group layoutX="677.0" layoutY="341.0" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="401.0">
