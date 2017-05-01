@@ -39,11 +39,15 @@ public class Main extends Application {
 //		for(Person per: people){
 //			System.out.println(per.getName());
 //		}
-		// task 14
-		List<Publisher> pubs = db.task14(1900, 1990);
+		List<Publisher> pubs = db.getPublishers();
 		for(Publisher pub: pubs){
 			System.out.println(pub.getName());
 		}
+		// task 14
+//		List<Publisher> pubs = db.task14(1900, 1990);
+//		for(Publisher pub: pubs){
+//			System.out.println(pub.getName());
+//		}
 //		// task 13
 //		List<InProceedings> inProcs = db.getPublicationsWhereAuthorIsLast("Antónia Lopes");
 //		for(InProceedings inProc: inProcs){

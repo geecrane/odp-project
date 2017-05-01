@@ -438,6 +438,26 @@ public class Database {
 		return result;
 	}
 
+	// TASK 8:
+	//TODO: This query returns the number of InProceedings associated with a conference. 
+	//Verify that this is the right interpretation: "[...] featured in all editions of a given conference [...]"
+	public int getNumberOfPublicationsPerConferenceByName(String conferenceName) {
+		String numberOfPublicationsPerConferenceQuery = String.format("count(let $conference := \"%s\""
+				+ " let $proc := //proceedings[booktitle=$conference]" + " for $inproc in //inproceedings"
+				+ " where $inproc/crossref=$proc/@key" + " order by $inproc/title" + " return $inproc)",
+				conferenceName);
+		ClientQuery query;
+		try{
+			query = session.query(numberOfPublicationsPerConferenceQuery);
+			if(query.more()) return Integer.parseInt(query.next());
+			else System.out.println("Error in task 8: Query did not return a result");
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		return Integer.MIN_VALUE;
+	}
+
 	// TASK 9:
 	// TODO: Verify that this returns the correct result
 	public int countEditorsAndAuthorsOfConferenceByName(String conferenceName) {
@@ -563,7 +583,7 @@ public class Database {
 		ClientQuery query;
 		try {
 			query = session.query(task14Query);
-			while(query.more()){
+			while (query.more()) {
 				pubs.add(getPublisherByName(query.next().replace("&", "&amp;")));
 			}
 		} catch (IOException e) {
