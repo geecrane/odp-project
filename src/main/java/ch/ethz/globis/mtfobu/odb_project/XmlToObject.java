@@ -133,9 +133,11 @@ public class XmlToObject {
 				for (Element author : authors)
 					authorList.add(new Person(author.getText()));
 				inProc.setAuthors(authorList);
+				inProc.setProceedings(db.getProceedingById(rootNode.getChildText("crossref")));
 			}
 			inProc.setNote(rootNode.getChildText("note"));
 			inProc.setPages(rootNode.getChildText("pages"));
+			
 		} catch (JDOMException e) {
 			System.out.println("Error: The query result was not in the expected XML format");
 			e.printStackTrace();

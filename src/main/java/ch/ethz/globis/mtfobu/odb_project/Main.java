@@ -39,13 +39,13 @@ public class Main extends Application {
 //			System.out.println(per.getName());
 //		}
 		//Test task 7
-		List<String> res = db.getNumberPublicationsPerYearInterval(1900, 1990);
-		for(String str: res){
-			System.out.println(str);
-		}
-		
-		InProceedings inproc = db.getInProceedingsById("conf/ifip5-7/Jagdev88a");
-		System.out.println(inproc.getProceedings().getTitle());
+//		List<String> res = db.getNumberPublicationsPerYearInterval(1900, 1990);
+//		for(String str: res){
+//			System.out.println(str);
+//		}
+//		
+//		InProceedings inproc = db.getInProceedingsById("conf/ifip5-7/Jagdev88a");
+//		System.out.println(inproc.getProceedings().getTitle());
 //		List<ch.ethz.globis.mtfobu.odb_project.Conference> confs = db.getConferences();
 //		for(ch.ethz.globis.mtfobu.odb_project.Conference per: confs){
 //			System.out.println(per.getName());
@@ -90,7 +90,7 @@ public class Main extends Application {
 //		System.out.println(db.authorDistance("1785178126", "1107451538"));
 //		// uncomment line below to enable the GUI
 //
-// launch(args);
+ launch(args);
 //		System.out.println("PROGRAMM TERMINATED");
 
 	}

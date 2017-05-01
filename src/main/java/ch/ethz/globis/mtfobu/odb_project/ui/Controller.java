@@ -52,15 +52,35 @@ public class Controller {
     public void initialize() {
     	db = Database.getDatabase();
     	
-//    	initializeInproceedingsMainColumns();	
-//    	loadInProceedings();
     	
-    	initializePeopleMainColumns();
-    	loadPeople();
+    	
+    	
+    	final Controller parameter = this; 
+		Thread t = new Thread(new Runnable() {
+			 Controller c = parameter;
+	         public void run()
+	         {
+	        	 initAllColumns();
+	        	 loadPeople();
+	        	 loadInProceedings();
+	        	 
+
+	         }
+		});
+		
+		t.start();
+    	
+   	
     	
     	 
     }
 
+	private void initAllColumns() {
+		initializeInproceedingsMainColumns();	
+    	initializePeopleMainColumns();
+	}
+
+    //general
     
 	
 	
@@ -123,7 +143,7 @@ public class Controller {
 	    	
 	    	//initialize data
 	    	Person selected = personMainTable.getSelectionModel().getSelectedItem();
-	    	loadPeopleProceedings(selected);
+	    	preloadPeopleProceedings(selected);
 	    	
 	    	//editable fields
 	    	personNameField.setText(selected.getName());
@@ -132,23 +152,63 @@ public class Controller {
 	    }
 	}
 	
-	private void loadPeopleProceedings(Person selected) {	
+	private void preloadPeopleProceedings(Person selected) {	
 		//proceedings
-		Set<Publication> pubs = db.getEditedPublications(selected.getName(), false);
+		Set<Publication> procs = db.getEditedPublications(selected.getName(), false);
+		selected.setEditedPublications(procs);
+		//inproceedings
+		Set<Publication> inprocs = db.getAuthoredPublications(selected.getName(), false);
+		selected.setAuthoredPublications(inprocs);
+		
+		
+		loadPeopleSubTables(procs, inprocs);
+	}
+
+	private void loadPeopleSubTables(Set<Publication> proceedings, Set<Publication> inProceedings) {
 		ObservableList<Publication> masterData = FXCollections.observableArrayList();
-		masterData.addAll(pubs);
+		masterData.addAll(proceedings);
 		
 		//load table
 		FilteredList<Publication> filteredData = setTable(masterData,personProceedingTable);
 		
 		//inproceedings
-		pubs = db.getAuthoredPublications(selected.getName(), false);
 		masterData = FXCollections.observableArrayList();
-		masterData.addAll(pubs);
+		masterData.addAll(inProceedings);
 		
 		//load table
 		filteredData = setTable(masterData,personInProceedingTable);
 	}
+	
+	@FXML
+	private void updatePeople(ActionEvent event) {
+	     // Button was clicked, do something...
+		 String srcId = ((Button)event.getSource()).getId();
+		 Person selected = personMainTable.getSelectionModel().getSelectedItem();
+		 switch (srcId) {
+			 case "personChangeNameButton":
+				selected.setName(personNameField.getText());
+				personMainTable.refresh();
+				break;
+			 case "personRemoveProceedingButton":
+				 Publication p = personProceedingTable.getSelectionModel().getSelectedItem();
+				 selected.getEditedPublications().remove(p);
+				 loadPeopleSubTables(selected.getEditedPublications(), selected.getAuthoredPublications()); 
+				 break;
+			 case "personDeleteButton":
+				 peopleMasterData.remove(selected);
+				 personMainTable.refresh();
+				 break;
+			 case "personRemoveInProceedingButton":
+				 Publication p2 = personInProceedingTable.getSelectionModel().getSelectedItem();
+				 selected.getAuthoredPublications().remove(p2);
+				 loadPeopleSubTables(selected.getEditedPublications(), selected.getAuthoredPublications());
+				 break;
+			 default:
+				break;
+		}
+		
+	}
+	
 	//END people tab
 	
 	
@@ -220,9 +280,6 @@ public class Controller {
 	    	
 	    }
 	}
-
-
-
 
 	private void loadInProceedingsAuthors(InProceedings selected) {
 		List<Person> authors = selected.getAuthors();
