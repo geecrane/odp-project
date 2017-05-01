@@ -94,6 +94,7 @@ public class Controller {
     	
     	//search field
     	searchSetupPeople(filteredData);  
+    	personTab.setDisable(false);
 	}
 	private void initializePeopleMainColumns() {
 		// Initialize InProceedings Columns
@@ -140,7 +141,6 @@ public class Controller {
 	{
 	    if (event.getClickCount() > 0) //Checking double click
 	    {
-	    	
 	    	//initialize data
 	    	Person selected = personMainTable.getSelectionModel().getSelectedItem();
 	    	preloadPeopleProceedings(selected);
@@ -148,7 +148,6 @@ public class Controller {
 	    	//editable fields
 	    	personNameField.setText(selected.getName());
 
-	    	
 	    }
 	}
 	
@@ -159,8 +158,7 @@ public class Controller {
 		//inproceedings
 		Set<Publication> inprocs = db.getAuthoredPublications(selected.getName(), false);
 		selected.setAuthoredPublications(inprocs);
-		
-		
+
 		loadPeopleSubTables(procs, inprocs);
 	}
 
@@ -220,7 +218,8 @@ public class Controller {
     	FilteredList<InProceedings> filteredData = setTable(inProceedingsMasterData,inProceedingMainTable);
     	
     	//search field
-    	searchSetupInproceedings(filteredData);  
+    	searchSetupInproceedings(filteredData); 
+    	inProceedingTab.setDisable(false);
 	}
 	private void searchSetupInproceedings(FilteredList<InProceedings> filteredData) {
 		
