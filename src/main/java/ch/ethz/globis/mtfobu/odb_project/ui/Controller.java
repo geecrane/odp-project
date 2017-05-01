@@ -62,30 +62,21 @@ public class Controller {
     
     public void initialize() {
     	db = Database.getDatabase();
+    	initAllColumns();
     	
     	
-    	
-    	
-    	final Controller parameter = this; 
-		Thread t = new Thread(new Runnable() {
-			 Controller c = parameter;
-	         public void run()
-	         {
-	        	 initAllColumns();
-	        	 
-	        	 loadPeople();
+		new Thread(new Runnable() {
+	         public void run(){
+	        	 //loadPeople();
 	        	 loadProceedings();
-	        	 loadPublications();
-	        	 loadPublishers();
+	        	 //loadPublications();
+	        	 //loadPublishers();
 	        	 loadInProceedings();
-	        	 loadConf();
-	        	 
-	        	 
-
-	         }
-		});
+	        	 //loadConf();
+	         }}).start();
 		
-		t.start();
+		
+
     	
    	
     	
@@ -103,6 +94,10 @@ public class Controller {
 	}
 
     //general
+	
+	
+	
+	
 	
 	//START Conferences
 		private void loadConf() {
@@ -310,7 +305,8 @@ public class Controller {
 				 case "publisherRemoveProceedingButton":
 					 Publication p = publisherProceedingTable.getSelectionModel().getSelectedItem();
 					 selected.getPublications().remove(p);
-					 loadPublisherProceedings(selected); 
+					 loadPublisherProceedings(selected);
+					 publisherMainTable.refresh();
 					 break;
 				 default:
 					break;
@@ -703,6 +699,15 @@ public class Controller {
 	@FXML
 	public void inProceedingsMainClickItem(MouseEvent event)
 	{
+		if (event.getClickCount() == 2) //Checking double click
+		{
+			InProceedings selected = inProceedingMainTable.getSelectionModel().getSelectedItem();
+			selected.getProceedings().getTitle();
+			tabPane.getSelectionModel().select(1);
+			proceedingSearchField.setText(selected.getProceedings().getTitle());
+			
+		}
+		
 	    if (event.getClickCount() > 0) //Checking double click
 	    {
 	    	
