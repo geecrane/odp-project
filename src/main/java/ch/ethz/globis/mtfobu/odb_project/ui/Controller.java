@@ -24,9 +24,13 @@ import ch.ethz.globis.mtfobu.odb_project.Publication;
 import ch.ethz.globis.mtfobu.odb_project.Publisher;
 import ch.ethz.globis.mtfobu.odb_project.Series;
 import ch.ethz.globis.mtfobu.odb_project.XmlImport;
+import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.ConferenceTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.ProceedingTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.PublicationTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.PublisherTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.SecondaryConferenceEditionTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.SecondaryPersonTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.SecondaryProceedingTableEntry;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -53,7 +57,8 @@ public class Controller {
     private ObservableList<InProceedings> inProceedingsMasterData = FXCollections.observableArrayList();
     private ObservableList<Proceedings> proceedingsMasterData = FXCollections.observableArrayList();
     private ObservableList<Publication> publicationsMasterData = FXCollections.observableArrayList();
-    
+    private ObservableList<Publisher> publishersMasterData = FXCollections.observableArrayList();
+    private ObservableList<Conference> confMasterData = FXCollections.observableArrayList();
     
     public void initialize() {
     	db = Database.getDatabase();
@@ -67,10 +72,13 @@ public class Controller {
 	         public void run()
 	         {
 	        	 initAllColumns();
-	        	 //loadPeople();
-	        	//loadProceedings();
-//	        	 loadInProceedings();
+	        	 
+	        	 loadPeople();
+	        	 loadProceedings();
 	        	 loadPublications();
+	        	 loadPublishers();
+	        	 loadInProceedings();
+	        	 loadConf();
 	        	 
 	        	 
 
@@ -89,10 +97,231 @@ public class Controller {
 		initializeProceedingsMainColumns();
 		initializeInproceedingsMainColumns();	
 		initializePublicationsMainColumns();
+		initializePublishersMainColumns();
+		initializeConfMainColumns();
     	
 	}
 
     //general
+	
+	//START Conferences
+		private void loadConf() {
+				//init table data
+				List<Conference> ps = db.getConferences();
+				confMasterData.addAll(ps);
+		    	FilteredList<Conference> filteredData = setTable(confMasterData,conferenceMainTable);
+		    	
+		    	//search field
+		    	searchSetupConf(filteredData); 
+		    	conferenceTab.setDisable(false);
+			}
+		private void searchSetupConf(FilteredList<Conference> filteredData) {
+				
+				// Set the filter Predicate whenever the filter changes.
+				conferenceSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+		            filteredData.setPredicate(inProc -> {
+		                // If filter text is empty, display all
+		                if (newValue == null || newValue.isEmpty()) {
+		                    return true;
+		                }
+
+		                // Compare first name and last name of every person with filter text.
+		                String lowerCaseFilter = newValue.toLowerCase();
+
+		                if (inProc.getName().toLowerCase().contains(lowerCaseFilter)) {
+		                    return true; // Filter matches title.
+		                } else {
+		                	for(ConferenceEdition p : inProc.getEditions()){
+		                		if(String.valueOf(p.getYear()).toLowerCase().contains(lowerCaseFilter))
+		                			return true;
+		                	}
+		                }
+		                return false; // Does not match.
+		            });
+		        });
+			}
+		private void initializeConfMainColumns() {
+				// Initialize InProceedings Columns
+				confMainTableNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
+		    	
+				confMainTableEditionsColumn.setCellValueFactory(cellData -> {
+		    		String editions = "";
+		    		for(ConferenceEdition p : cellData.getValue().getEditions()){
+		    			editions += p.getYear()+", ";
+		    		}
+		    		return new SimpleStringProperty(editions);
+		    				});
+		    	
+		    	//initialize authors column
+		    	confEditionsYearColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getYear())));
+		    	
+			}
+			
+		@FXML
+		public void confMainClickItem(MouseEvent event)
+			{
+			    if (event.getClickCount() > 0) //Checking double click
+			    {
+			    	
+			    	//initialize data
+			    	Conference selected = conferenceMainTable.getSelectionModel().getSelectedItem();
+			    	loadConfEditions(selected);
+			    	
+			    	//editable fields
+			    	conferenceNameField.setText(selected.getName());
+			    	
+			    }
+			}
+
+		private void loadConfEditions(Conference selected) {
+				Set<ConferenceEdition> ce = selected.getEditions();
+				ObservableList<ConferenceEdition> masterData = FXCollections.observableArrayList();
+				masterData.addAll(ce);
+				
+				//load table
+				FilteredList<ConferenceEdition> filteredData = setTable(masterData,conferenceEditionTable);
+			}
+		
+		
+		@FXML
+		private void updateConf(ActionEvent event) {
+			     // Button was clicked, do something...
+				 String srcId = ((Button)event.getSource()).getId();
+				 Conference selected = conferenceMainTable.getSelectionModel().getSelectedItem();
+				 switch (srcId) {
+					 case "conferenceChangeNameButton":
+						selected.setName(conferenceNameField.getText());
+						conferenceMainTable.refresh();
+						break;
+					 case "conferenceDeleteButton":
+						 confMasterData.remove(selected);
+						 conferenceMainTable.refresh();
+						 break;
+					 case "conferenceRemoveEditionButton":
+						 ConferenceEdition p = conferenceEditionTable.getSelectionModel().getSelectedItem();
+						 selected.getEditions().remove(p);
+						 loadConfEditions(selected);
+						 conferenceMainTable.refresh();
+						 break;
+					 default:
+						break;
+				}
+				
+			}
+
+		
+		//END Conferences
+	
+	//START Publishers
+	private void loadPublishers() {
+			//init table data
+			List<Publisher> ps = db.getPublishers();
+			publishersMasterData.addAll(ps);
+	    	FilteredList<Publisher> filteredData = setTable(publishersMasterData,publisherMainTable);
+	    	
+	    	//search field
+	    	searchSetupPublishers(filteredData); 
+	    	publisherTab.setDisable(false);
+		}
+	private void searchSetupPublishers(FilteredList<Publisher> filteredData) {
+			
+			// Set the filter Predicate whenever the filter changes.
+			publisherSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+	            filteredData.setPredicate(inProc -> {
+	                // If filter text is empty, display all
+	                if (newValue == null || newValue.isEmpty()) {
+	                    return true;
+	                }
+
+	                // Compare first name and last name of every person with filter text.
+	                String lowerCaseFilter = newValue.toLowerCase();
+
+	                if (inProc.getName().toLowerCase().contains(lowerCaseFilter)) {
+	                    return true; // Filter matches title.
+	                } else {
+	                	for(Publication p : inProc.getPublications()){
+	                		if(p.getTitle().toLowerCase().contains(lowerCaseFilter))
+	                			return true;
+	                	}
+	                }
+	                return false; // Does not match.
+	            });
+	        });
+		}
+	private void initializePublishersMainColumns() {
+			// Initialize InProceedings Columns
+			publisherMainTableNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
+	    	
+	    	publisherMainTablePublishedColumn.setCellValueFactory(cellData -> {
+	    		String published = "";
+	    		for(Publication p : cellData.getValue().getPublications()){
+	    			published += p.getTitle()+", ";
+	    		}
+	    		return new SimpleStringProperty(published);
+	    				});
+	    	
+	    	//initialize authors column
+	    	publisherProceedingsTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
+	    	publisherProceedingsConferenceColumn.setCellValueFactory(cellData -> 
+	    			new SimpleStringProperty(cellData.getValue().getConferenceEdition().getConference().getName()));
+	    	
+		}
+		
+	@FXML
+	public void publishersMainClickItem(MouseEvent event)
+		{
+		    if (event.getClickCount() > 0) //Checking double click
+		    {
+		    	
+		    	//initialize data
+		    	Publisher selected = publisherMainTable.getSelectionModel().getSelectedItem();
+		    	loadPublisherProceedings(selected);
+		    	
+		    	//editable fields
+		    	publisherNameField.setText(selected.getName());
+		    	
+		    }
+		}
+
+	private void loadPublisherProceedings(Publisher selected) {
+			Set<Publication> authors = selected.getPublications();
+			ObservableList<Publication> masterData = FXCollections.observableArrayList();
+			masterData.addAll(authors);
+			
+			//load table
+			FilteredList<Publication> filteredData = setTable(masterData,publisherProceedingTable);
+		}
+	
+	
+	@FXML
+	private void updatePublishers(ActionEvent event) {
+		     // Button was clicked, do something...
+			 String srcId = ((Button)event.getSource()).getId();
+			 Publisher selected = publisherMainTable.getSelectionModel().getSelectedItem();
+			 switch (srcId) {
+				 case "publisherChangeNameButton":
+					selected.setName(publisherNameField.getText());
+					publisherMainTable.refresh();
+					break;
+				 case "publisherDeleteButton":
+					 publishersMasterData.remove(selected);
+					 publisherMainTable.refresh();
+					 break;
+				 case "publisherRemoveProceedingButton":
+					 Publication p = publisherProceedingTable.getSelectionModel().getSelectedItem();
+					 selected.getPublications().remove(p);
+					 loadPublisherProceedings(selected); 
+					 break;
+				 default:
+					break;
+			}
+			
+		}
+
+	
+	//END Publishers
+	
+	
     
 	//START Publications Tab
 	private void initializePublicationsMainColumns() {
@@ -155,6 +384,22 @@ public class Controller {
 	    }
 	}
 	
+	@FXML
+	private void updatePublications(ActionEvent event) {
+	     // Button was clicked, do something...
+		 String srcId = ((Button)event.getSource()).getId();
+		 Publication selected = publicationMainTable.getSelectionModel().getSelectedItem();
+		 switch (srcId) {
+			 case "publicationDeleteButton":
+				 publicationsMasterData.remove(selected);
+				 publicationMainTable.refresh();
+				 break;
+			 default:
+				break;
+		}
+		
+	}
+	
 	//END Publications Tab
 	
 	
@@ -198,10 +443,23 @@ public class Controller {
 
                 if (p.getTitle().toLowerCase().contains(lowerCaseFilter)) {
                     return true; // Filter matches title.
-                }else if (p.getPublisher().getName().toLowerCase().contains(lowerCaseFilter)) {
+                }
+                else if (p.getPublisher() != null && p.getPublisher().getName().toLowerCase().contains(lowerCaseFilter)) {
                     return true; // Filter matches title.
-                }else if (p.getConferenceEdition().getConference().getName().toLowerCase().contains(lowerCaseFilter)) {
-                    return true; // Filter matches title.
+                }
+                else if(p.getConferenceEdition() != null &&
+                		p.getConferenceEdition().getConference() != null &&
+                		p.getConferenceEdition().getConference().getName() != null &&
+                		p.getConferenceEdition().getConference().getName().toLowerCase().contains(lowerCaseFilter)) {
+                		return true; // Filter matches title.
+                	
+                }
+                
+                //TODO some conferences seem to have no name
+                if(p.getConferenceEdition() != null &&
+                		p.getConferenceEdition().getConference() != null ||
+                		p.getConferenceEdition().getConference().getName() == null){
+                	System.err.println(p.getTitle());
                 }
                 return false; // Does not match.
             });
@@ -215,13 +473,51 @@ public class Controller {
 	    {
 	    	//initialize data
 	    	Proceedings selected = proceedingMainTable.getSelectionModel().getSelectedItem();
-	    	//preloadPeopleProceedings(selected);
+	    	loadProceedingsEditors(selected);
 	    	
 	    	//editable fields
 	    	proceedingTitleField.setText(selected.getTitle());
 	    	proceedingIsbnField.setText(selected.getIsbn());
 
 	    }
+	}
+	
+	private void loadProceedingsEditors(Proceedings selected) {
+		List<Person> authors = selected.getAuthors();
+		ObservableList<Person> masterData = FXCollections.observableArrayList();
+		masterData.addAll(authors);
+		
+		//load table
+		FilteredList<Person> filteredData = setTable(masterData,proceedingEditorTable);
+	}
+	
+	@FXML
+	private void updateProceedings(ActionEvent event) {
+	     // Button was clicked, do something...
+		 String srcId = ((Button)event.getSource()).getId();
+		 Proceedings selected = proceedingMainTable.getSelectionModel().getSelectedItem();
+		 switch (srcId) {
+			 case "proceedingChangeTitleButton":
+				selected.setTitle(proceedingTitleField.getText());
+				proceedingMainTable.refresh();
+				break;
+			 case "proceedingChangeIsbnButton":
+				 selected.setIsbn(proceedingIsbnField.getText());
+				 proceedingMainTable.refresh();
+				 break;
+			 case "proceedingDeleteButton":
+				 proceedingsMasterData.remove(selected);
+				 proceedingMainTable.refresh();
+				 break;
+			 case "proceedingRemoveEditorButton":
+				 Person p2 = proceedingEditorTable.getSelectionModel().getSelectedItem();
+				 selected.getAuthors().remove(p2);
+				 loadProceedingsEditors(selected);
+				 break;
+			 default:
+				break;
+		}
+		
 	}
 	
 	//END Proceedings Tab
@@ -482,63 +778,32 @@ public class Controller {
 		return filteredData;
 	}
     
-	
-	
-	
-
-	
-    // START section for person tab
-    
-	// END section for person tab
-	
-	
-	// START section for proceeding tab
-	
-	// END section for proceeding tab
-	
-	
-	// START section for inproceeding tab
-
-	// END section for inproceeding tab
-	
-	
-	// START section for publication tab
-
-	// End section for publication tab
-	
-	
-	// START section for publisher tab
-
-	// End section for publisher tab
-	
-	
-	// START section for conferences tab
-
-	// END section for conferences tab
-	
-	
-	// START section for conference editions tab	
-
-	// END section for conference editions tab
-	
-	
-	// START section for series tab
-
-	// END section for series tab
-    
-    
-    
-    
-    // START section for table entry data types
-
-    // END section for table entry data types
-    
-    
-    
     
     
     // START section for fields that reference FXML
     @FXML TabPane tabPane;
+    
+    //START Conference
+    @FXML    Tab conferenceTab;
+    @FXML    private TableView<Conference> conferenceMainTable;
+    @FXML	private TableColumn<Conference, String> confMainTableEditionsColumn;
+    @FXML	private TableColumn<Conference, String> confMainTableNameColumn;
+    @FXML	private TableColumn<ConferenceEdition, String> confEditionsYearColumn;
+    @FXML    private Button conferenceDeleteButton;
+    @FXML    private TextField conferenceSearchField;
+    @FXML    private Button conferenceSearchButton;
+    @FXML    private Button conferenceCreateButton;
+    @FXML    private Button conferenceNextPageButton;
+    @FXML    private Button conferencePreviousPageButton;
+    @FXML    private TextField conferenceCurrentPageField;
+    @FXML    private TextField conferenceNameField;
+    @FXML    private Button conferenceChangeNameButton;
+    @FXML    private ChoiceBox<?> conferenceEditionDropdown;
+    @FXML    private Button conferenceAddEditionButton;
+    @FXML    private TextField conferenceEditionFilterField;
+    @FXML    private TableView<ConferenceEdition> conferenceEditionTable;
+    @FXML    private Button conferenceRemoveEditionButton;
+    //END Conference
     
     //Start Publications
     @FXML    Tab publicationTab;
@@ -585,7 +850,7 @@ public class Controller {
     @FXML    private ChoiceBox<?> proceedingEditionDropdown;
     @FXML    private Button proceedingChangeEditionButton;
     @FXML    private TextField proceedingEditorFilterField;
-    @FXML    private TableView<SecondaryPersonTableEntry> proceedingEditorTable;
+    @FXML    private TableView<Person> proceedingEditorTable;
     @FXML    private Button proceedingRemoveEditorButton;
     @FXML    private ChoiceBox<?> proceedingEditorDropdown;
     @FXML    private Button proceedingAddEditorButton;
@@ -607,7 +872,26 @@ public class Controller {
     //End People
 
     // Start Publishers
-    
+    @FXML    Tab publisherTab;
+    @FXML    private TableView<Publisher> publisherMainTable;
+    @FXML	 private TableColumn<Publisher, String> publisherMainTableNameColumn;
+    @FXML	 private TableColumn<Publisher, String> publisherMainTablePublishedColumn;
+    @FXML	 private TableColumn<Proceedings, String> publisherProceedingsTitleColumn;
+    @FXML	 private TableColumn<Proceedings, String> publisherProceedingsConferenceColumn;
+    @FXML    private Button publisherDeleteButton;
+    @FXML    private TextField publisherSearchField;
+    @FXML    private Button publisherSearchButton;
+    @FXML    private Button publisherCreateButton;
+    @FXML    private Button publisherNextPageButton;
+    @FXML    private Button publisherPreviousPageButton;
+    @FXML    private TextField publisherCurrentPageField;
+    @FXML    private TextField publisherNameField;
+    @FXML    private Button publisherChangeNameButton;
+    @FXML    private ChoiceBox<?> publisherProceedingDropdown;
+    @FXML    private Button publisherAddProceedingButton;
+    @FXML    private TextField publisherProceedingFilterField;
+    @FXML    private TableView<Publication> publisherProceedingTable;
+    @FXML    private Button publisherRemoveProceedingButton;
     // END Publishers
     
     //Start Inproceedings
