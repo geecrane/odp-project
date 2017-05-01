@@ -212,7 +212,7 @@
                      <children>
                         <TextField fx:id="inProceedingPagesField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Pages" />
-                        <Button fx:id="inProceedingChangePagesButton" layoutX="189.0" layoutY="43.0" mnemonicParsing="false" text="Change Pages" />
+                        <Button fx:id="inProceedingChangePagesButton" layoutX="189.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Change Pages" />
                      </children>
                   </Group>
                   <Group layoutX="362.0" layoutY="401.0">
@@ -239,21 +239,21 @@
                            </columns>
                         </TableView>
                         <Label text="Authors" />
-                        <Button fx:id="inProceedingRemoveAuthorButton" layoutX="189.0" layoutY="296.0" mnemonicParsing="false" text="Remove Authors" />
+                        <Button fx:id="inProceedingRemoveAuthorButton" layoutX="189.0" layoutY="296.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Remove Authors" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="401.0">
                      <children>
                         <TextField fx:id="inProceedingTitleField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Title" />
-                        <Button fx:id="inProceedingChangeTitleButton" layoutX="200.0" layoutY="43.0" mnemonicParsing="false" text="Change Title" />
+                        <Button fx:id="inProceedingChangeTitleButton" layoutX="200.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Change Title" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="537.0">
                      <children>
                         <TextField fx:id="inProceedingYearField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Year" />
-                        <Button fx:id="inProceedingChangeYearButton" layoutX="199.0" layoutY="43.0" mnemonicParsing="false" text="Change Year" />
+                        <Button fx:id="inProceedingChangeYearButton" layoutX="199.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Change Year" />
                      </children>
                   </Group>
                </children>
