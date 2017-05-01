@@ -1775,14 +1775,14 @@ public class Database {
 	public List<Publication> getPublications() {
 		List<Publication> pubs = new ArrayList<>();
 		String publicationsQuery;
-		publicationsQuery = "for $pub in root/proceedings | root/inproceedings" + "order by $pub/title return $pub";
+		publicationsQuery = "for $pub in root/proceedings | root/inproceedings " + "order by $pub/title return $pub";
 		ClientQuery query;
 		try {
 			query = session.query(publicationsQuery);
 			while (query.more()) {
 				String queryResult = query.next();
 				System.out.println(queryResult);
-				pubs.add(XmlToObject.XmlToPublication(queryResult, null, this, true));
+				pubs.add(XmlToObject.XmlToPublication(queryResult, null, this, false));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

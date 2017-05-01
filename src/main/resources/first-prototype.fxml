@@ -25,8 +25,7 @@
                           </columns>
                         </TableView>
                       <Button fx:id="personDeleteButton" layoutX="96.0" layoutY="341.0" mnemonicParsing="false" onAction="#updatePeople" prefHeight="25.0" text="Delete Person" />
-                        <TextField fx:id="personSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button fx:id="personSearchButton" layoutX="934.0" mnemonicParsing="false" text="Search" />
+                        <TextField fx:id="personSearchField" layoutX="547.0" prefHeight="26.0" prefWidth="450.0" />
                         <Group layoutX="677.0" layoutY="341.0">
                            <children>
                               <Button fx:id="personNextPageButton" layoutX="234.0" mnemonicParsing="false" text="Next Page" />
@@ -95,15 +94,14 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView fx:id="proceedingMainTable" layoutY="29.0" prefHeight="310.0" prefWidth="997.0">
+                        <TableView fx:id="proceedingMainTable" layoutY="29.0" onMouseClicked="#proceedingsMainClickItem" prefHeight="310.0" prefWidth="997.0">
                            <columns>
-                              <TableColumn prefWidth="656.0" text="Title" />
-                              <TableColumn minWidth="0.0" prefWidth="164.0" text="Publisher" />
-                              <TableColumn prefWidth="164.0" text="Conference" />
+                              <TableColumn fx:id="proceedingsMainTableTitleColumn" prefWidth="656.0" text="Title" />
+                              <TableColumn fx:id="proceedingsMainTablePublisherColumn" minWidth="0.0" prefWidth="164.0" text="Publisher" />
+                              <TableColumn fx:id="proceedingsMainTableConferenceColumn" prefWidth="164.0" text="Conference" />
                            </columns>
                         </TableView>
-                        <TextField fx:id="proceedingSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button fx:id="proceedingSearchButton" layoutX="934.0" mnemonicParsing="false" text="Search" />
+                        <TextField fx:id="proceedingSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
                         <Button fx:id="proceedingDeleteButton" layoutX="124.0" layoutY="341.0" mnemonicParsing="false" text="Delete Proceeding" />
                         <Button fx:id="proceedingNewButton" layoutY="341.0" mnemonicParsing="false" text="New Proceeding" />
                         <Group layoutX="677.0" layoutY="341.0">
@@ -170,7 +168,7 @@
                      <children>
                         <TableView fx:id="proceedingEditorTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
                            <columns>
-                              <TableColumn prefWidth="314.0" text="Name" />
+                              <TableColumn fx:id="proceedingEditorTableNameColumn" prefWidth="314.0" text="Name" />
                            </columns>
                         </TableView>
                         <Label text="Editors" />
@@ -201,8 +199,7 @@
 	                              <TableColumn fx:id="inProceedingMainTableProceedingsColumn" minWidth="0.0" prefWidth="338.0" text="Proceeding" />
 	                           </columns>
 	                        </TableView>
-                        <TextField fx:id="inProceedingSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button fx:id="inProceedingSearchButton" layoutX="934.0" mnemonicParsing="false" text="Search" />
+                        <TextField fx:id="inProceedingSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
                         <Button fx:id="inProceedingDeleteButton" layoutX="152.0" layoutY="341.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Delete InProceeding" />
                         <Group layoutX="677.0" layoutY="341.0" />
                         <Button fx:id="inProceedingCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create InProceeding" />
@@ -266,14 +263,13 @@
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
-                        <TableView fx:id="publicationMainTable" layoutY="29.0" prefHeight="650.0" prefWidth="997.0">
+                        <TableView fx:id="publicationMainTable" layoutY="29.0" onMouseClicked="#publicationsMainClickItem" prefHeight="650.0" prefWidth="997.0">
                            <columns>
-                              <TableColumn prefWidth="460.0" text="Title" />
-                              <TableColumn prefWidth="536.0" text="Authors / Editors" />
+                              <TableColumn fx:id="publicationMainTableTitleColumn" prefWidth="460.0" text="Title" />
+                              <TableColumn fx:id="publicationMainTableAuthorsColumn" prefWidth="536.0" text="Authors / Editors" />
                            </columns>
                         </TableView>
-                        <TextField fx:id="publicationSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button fx:id="publicationSearchButton" layoutX="934.0" mnemonicParsing="false" text="Search" />
+                        <TextField fx:id="publicationSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
                         <Button fx:id="publicationDeleteButton" layoutY="681.0" mnemonicParsing="false" text="Delete Publication" />
                         <Group layoutX="678.0" layoutY="681.0">
                            <children>
@@ -302,8 +298,7 @@
                            </columns>
                         </TableView>
                         <Button fx:id="publisherDeleteButton" layoutX="127.0" layoutY="341.0" mnemonicParsing="false" text="Delete Publisher" />
-                        <TextField fx:id="publisherSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button fx:id="publisherSearchButton" layoutX="934.0" mnemonicParsing="false" text="Search" />
+                        <TextField fx:id="publisherSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
                         <Button fx:id="publisherCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create Publisher" />
                         <Group layoutX="677.0" layoutY="341.0">
                            <children>
@@ -359,8 +354,7 @@
                            </columns>
                         </TableView>
                         <Button fx:id="conferenceDeleteButton" layoutX="141.0" layoutY="341.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Conference" />
-                        <TextField fx:id="conferenceSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button fx:id="conferenceSearchButton" layoutX="934.0" mnemonicParsing="false" text="Search" />
+                        <TextField fx:id="conferenceSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
                         <Button fx:id="conferenceCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create Conference" />
                         <Group layoutX="677.0" layoutY="341.0">
                            <children>
@@ -416,8 +410,7 @@
                            </columns>
                         </TableView>
                         <Button fx:id="conferenceEditionDeleteButton" layoutX="141.0" layoutY="341.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Conference" />
-                        <TextField fx:id="conferenceEditionSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button fx:id="conferenceEditionSearchButton" layoutX="934.0" mnemonicParsing="false" text="Search" />
+                        <TextField fx:id="conferenceEditionSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
                         <Button fx:id="conferenceEditionCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create Conference" />
                         <Group layoutX="677.0" layoutY="341.0">
                            <children>
@@ -461,8 +454,7 @@
                            </columns>
                         </TableView>
                         <Button fx:id="seriesDeleteButton" layoutX="107.0" layoutY="341.0" mnemonicParsing="false" prefHeight="25.0" text="Delete Series" />
-                        <TextField fx:id="seriesSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="387.0" />
-                        <Button fx:id="seriesSearchButton" layoutX="934.0" mnemonicParsing="false" text="Search" />
+                        <TextField fx:id="seriesSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
                         <Button fx:id="seriesCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create Series" />
                         <Group layoutX="677.0" layoutY="341.0">
                            <children>
