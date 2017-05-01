@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.Set;
 
 import ch.ethz.globis.mtfobu.odb_project.zoodb.Conference;
 import javafx.application.Application;
@@ -38,14 +39,41 @@ public class Main extends Application {
 //		for(Person per: people){
 //			System.out.println(per.getName());
 //		}
-		//Test task 7
-		List<String> res = db.getNumberPublicationsPerYearInterval(1900, 1990);
-		for(String str: res){
-			System.out.println(str);
+		// task 13
+		List<InProceedings> inProcs = db.getPublicationsWhereAuthorIsLast("Antónia Lopes");
+		for(InProceedings inProc: inProcs){
+			System.out.println(inProc.getTitle());
 		}
-		
-		InProceedings inproc = db.getInProceedingsById("conf/ifip5-7/Jagdev88a");
-		System.out.println(inproc.getProceedings().getTitle());
+		// task 12
+		List<Person> pers = db.getPeopleThatAreAuthorsAndEditors();
+		for(Person per: pers){
+			System.out.println(per.getName());
+		}
+//		Set<Publication> pubs2 = db.getAuthoredPublications("Sanjay Sharma", true);
+//		for(Publication pub:pubs2){
+//			if(((InProceedings)pub).getProceedings() != null) System.out.println(((InProceedings)pub).getProceedings().getTitle());
+//		}
+//		// task 11
+//		List<Publication> pubs = db.getAllPublicationsOfConferenceByName("BMVC");
+//		for( Publication pub: pubs){
+//			System.out.println(pub.getTitle());
+//		}
+//		// task 10
+//		List<Person> pers = db.getAllAuthorsOfConferenceByName("BMVC");
+//		for(Person per: pers){
+//			System.out.println(per.getName());
+//		}
+//	
+//		// task 9
+//		System.out.println(db.countEditorsAndAuthorsOfConferenceByName("BMVC"));
+//		//Test task 7
+//		List<String> res = db.getNumberPublicationsPerYearInterval(1900, 1990);
+//		for(String str: res){
+//			System.out.println(str);
+//		}
+//		
+//		InProceedings inproc = db.getInProceedingsById("conf/ifip5-7/Jagdev88a");
+//		System.out.println(inproc.getProceedings().getTitle());
 //		List<ch.ethz.globis.mtfobu.odb_project.Conference> confs = db.getConferences();
 //		for(ch.ethz.globis.mtfobu.odb_project.Conference per: confs){
 //			System.out.println(per.getName());

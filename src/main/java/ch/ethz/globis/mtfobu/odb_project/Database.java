@@ -22,6 +22,7 @@ import org.basex.api.client.ClientSession;
 import org.basex.core.cmd.CreateDB;
 import org.basex.core.cmd.DropDB;
 import org.basex.core.cmd.Open;
+import org.basex.query.value.item.Int;
 import org.bson.BSON;
 import org.bson.conversions.Bson;
 import org.jdom.Document;
@@ -435,6 +436,111 @@ public class Database {
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+	// TASK 9:
+	// TODO: Verify that this returns the correct result
+	public int countEditorsAndAuthorsOfConferenceByName(String conferenceName) {
+		String countEditorsAndAuthorsOfConferenceQuery = String.format("count(distinct-values(let $conference := \"%s\""
+				+ " let $procs := (for $proc in //proceedings" + " where $proc/booktitle=$conference" + " return $proc)"
+				+ " for $inproc in //inproceedings" + " where $inproc/crossref= $procs/@key"
+				+ " return $inproc/author/text() | $procs/editor/text()))", conferenceName);
+		ClientQuery query;
+		try {
+			query = session.query(countEditorsAndAuthorsOfConferenceQuery);
+			assert (query.more());
+			return Integer.parseInt(query.next());
+		} catch (IOException e) {
+			System.out.println(countEditorsAndAuthorsOfConferenceQuery);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Integer.MIN_VALUE;
+		}
+	}
+
+	// TASK 10:
+	public List<Person> getAllAuthorsOfConferenceByName(String conferenceName) {
+		List<Person> authorsOrEditors = new ArrayList<>();
+		String allAuthorsOfConferenceQuery = String.format(
+				"for $author in distinct-values(let $conference := \"%s\""
+						+ " let $procs := (for $proc in //proceedings" + " where $proc/booktitle=$conference"
+						+ " return $proc)" + " for $inproc in //inproceedings" + " where $inproc/crossref= $procs/@key"
+						+ " return $inproc/author/text() | $procs/editor/text()) order by $author return $author",
+				conferenceName);
+		ClientQuery query;
+		try {
+			query = session.query(allAuthorsOfConferenceQuery);
+			while (query.more()) {
+				authorsOrEditors.add(getPersonByName(query.next(), true));
+			}
+		} catch (IOException e) {
+			System.out.println(allAuthorsOfConferenceQuery);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return authorsOrEditors;
+	}
+
+	// TASK 11:
+	public List<Publication> getAllPublicationsOfConferenceByName(String conferenceName) {
+		List<Publication> pubs = new ArrayList<>();
+		String allInProcsOfConferenceByName = String.format("let $conference := \"%s\""
+				+ " let $procs := (for $proc in //proceedings" + " where $proc/booktitle=$conference" + " return $proc)"
+				+ " for $inproc in //inproceedings" + " where $inproc/crossref= $procs/@key" + " return $inproc",
+				conferenceName);
+		ClientQuery query;
+		try {
+			query = session.query(allInProcsOfConferenceByName);
+			while (query.more()) {
+				pubs.add(XmlToObject.XmlToPublication(query.next(), null, this, true));
+			}
+		} catch (IOException e) {
+			System.out.println(allInProcsOfConferenceByName);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return pubs;
+	}
+
+	// TASK 12:
+	public List<Person> getPeopleThatAreAuthorsAndEditors() {
+		List<Person> people = new ArrayList<>();
+		String peopleThatAreAuthorsAndEditorsQuery = "distinct-values(for $inProc in //inproceedings"
+				+ " let $proc := //proceedings[@key=$inProc/crossref/text()]"
+				+ " for $author in $inProc/author where index-of(($proc/editor/text()),$author/text())!=0"
+				+ " order by $author/text() return $author)";
+		ClientQuery query;
+		try {
+			query = session.query(peopleThatAreAuthorsAndEditorsQuery);
+			while (query.more()) {
+				people.add(getPersonByName(query.next(), true));
+			}
+		} catch (IOException e) {
+			System.out.println(peopleThatAreAuthorsAndEditorsQuery);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return people;
+	}
+
+	// TASK 13:
+	public List<InProceedings> getPublicationsWhereAuthorIsLast(String authorName) {
+		List<InProceedings> inProcs = new ArrayList<>();
+		String allInProceedinsWhereAuthorLastQuery = String.format("let $author := \"%s\""
+				+ " for $inProc in //inproceedings where index-of(($inProc/author),$author)=count($inProc/author)"
+				+ " return $inProc", authorName);
+		ClientQuery query;
+		try {
+			query = session.query(allInProceedinsWhereAuthorLastQuery);
+			while (query.more()) {
+				inProcs.add(XmlToObject.XmlToInProceeding(query.next(), this, false));
+			}
+		} catch (IOException e) {
+			System.out.println(allInProceedinsWhereAuthorLastQuery);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return inProcs;
 	}
 
 	// Seba: get person by id
@@ -1707,5 +1813,10 @@ public class Database {
 			e.printStackTrace();
 		}
 		return confs;
+	}
+
+	// ADD Function
+	public void addPerson(Person person) {
+
 	}
 }

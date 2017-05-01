@@ -136,6 +136,8 @@ public class XmlToObject {
 			}
 			inProc.setNote(rootNode.getChildText("note"));
 			inProc.setPages(rootNode.getChildText("pages"));
+			String proceedingId = rootNode.getChildText("crossref");
+			if(proceedingId!=null) inProc.setProceedings(db.getProceedingById(proceedingId));
 		} catch (JDOMException e) {
 			System.out.println("Error: The query result was not in the expected XML format");
 			e.printStackTrace();
