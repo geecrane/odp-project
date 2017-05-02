@@ -47,10 +47,10 @@ public class Main extends Application {
 //		for(Series ser: series){
 //			System.out.println(ser.getName() + " ; " + ser.getPublications().size());
 //		}
-		Proceedings proc = db.getProceedingById("conf/flfp/1986");
-		Proceedings proc2 = db.getProceedingById("conf/concur/1984");
-		proc.setId("conf/flfp/1986");
-		db.updateProceeding(proc2);
+//		Proceedings proc = db.getProceedingById("conf/flfp/1986");
+//		Proceedings proc2 = db.getProceedingById("conf/concur/1984");
+//		proc.setId("conf/flfp/1986");
+//		db.updateProceeding(proc2);
 //		InProceedings inProc = db.getInProceedingsById("conf/icail/Purdy87");
 //		inProc.setId("test");
 //		db.addInProceeding(inProc);
@@ -152,7 +152,7 @@ public class Main extends Application {
 //		System.out.println(db.authorDistance("1785178126", "1107451538"));
 //		// uncomment line below to enable the GUI
 //
-//		launch(args);
+		launch(args);
 //		System.out.println("PROGRAMM TERMINATED");
 
 	}

@@ -24,6 +24,7 @@ import ch.ethz.globis.mtfobu.odb_project.Publication;
 import ch.ethz.globis.mtfobu.odb_project.Publisher;
 import ch.ethz.globis.mtfobu.odb_project.Series;
 import ch.ethz.globis.mtfobu.odb_project.XmlImport;
+import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.ConferenceEditionTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.ConferenceTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.ProceedingTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.PublicationTableEntry;
@@ -31,6 +32,7 @@ import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.PublisherTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.SecondaryConferenceEditionTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.SecondaryPersonTableEntry;
 import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.SecondaryProceedingTableEntry;
+import ch.ethz.globis.mtfobu.odb_project.ui2.Controller.SeriesTableEntry;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -59,6 +61,8 @@ public class Controller {
     private ObservableList<Publication> publicationsMasterData = FXCollections.observableArrayList();
     private ObservableList<Publisher> publishersMasterData = FXCollections.observableArrayList();
     private ObservableList<Conference> confMasterData = FXCollections.observableArrayList();
+    private ObservableList<ConferenceEdition> confEdMasterData = FXCollections.observableArrayList();
+    private ObservableList<Series> seriesMasterData = FXCollections.observableArrayList();
     
     public void initialize() {
     	db = Database.getDatabase();
@@ -69,10 +73,12 @@ public class Controller {
 	         public void run(){
 	        	 loadPeople();
 	        	 loadProceedings();
-	        	 loadPublications();
 	        	 loadPublishers();
-	        	 loadInProceedings();
 	        	 loadConf();
+	        	 loadConfEds();
+	        	 loadSeries();
+	        	 loadPublications();
+	        	 loadInProceedings();
 	         }}).start();
 		
 		
@@ -90,11 +96,208 @@ public class Controller {
 		initializePublicationsMainColumns();
 		initializePublishersMainColumns();
 		initializeConfMainColumns();
+		initializeConfEdMainColumns();
+		initializeSeriesMainColumns();
     	
 	}
 
     //general
 	
+	//START Series
+			private void loadSeries() {
+					//init table data
+					List<Series> ps = db.getSeries();
+					seriesMasterData.addAll(ps);
+			    	FilteredList<Series> filteredData = setTable(seriesMasterData,seriesMainTable);
+			    	
+			    	//search field
+			    	searchSetupSeries(filteredData); 
+			    	seriesTab.setDisable(false);
+				}
+			private void searchSetupSeries(FilteredList<Series> filteredData) {
+					
+					// Set the filter Predicate whenever the filter changes.
+				seriesSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+			            filteredData.setPredicate(inProc -> {
+			                // If filter text is empty, display all
+			                if (newValue == null || newValue.isEmpty()) {
+			                    return true;
+			                }
+			              
+			                // Compare first name and last name of every person with filter text.
+			                String lowerCaseFilter = newValue.toLowerCase();
+
+			                if (inProc.getName().toLowerCase().contains(lowerCaseFilter)) {
+			                    return true; // Filter matches title.
+			                } else {
+			                	for(Publication p : inProc.getPublications()){
+			                		if(String.valueOf(p.getTitle()).toLowerCase().contains(lowerCaseFilter))
+			                			return true;
+			                	}
+			                }
+			                return false; // Does not match.
+			            });
+			        });
+				}
+			private void initializeSeriesMainColumns() {
+					// Initialize InProceedings Columns
+				seriesNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
+			    	
+				seriesProcsColumn.setCellValueFactory(cellData -> {
+			    		String editions = "";
+			    		for(Publication p : cellData.getValue().getPublications()){
+			    			editions += p.getTitle()+", ";
+			    		}
+			    		return new SimpleStringProperty(editions);
+			    				});
+			    	
+			    	//initialize authors column
+				seriesPubsTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
+				//seriesPubsTitleColumn.setCellValueFactory(cellData -> new SimpleStringProperty(((Proceedings)cellData.getValue()).getConference().getName()));	
+				}
+				
+			@FXML
+			public void seriesMainClickItem(MouseEvent event)
+				{
+				    if (event.getClickCount() > 0) //Checking double click
+				    {
+				    	
+				    	//initialize data
+				    	Series selected = seriesMainTable.getSelectionModel().getSelectedItem();
+				    	loadSeriesProcs(selected);
+				    	
+				    	//editable fields
+				    	seriesNameField.setText(selected.getName());
+				    	
+				    }
+				}
+
+			private void loadSeriesProcs(Series selected) {
+					Set<Publication> ce = selected.getPublications();
+					ObservableList<Publication> masterData = FXCollections.observableArrayList();
+					masterData.addAll(ce);
+					
+					//load table
+					FilteredList<Publication> filteredData = setTable(masterData,seriesProceedingTable);
+				}
+			
+			
+			@FXML
+			private void updateSeries(ActionEvent event) {
+				     // Button was clicked, do something...
+					 String srcId = ((Button)event.getSource()).getId();
+					 Series selected = seriesMainTable.getSelectionModel().getSelectedItem();
+					 switch (srcId) {
+						 case "seriesChangeNameButton":
+							selected.setName(seriesNameField.getText());
+							seriesMainTable.refresh();
+							break;
+						 case "seriesDeleteButton":
+							 seriesMasterData.remove(selected);
+							 seriesMainTable.refresh();
+							 break;
+						 case "seriesRemoveProceedingButton":
+							 Publication p = seriesProceedingTable.getSelectionModel().getSelectedItem();
+							 selected.getPublications().remove(p);
+							 loadSeriesProcs(selected);
+							 seriesMainTable.refresh();
+							 break;
+						 default:
+							break;
+					}
+					
+				}
+
+			
+			//Start confEds
+			//END Series
+	
+	
+	
+	//START ConferenceEditions
+			private void loadConfEds() {
+					//init table data
+					List<ConferenceEdition> ps = db.getConferenceEditions();
+					confEdMasterData.addAll(ps);
+			    	FilteredList<ConferenceEdition> filteredData = setTable(confEdMasterData,conferenceEditionMainTable);
+			    	
+			    	//search field
+			    	searchSetupConfEds(filteredData); 
+			    	conferenceEditionTab.setDisable(false);
+				}
+			private void searchSetupConfEds(FilteredList<ConferenceEdition> filteredData) {
+					
+					// Set the filter Predicate whenever the filter changes.
+				conferenceEditionSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+			            filteredData.setPredicate(inProc -> {
+			                // If filter text is empty, display all
+			                if (newValue == null || newValue.isEmpty()) {
+			                    return true;
+			                }
+
+			                // Compare first name and last name of every person with filter text.
+			                String lowerCaseFilter = newValue.toLowerCase();
+
+			                if (inProc.getConference().getName().toLowerCase().contains(lowerCaseFilter)) {
+			                    return true; // Filter matches title.
+			                }else if (String.valueOf(inProc.getYear()).toLowerCase().contains(lowerCaseFilter)) {
+			                    return true; // Filter matches title.
+			                }else if (inProc.getProceedings().getTitle().toLowerCase().contains(lowerCaseFilter)) {
+			                    return true; // Filter matches title.
+			                } 
+			                return false; // Does not match.
+			            });
+			        });
+				}
+			private void initializeConfEdMainColumns() {
+					// Initialize InProceedings Columns
+					confEdNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getConference().getName()));
+					confEdEditionColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getYear())));
+					confEdProceedingColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getProceedings().getTitle()));
+				}
+				
+			@FXML
+			public void confEdMainClickItem(MouseEvent event)
+				{
+				    if (event.getClickCount() > 0) //Checking double click
+				    {
+				    	
+				    	//initialize data
+				    	ConferenceEdition selected = conferenceEditionMainTable.getSelectionModel().getSelectedItem();
+				    	
+				    	//editable fields
+				    	conferenceEditionNameField.setText(selected.getConference().getName());
+				    	conferenceEditionEditionField.setText(String.valueOf(selected.getYear()));
+				    	
+				    }
+				}
+
+			
+			@FXML
+			private void updateConfEds(ActionEvent event) {
+				     // Button was clicked, do something...
+					 String srcId = ((Button)event.getSource()).getId();
+					 ConferenceEdition selected = conferenceEditionMainTable.getSelectionModel().getSelectedItem();
+					 switch (srcId) {
+						 case "conferenceEditionChangeNameButton":
+							selected.getConference().setName(conferenceEditionNameField.getText());
+							conferenceEditionMainTable.refresh();
+							break;
+						 case "conferenceEditionChangeEditionButton":
+							 selected.setYear(Integer.parseInt(conferenceEditionEditionField.getText()));
+							 conferenceEditionMainTable.refresh();
+						 case "conferenceEditionDeleteButton":
+							 confEdMasterData.remove(selected);
+							 conferenceEditionMainTable.refresh();
+							 break;
+						 default:
+							break;
+					}
+					
+				}
+
+			
+			//END ConferencesEditions
 	
 	
 	
@@ -787,6 +990,48 @@ public class Controller {
     
     // START section for fields that reference FXML
     @FXML TabPane tabPane;
+    
+    //Start Series
+    @FXML    Tab seriesTab;
+    @FXML    private TableView<Series> seriesMainTable;
+    @FXML	private TableColumn<Series, String> seriesNameColumn;
+    @FXML	private TableColumn<Series, String> seriesProcsColumn;
+    @FXML	private TableColumn<Publication, String> seriesPubsTitleColumn;
+    @FXML	private TableColumn<Publication, String> seriesPubsConfColumn;
+    @FXML    private Button seriesDeleteButton;
+    @FXML    private TextField seriesSearchField;
+    @FXML    private Button seriesSearchButton;
+    @FXML    private Button seriesCreateButton;
+    @FXML    private Button seriesNextPageButton;
+    @FXML    private Button seriesPreviousPageButton;
+    @FXML    private TextField seriesCurrentPageField;
+    @FXML    private TextField seriesNameField;
+    @FXML    private Button seriesChangeNameButton;
+    @FXML    private TextField seriesProceedingFilterField;
+    @FXML    private Button seriesAddProceedingButton;
+    @FXML    private ChoiceBox<?> seriesProceedingDropdown;
+    @FXML    private TableView<Publication> seriesProceedingTable;
+    @FXML    private Button seriesRemoveProceedingButton;
+    //End SEries
+    
+    //Start confeds
+    @FXML    Tab conferenceEditionTab;
+    @FXML    private TableView<ConferenceEdition> conferenceEditionMainTable;
+    @FXML	private TableColumn<ConferenceEdition, String> confEdNameColumn;
+    @FXML	private TableColumn<ConferenceEdition, String> confEdEditionColumn;
+    @FXML	private TableColumn<ConferenceEdition, String> confEdProceedingColumn;
+    @FXML    private Button conferenceEditionDeleteButton;
+    @FXML    private TextField conferenceEditionSearchField;
+    @FXML    private Button conferenceEditionSearchButton;
+    @FXML    private Button conferenceEditionCreateButton;
+    @FXML    private Button conferenceEditionNextPageButton;
+    @FXML    private Button conferenceEditionPreviousPageButton;
+    @FXML    private TextField conferenceEditionCurrentPageField;
+    @FXML    private TextField conferenceEditionNameField;
+    @FXML    private Button conferenceEditionChangeNameButton;
+    @FXML    private TextField conferenceEditionEditionField;
+    @FXML    private Button conferenceEditionChangeEditionButton;
+    //End Confeds
     
     //START Conference
     @FXML    Tab conferenceTab;
