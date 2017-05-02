@@ -47,11 +47,15 @@ public class Main extends Application {
 //		for(Series ser: series){
 //			System.out.println(ser.getName() + " ; " + ser.getPublications().size());
 //		}
-		InProceedings inProc = db.getInProceedingsById("conf/icail/Purdy87");
-		inProc.setId("test");
-		db.addInProceeding(inProc);
-		XmlToObject.inProcToXml(inProc);
-		db.deleteInProceedingById("test");
+		Proceedings proc = db.getProceedingById("conf/flfp/1986");
+		Proceedings proc2 = db.getProceedingById("conf/concur/1984");
+		proc.setId("conf/flfp/1986");
+		db.updateProceeding(proc2);
+//		InProceedings inProc = db.getInProceedingsById("conf/icail/Purdy87");
+//		inProc.setId("test");
+//		db.addInProceeding(inProc);
+//		XmlToObject.inProcToXml(inProc);
+//		db.deleteInProceedingById("test");
 //		List<Proceedings> proccs = db.getProceedings();
 //		for(Proceedings proc: proccs){
 //			System.out.println(proc.getTitle());

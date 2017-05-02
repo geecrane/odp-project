@@ -1942,7 +1942,7 @@ public class Database {
 		return confEditions;
 	}
 
-	// ADD Function
+	// ADD Functions
 	public void addInProceeding(InProceedings inProc) {
 		if (getInProceedingsById(inProc.getId()) == null) {
 			String xml = XmlToObject.inProcToXml(inProc);
@@ -1979,7 +1979,7 @@ public class Database {
 
 	}
 
-	// DELETE Function
+	// DELETE Functions
 	public void deleteProceedingById(String id) {
 		assert getProceedingById(id) != null : "It is assumend the proceeding to be deleted also exists. Faulty id: "
 				+ id;
@@ -2010,5 +2010,79 @@ public class Database {
 		}
 		System.out.println("Deleted inproceeding with id: " + id + " in database");
 
+	}
+
+	// UPDATE Functions
+	// This identifies a proceeding by its id. So if you want to modify the id
+	// you have to use the delete and add functions in order to create a new
+	// object
+	// TODO: This function is not complete
+	public void updateProceeding(Proceedings proc) {
+		Proceedings oldProc = getProceedingById(proc.getId());
+		if (oldProc == null) {
+			System.err.println("(function \"updateProceeding()\") Warning: Proceeding with id: " + proc.getId()
+					+ " could not be updated, since it does not exist in the databse.");
+			return;
+		}
+		String queryFormat = "replace value of node //proceedings[@key=\"" + proc.getId() + "\"]/%s with %s";
+		String deleteQueryFormat = "delete node //proceedings[@key=\"" + proc.getId() + "\"/%s]";
+		//Caution the last parameter needs to have a '/' as a prefix
+		String insertQueryFormat = "insert node %s as last into //proceedings[@key=\"" + proc.getId() + "\"%s]";
+		try {
+			// Update Title
+			if (!oldProc.getTitle().equals(proc.getTitle())) {
+				session.query(String.format(queryFormat, "title", proc.getTitle()));
+			}
+			// Update Editors
+			List<Person> oldAuthors = oldProc.getAuthors();
+			List<Person> newAuthors = proc.getAuthors();
+			int nNewAuthors = newAuthors.size();
+			int bound = Integer.min(nNewAuthors, oldAuthors.size());
+			int index;
+			for (index = 0; index < bound; ++index) {
+				if (!newAuthors.get(index).getId().equals(oldAuthors.get(index).getId())) {
+					session.query(
+							String.format(queryFormat, "editor[" + index + 1 + "]", newAuthors.get(index).getName()));
+				}
+			}
+			if (nNewAuthors < oldAuthors.size()) {
+				// The size() function already encounters the fact that xQuery
+				// indices start with 1
+				String subsequence = String.format("subsequence(%s,%d,%d)", "editor", nNewAuthors, oldAuthors.size());
+				session.query(String.format(deleteQueryFormat, subsequence));
+			} else if (nNewAuthors > bound) {
+				for (int i = index; i < nNewAuthors; ++i) {
+					session.query(String.format(insertQueryFormat,
+							String.format("<editor>%s</editor>", newAuthors.get(i).getName()), "/editor"));
+				}
+			}
+			// Update Publisher
+			if (!oldProc.getPublisher().getId().equals(proc.getPublisher().getId())) {
+				session.query(String.format(queryFormat, "publisher", proc.getPublisher().getName()));
+			}
+			// Update Year
+			if (oldProc.getYear() != proc.getYear()) {
+				session.query(String.format(queryFormat, "year", proc.getYear()));
+			}
+			// Update ISBN
+			if (!oldProc.getIsbn().equals(proc.getIsbn())) {
+				session.query(String.format(queryFormat, "isbn", proc.getIsbn()));
+			}
+			// Update Conference
+			//TODO: throws nullPointer exception and I'm too exhausted to fix it
+			if(!oldProc.getConference().equals(proc.getConference())){
+				if(oldProc.getConference()!=null){
+					//TODO: Verify that we actually want that
+					assert proc.getConference().getName()!=null: "Proceeding with id: " + proc.getId() + " has a Conference attribute that does not have a name";
+					session.query(String.format(queryFormat, "booktitle", proc.getConference().getName()));
+				}
+				else if(oldProc.getConference()==null){
+					session.query(String.format(insertQueryFormat, String.format("<booktitle>%s</booktitle>", proc.getConference().getName()), ""));
+				}
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
