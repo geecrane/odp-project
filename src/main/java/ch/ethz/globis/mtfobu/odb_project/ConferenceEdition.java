@@ -21,7 +21,16 @@ public class ConferenceEdition implements DomainObject {
 	}
 	
 	
-	
+	//used as a backward compatibility to for the XmlImport
+	public ConferenceEdition(String id2, Conference conference2, int year2, Proceedings proceedings2) {
+		this.id = id2;
+		this.conference = conference;
+		this.year = year;
+		this.proceedings = proceedings;
+	}
+
+
+
 	@Override
 	public String getId() {
 		return id;

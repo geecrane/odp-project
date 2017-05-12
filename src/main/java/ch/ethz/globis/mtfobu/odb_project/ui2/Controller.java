@@ -11,7 +11,7 @@ import org.zoodb.jdo.ZooJdoHelper;
 import ch.ethz.globis.mtfobu.odb_project.Conference;
 import ch.ethz.globis.mtfobu.odb_project.ConferenceEdition;
 import ch.ethz.globis.mtfobu.odb_project.Config;
-import ch.ethz.globis.mtfobu.odb_project.Database;
+import ch.ethz.globis.mtfobu.odb_project.DatabaseBaseX;
 import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Person;
 import ch.ethz.globis.mtfobu.odb_project.Proceedings;
@@ -30,10 +30,10 @@ import javafx.scene.control.*;
 public class Controller {
 	public final int PAGE_SIZE = 20;
 	public PersistenceManager pm;
-    public Database db;
+    public DatabaseBaseX db;
 	
     public void initialize() {
-    	db = Database.getDatabase();
+    	db = DatabaseBaseX.getDatabase();
     	
     	//disable import tab for this project
     	importTab.setDisable(true);

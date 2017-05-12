@@ -13,7 +13,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import ch.ethz.globis.mtfobu.odb_project.Database;
+import ch.ethz.globis.mtfobu.odb_project.DatabaseBaseX;
 
 import org.jdom.Document;
 import org.jdom.Element;

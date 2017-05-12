@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<TabPane fx:id="tabPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.ethz.globis.mtfobu.odb_project.ui.Controller">
+  <tabs>
+    <Tab fx:id="personTab" disable="true" text="People">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Group layoutX="14.0" layoutY="14.0">
+                     <children>
+                        <TableView fx:id="personMainTable" layoutY="29.0" onMouseClicked="#peopleMainClickItem" prefHeight="310.0" prefWidth="997.0">
+                          <columns>
+                            <TableColumn fx:id="personMainTableNameColumn" prefWidth="995.0" text="Name" />
+                          </columns>
+                        </TableView>
+                      <Button fx:id="personDeleteButton" layoutX="96.0" layoutY="341.0" mnemonicParsing="false" onAction="#updatePeople" prefHeight="25.0" text="Delete Person" />
+                        <TextField fx:id="personSearchField" layoutX="547.0" prefHeight="26.0" prefWidth="450.0" />
+                        <Group layoutX="677.0" layoutY="341.0" />
+                        <Button fx:id="personNewButton" layoutY="341.0" mnemonicParsing="false" text="New Person" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="401.0">
+                     <children>
+                        <TextField fx:id="personNameField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Name" />
+                        <Button fx:id="personChangeNameButton" layoutX="190.0" layoutY="43.0" mnemonicParsing="false" onAction="#updatePeople" text="Change Name" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="469.0">
+                     <children>
+                        <Label layoutX="2.0" text="Proceeding" />
+                        <ChoiceBox fx:id="personProceedingDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button fx:id="personAddEditorButton" layoutX="195.0" layoutY="69.0" mnemonicParsing="false" text="Add as Editor" />
+                        <TextField fx:id="personProceedingFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                     </children>
+                  </Group>
+                  <Group layoutX="355.0" layoutY="401.0">
+                     <children>
+                        <TableView fx:id="personProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
+                          <columns>
+                            <TableColumn fx:id="peopleProceedingsTableTitleColumn" prefWidth="220.0" text="Title" />
+                            <TableColumn fx:id="peopleProceedingsTableConferenceColumn" minWidth="0.0" prefWidth="94.0" text="Conference" />
+                          </columns>
+                        </TableView>
+                        <Label text="Edited Proceedings" />
+                        <Button fx:id="personRemoveProceedingButton" layoutX="167.0" layoutY="296.0" mnemonicParsing="false" onAction="#updatePeople" text="Remove Proceeding" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="562.0">
+                     <children>
+                        <Label layoutX="2.0" text="InProceeding" />
+                        <ChoiceBox fx:id="personInProceedingDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button fx:id="personAddAuthorButton" layoutX="190.0" layoutY="69.0" mnemonicParsing="false" text="Add as Author" />
+                        <TextField fx:id="personInProceedingFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                     </children>
+                  </Group>
+                  <Group layoutX="695.0" layoutY="401.0">
+                     <children>
+                        <Label text="Authored InProceedings" />
+                        <TableView fx:id="personInProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
+                          <columns>
+                            <TableColumn fx:id="peopleInProceedingsTableTitleColumn" prefWidth="153.0" text="Title" />
+                            <TableColumn fx:id="peopleInProceedingsTableProceedingsColumn" prefWidth="161.0" text="Proceedings" />
+                          </columns>
+                        </TableView>
+                        <Button fx:id="personRemoveInProceedingButton" layoutX="155.0" layoutY="296.0" mnemonicParsing="false" onAction="#updatePeople" text="Remove InProceeding" />
+                     </children>
+                  </Group>
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
+    <Tab fx:id="proceedingTab" disable="true" text="Proceedings">
+      <content>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Group layoutX="14.0" layoutY="14.0">
+                     <children>
+                        <TableView fx:id="proceedingMainTable" layoutY="29.0" onMouseClicked="#proceedingsMainClickItem" prefHeight="310.0" prefWidth="997.0">
+                           <columns>
+                              <TableColumn fx:id="proceedingsMainTableTitleColumn" prefWidth="656.0" text="Title" />
+                              <TableColumn fx:id="proceedingsMainTablePublisherColumn" minWidth="0.0" prefWidth="164.0" text="Publisher" />
+                              <TableColumn fx:id="proceedingsMainTableConferenceColumn" prefWidth="164.0" text="Conference" />
+                           </columns>
+                        </TableView>
+                        <TextField fx:id="proceedingSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
+                        <Button fx:id="proceedingDeleteButton" layoutX="124.0" layoutY="341.0" mnemonicParsing="false" onAction="#updateProceedings" text="Delete Proceeding" />
+                        <Button fx:id="proceedingNewButton" layoutY="341.0" mnemonicParsing="false" text="New Proceeding" />
+                        <Group layoutX="677.0" layoutY="341.0">
+                           <children>
+                              <Group layoutX="112.0" />
+                           </children>
+                        </Group>
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="401.0">
+                     <children>
+                        <TextField fx:id="proceedingTitleField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Title" />
+                        <Button fx:id="proceedingChangeTitleButton" layoutX="200.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateProceedings" text="Change Title" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="469.0">
+                     <children>
+                        <Label text="Publisher" />
+                        <ChoiceBox fx:id="proceedingPublisherDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button fx:id="proceedingChangePublisherButton" layoutX="168.0" layoutY="69.0" mnemonicParsing="false" text="Change Publisher" />
+                        <TextField fx:id="proceedingPublisherFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                     </children>
+                  </Group>
+                  <Group layoutX="362.0" layoutY="494.0">
+                     <children>
+                        <Label text="Series" />
+                        <ChoiceBox fx:id="proceedingSeriesDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button fx:id="proceedingChangeSeriesButton" layoutX="188.0" layoutY="69.0" mnemonicParsing="false" text="Change Series" />
+                        <TextField fx:id="proceedingSeriesFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="562.0">
+                     <children>
+                        <TextField fx:id="proceedingIsbnField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="ISBN" />
+                        <Button fx:id="proceedingChangeIsbnButton" layoutX="197.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateProceedings" text="Change ISBN" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="630.0">
+                     <children>
+                        <Label text="Conference" />
+                        <ChoiceBox fx:id="proceedingConferenceDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button fx:id="proceedingChangeConferenceButton" layoutX="154.0" layoutY="69.0" mnemonicParsing="false" text="Change Conference" />
+                        <TextField fx:id="proceedingConferenceFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                     </children>
+                  </Group>
+                  <Group layoutX="362.0" layoutY="401.0">
+                     <children>
+                        <Label text="Edition" />
+                        <ChoiceBox fx:id="proceedingEditionDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button fx:id="proceedingChangeEditionButton" layoutX="183.0" layoutY="69.0" mnemonicParsing="false" text="Change Edition" />
+                        <TextField fx:id="proceedingEditionFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                     </children>
+                  </Group>
+                  <Group layoutX="695.0" layoutY="401.0">
+                     <children>
+                        <TableView fx:id="proceedingEditorTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
+                           <columns>
+                              <TableColumn fx:id="proceedingEditorTableNameColumn" prefWidth="314.0" text="Name" />
+                           </columns>
+                        </TableView>
+                        <Label text="Editors" />
+                        <Button fx:id="proceedingRemoveEditorButton" layoutX="201.0" layoutY="296.0" mnemonicParsing="false" onAction="#updateProceedings" text="Remove Editor" />
+                     </children>
+                  </Group>
+                  <Group layoutX="363.0" layoutY="584.0">
+                     <children>
+                        <Label text="Editor" />
+                        <ChoiceBox fx:id="proceedingEditorDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button fx:id="proceedingAddEditorButton" layoutX="214.0" layoutY="69.0" mnemonicParsing="false" text="Add Editor" />
+                        <TextField fx:id="proceedingEditorFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                     </children>
+                  </Group>
+               </children></AnchorPane>
+      </content>
+    </Tab>
+    <Tab fx:id="inProceedingTab" disable="true" text="InProceedings">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Group layoutX="14.0" layoutY="14.0">
+                     <children>
+	                        <TableView fx:id="inProceedingMainTable" layoutY="29.0" onMouseClicked="#inProceedingsMainClickItem" prefHeight="310.0" prefWidth="997.0">
+	                           <columns>
+	                              <TableColumn fx:id="inProceedingMainTableTitleColumn" prefWidth="582.0" text="Title" />
+	                              <TableColumn fx:id="inProceedingMainTableYearColumn" minWidth="0.0" prefWidth="71.0" text="Year" />
+	                              <TableColumn fx:id="inProceedingMainTableProceedingsColumn" minWidth="0.0" prefWidth="338.0" text="Proceeding" />
+	                           </columns>
+	                        </TableView>
+                        <TextField fx:id="inProceedingSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
+                        <Button fx:id="inProceedingDeleteButton" layoutX="152.0" layoutY="341.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Delete InProceeding" />
+                        <Group layoutX="677.0" layoutY="341.0" />
+                        <Button fx:id="inProceedingCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create InProceeding" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="469.0">
+                     <children>
+                        <TextField fx:id="inProceedingPagesField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Pages" />
+                        <Button fx:id="inProceedingChangePagesButton" layoutX="189.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Change Pages" />
+                     </children>
+                  </Group>
+                  <Group layoutX="362.0" layoutY="401.0">
+                     <children>
+                        <Label text="Proceeding" />
+                        <ChoiceBox fx:id="inProceedingProceedingDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button fx:id="inProceedingChangeProceedingButton" layoutX="155.0" layoutY="69.0" mnemonicParsing="false" text="Change Proceeding" />
+                        <TextField fx:id="inProceedingProceedingFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                     </children>
+                  </Group>
+                  <Group layoutX="362.0" layoutY="494.0">
+                     <children>
+                        <Label text="Author" />
+                        <ChoiceBox fx:id="inProceedingAuthorDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button fx:id="inProceedingAddAuthorButton" layoutX="209.0" layoutY="69.0" mnemonicParsing="false" text="Add Author" />
+                        <TextField fx:id="inProceedingAuthorFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                     </children>
+                  </Group>
+                  <Group layoutX="695.0" layoutY="401.0">
+                     <children>
+                        <TableView fx:id="inProceedingAuthorTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
+                           <columns>
+                              <TableColumn fx:id="inProceedingAuthorTableNameColumn" prefWidth="314.0" text="Name" />
+                           </columns>
+                        </TableView>
+                        <Label text="Authors" />
+                        <Button fx:id="inProceedingRemoveAuthorButton" layoutX="189.0" layoutY="296.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Remove Authors" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="401.0">
+                     <children>
+                        <TextField fx:id="inProceedingTitleField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Title" />
+                        <Button fx:id="inProceedingChangeTitleButton" layoutX="200.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Change Title" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="537.0">
+                     <children>
+                        <TextField fx:id="inProceedingYearField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Year" />
+                        <Button fx:id="inProceedingChangeYearButton" layoutX="199.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Change Year" />
+                     </children>
+                  </Group>
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
+    <Tab fx:id="publicationTab" disable="true" text="Publications">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Group layoutX="14.0" layoutY="14.0">
+                     <children>
+                        <TableView fx:id="publicationMainTable" layoutY="29.0" onMouseClicked="#publicationsMainClickItem" prefHeight="650.0" prefWidth="997.0">
+                           <columns>
+                              <TableColumn fx:id="publicationMainTableTitleColumn" prefWidth="460.0" text="Title" />
+                              <TableColumn fx:id="publicationMainTableAuthorsColumn" prefWidth="536.0" text="Authors / Editors" />
+                           </columns>
+                        </TableView>
+                        <TextField fx:id="publicationSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
+                        <Button fx:id="publicationDeleteButton" layoutY="681.0" mnemonicParsing="false" onAction="#updatePublications" text="Delete Publication" />
+                        <Group layoutX="678.0" layoutY="681.0" />
+                     </children>
+                  </Group>
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
+    <Tab fx:id="publisherTab" disable="true" text="Publishers">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Group layoutX="14.0" layoutY="14.0">
+                     <children>
+                        <TableView fx:id="publisherMainTable" layoutY="29.0" onMouseClicked="#publishersMainClickItem" prefHeight="310.0" prefWidth="997.0">
+                           <columns>
+                              <TableColumn fx:id="publisherMainTableNameColumn" prefWidth="311.0" text="Name" />
+                              <TableColumn fx:id="publisherMainTablePublishedColumn" minWidth="0.0" prefWidth="685.0" text="Published" />
+                           </columns>
+                        </TableView>
+                        <Button fx:id="publisherDeleteButton" layoutX="127.0" layoutY="341.0" mnemonicParsing="false" onAction="#updatePublishers" text="Delete Publisher" />
+                        <TextField fx:id="publisherSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
+                        <Button fx:id="publisherCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create Publisher" />
+                        <Group layoutX="677.0" layoutY="341.0" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="401.0">
+                     <children>
+                        <TextField fx:id="publisherNameField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Name" />
+                        <Button fx:id="publisherChangeNameButton" layoutX="190.0" layoutY="43.0" mnemonicParsing="false" onAction="#updatePublishers" text="Change Name" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="469.0">
+                     <children>
+                        <Label layoutX="2.0" text="Proceeding" />
+                        <ChoiceBox fx:id="publisherProceedingDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button fx:id="publisherAddProceedingButton" layoutX="180.0" layoutY="69.0" mnemonicParsing="false" text="Add Proceeding" />
+                        <TextField fx:id="publisherProceedingFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                     </children>
+                  </Group>
+                  <Group layoutX="355.0" layoutY="401.0">
+                     <children>
+                        <TableView fx:id="publisherProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="656.0">
+                           <columns>
+                              <TableColumn fx:id="publisherProceedingsTitleColumn" prefWidth="450.0" text="Title" />
+                              <TableColumn fx:id="publisherProceedingsConferenceColumn" minWidth="0.0" prefWidth="199.0" text="Conference" />
+                           </columns>
+                        </TableView>
+                        <Label text="Published Proceedings" />
+                        <Button fx:id="publisherRemoveProceedingButton" layoutX="507.0" layoutY="296.0" mnemonicParsing="false" onAction="#updatePublishers" text="Remove Proceeding" />
+                     </children>
+                  </Group>
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
+    <Tab fx:id="conferenceTab" disable="true" text="Conferences">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Group layoutX="14.0" layoutY="14.0">
+                     <children>
+                        <TableView fx:id="conferenceMainTable" layoutY="29.0" onMouseClicked="#confMainClickItem" prefHeight="310.0" prefWidth="997.0">
+                           <columns>
+                              <TableColumn fx:id="confMainTableNameColumn" prefWidth="527.0" text="Name" />
+                              <TableColumn fx:id="confMainTableEditionsColumn" minWidth="0.0" prefWidth="469.0" text="Editions" />
+                           </columns>
+                        </TableView>
+                        <Button fx:id="conferenceDeleteButton" layoutX="141.0" layoutY="341.0" mnemonicParsing="false" onAction="#updateConf" prefHeight="25.0" text="Delete Conference" />
+                        <TextField fx:id="conferenceSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
+                        <Button fx:id="conferenceCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create Conference" />
+                        <Group layoutX="677.0" layoutY="341.0" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="401.0">
+                     <children>
+                        <TextField fx:id="conferenceNameField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Name" />
+                        <Button fx:id="conferenceChangeNameButton" layoutX="190.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateConf" text="Change Name" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="469.0">
+                     <children>
+                        <Label layoutX="2.0" text="Edition" />
+                        <ChoiceBox fx:id="conferenceEditionDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Button fx:id="conferenceAddEditionButton" layoutX="207.0" layoutY="69.0" mnemonicParsing="false" text="Add Edition" />
+                        <TextField fx:id="conferenceEditionFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                     </children>
+                  </Group>
+                  <Group layoutX="355.0" layoutY="401.0">
+                     <children>
+                        <TableView fx:id="conferenceEditionTable" layoutY="16.0" prefHeight="280.0" prefWidth="315.0">
+                           <columns>
+                              <TableColumn fx:id="confEditionsYearColumn" prefWidth="314.0" text="Year" />
+                           </columns>
+                        </TableView>
+                        <Label text="Editions" />
+                        <Button fx:id="conferenceRemoveEditionButton" layoutX="195.0" layoutY="296.0" mnemonicParsing="false" onAction="#updateConf" text="Remove Edition" />
+                     </children>
+                  </Group>
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
+    <Tab fx:id="conferenceEditionTab" disable="true" text="Conference Editions">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Group layoutX="14.0" layoutY="14.0">
+                     <children>
+                        <TableView fx:id="conferenceEditionMainTable" layoutY="29.0" onMouseClicked="#confEdMainClickItem" prefHeight="310.0" prefWidth="997.0">
+                           <columns>
+                              <TableColumn fx:id="confEdNameColumn" prefWidth="354.0" text="Name" />
+                              <TableColumn fx:id="confEdEditionColumn" minWidth="0.0" prefWidth="89.0" text="Edition" />
+                              <TableColumn fx:id="confEdProceedingColumn" prefWidth="553.0" text="Proceeding" />
+                           </columns>
+                        </TableView>
+                        <Button fx:id="conferenceEditionDeleteButton" layoutX="141.0" layoutY="341.0" mnemonicParsing="false" onAction="#updateConfEds" prefHeight="25.0" text="Delete Conference" />
+                        <TextField fx:id="conferenceEditionSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
+                        <Button fx:id="conferenceEditionCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create Conference" />
+                        <Group layoutX="677.0" layoutY="341.0" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="43.0" />
+                  <Group layoutX="14.0" layoutY="401.0">
+                     <children>
+                        <TextField fx:id="conferenceEditionNameField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Name" />
+                        <Button fx:id="conferenceEditionChangeNameButton" layoutX="190.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateConfEds" text="Change Name" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="469.0">
+                     <children>
+                        <TextField fx:id="conferenceEditionEditionField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Edition" />
+                        <Button fx:id="conferenceEditionChangeEditionButton" layoutX="183.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateConfEds" text="Change Edition" />
+                     </children>
+                  </Group>
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
+    <Tab fx:id="seriesTab" disable="true" text="Series">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Group layoutX="14.0" layoutY="14.0">
+                     <children>
+                        <TableView fx:id="seriesMainTable" layoutY="29.0" onMouseClicked="#seriesMainClickItem" prefHeight="310.0" prefWidth="997.0">
+                           <columns>
+                              <TableColumn fx:id="seriesNameColumn" prefWidth="320.0" text="Name" />
+                              <TableColumn fx:id="seriesProcsColumn" minWidth="0.0" prefWidth="676.0" text="Publications" />
+                           </columns>
+                        </TableView>
+                        <Button fx:id="seriesDeleteButton" layoutX="107.0" layoutY="341.0" mnemonicParsing="false" onAction="#updateSeries" prefHeight="25.0" text="Delete Series" />
+                        <TextField fx:id="seriesSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
+                        <Button fx:id="seriesCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create Series" />
+                        <Group layoutX="677.0" layoutY="341.0" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="401.0">
+                     <children>
+                        <TextField fx:id="seriesNameField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Name" />
+                        <Button fx:id="seriesChangeNameButton" layoutX="190.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateSeries" text="Change Name" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="469.0">
+                     <children>
+                        <TextField fx:id="seriesProceedingFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                        <Label text="Proceedings" />
+                        <Button fx:id="seriesAddProceedingButton" layoutX="173.0" layoutY="69.0" mnemonicParsing="false" text="Add Proceedings" />
+                        <ChoiceBox fx:id="seriesProceedingDropdown" layoutY="43.0" prefHeight="26.0" prefWidth="300.0" />
+                     </children>
+                  </Group>
+                  <Group layoutX="355.0" layoutY="401.0">
+                     <children>
+                        <TableView fx:id="seriesProceedingTable" layoutY="16.0" prefHeight="280.0" prefWidth="656.0">
+                           <columns>
+                              <TableColumn fx:id="seriesPubsTitleColumn" prefWidth="655.0" text="Title" />
+                           </columns>
+                        </TableView>
+                        <Label text="Publications" />
+                        <Button fx:id="seriesRemoveProceedingButton" layoutX="507.0" layoutY="296.0" mnemonicParsing="false" onAction="#updateSeries" text="Remove Proceeding" />
+                     </children>
+                  </Group>
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
+    <Tab fx:id="importTab" disable="true" text="Import">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Button fx:id="importButton" layoutX="481.0" layoutY="143.0" mnemonicParsing="false" text="Import" />
+                  <Label fx:id="importStatusLabel" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="353.0" layoutY="176.0" prefHeight="272.0" prefWidth="319.0" text="Click to start import. This might take a while." textAlignment="CENTER" textFill="#0846f2" />
+                  
+               </children>
+            </AnchorPane>
+        </content>
+      </Tab>
+  </tabs>
+</TabPane>

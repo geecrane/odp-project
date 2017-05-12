@@ -25,7 +25,7 @@ public class XmlImport {
 	//4)Avoiding database improves performance of the import(avoids creating,closing database connections and using queries many times)
 	//5)We will have to extend this project to work with other databases in the next tasks. 
 	//  So it's important to keep the import independent of the DBMS as much as possible.
-	private Database database;
+	private DatabaseMongoDB database;
 	private HashMap<String, Proceedings> proceedingsList = new HashMap<>();
 	private HashMap<String, InProceedings> inProceedingsList = new HashMap<>();
 	private HashMap<String, Conference> conferences = new HashMap<>();
@@ -36,7 +36,7 @@ public class XmlImport {
 
 	
 	private final Controller c ;
-	public XmlImport(Database database, Controller c){
+	public XmlImport(DatabaseMongoDB database, Controller c){
 		this.database = database;	
 		this.c = c;
 	}

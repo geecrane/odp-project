@@ -32,7 +32,7 @@ public class XmlToObject {
 	 * @return a publication object
 	 * @throws IOException
 	 */
-	public static Publication XmlToPublication(String xml, Publisher pub, Database db, boolean lazy)
+	public static Publication XmlToPublication(String xml, Publisher pub, DatabaseBaseX db, boolean lazy)
 			throws IOException {
 		SAXBuilder builder = new SAXBuilder();
 		InputStream stream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
@@ -106,7 +106,7 @@ public class XmlToObject {
 		}
 	}
 
-	public static Proceedings XmlToProceeding(String xml, Publisher pub, Database db, boolean lazy) throws IOException {
+	public static Proceedings XmlToProceeding(String xml, Publisher pub, DatabaseBaseX db, boolean lazy) throws IOException {
 		SAXBuilder builder = new SAXBuilder();
 		InputStream stream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
 		try {
@@ -120,7 +120,7 @@ public class XmlToObject {
 		}
 	}
 
-	public static InProceedings XmlToInProceeding(String xml, Database db, boolean lazy) throws IOException {
+	public static InProceedings XmlToInProceeding(String xml, DatabaseBaseX db, boolean lazy) throws IOException {
 		InProceedings inProc;
 		// The result is in XML format therefore JDOM is used in order
 		// to parse it
@@ -154,7 +154,7 @@ public class XmlToObject {
 		return inProc;
 	}
 
-	private static Proceedings proceedingFromElement(Element proceedingNode, Publisher pub, Database db, boolean lazy) {
+	private static Proceedings proceedingFromElement(Element proceedingNode, Publisher pub, DatabaseBaseX db, boolean lazy) {
 		Proceedings proceeding = new Proceedings(proceedingNode.getAttributeValue("key"));
 		proceeding.setTitle(proceedingNode.getChildText("title"));
 		proceeding.setYear(Integer.parseInt(proceedingNode.getChildText("year")));
@@ -203,7 +203,7 @@ public class XmlToObject {
 	// </proceedings>
 	// <Conference>Conference Name</Conference>
 	// </ConfEdit>
-	public static ConferenceEdition XmlToConferenceEdition(String xml, Conference conf, Database db)
+	public static ConferenceEdition XmlToConferenceEdition(String xml, Conference conf, DatabaseBaseX db)
 			throws IOException {
 		ConferenceEdition cE;
 
@@ -223,7 +223,7 @@ public class XmlToObject {
 		return cE;
 	}
 
-	public static ConferenceEdition XmlProceedingToConferenceEdition(String proceedingXml, Database db)
+	public static ConferenceEdition XmlProceedingToConferenceEdition(String proceedingXml, DatabaseBaseX db)
 			throws IOException {
 		ConferenceEdition cE;
 		SAXBuilder builder = new SAXBuilder();

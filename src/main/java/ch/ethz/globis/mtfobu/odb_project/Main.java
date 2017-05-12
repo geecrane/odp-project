@@ -21,7 +21,7 @@ public class Main extends Application {
 
 	public static void main(String[] args) throws IOException {
 
-		Database db = Database.getDatabase();
+		DatabaseBaseX db = DatabaseBaseX.getDatabase();
 		// comment out the line below, if you don't want to import the xml every
 		// time.
 		 //tempXMLImport(db);
@@ -98,12 +98,21 @@ public class Main extends Application {
 //			System.out.println(per.getName());
 //		}
 //	
-//		// task 9
-//		System.out.println(db.countEditorsAndAuthorsOfConferenceByName("BMVC"));
+		// task 9
+//		System.out.println(db.countEditorsAndAuthorsOfConferenceByName("ICML"));
 //		//Test task 7
 //		List<String> res = db.getNumberPublicationsPerYearInterval(1900, 1990);
 //		for(String str: res){
 //			System.out.println(str);
+//		}
+		List<Person> coath = db.getCoAuthors("Ian Parberry");
+		for(Person ca: coath){
+			System.out.println(ca.getName());
+		}
+//		List<Publication> pubs = db.getPublicationsByFilter("algorithm", 1, 10);
+//		for(Publication pub: pubs){
+//			System.out.println(pub.getTitle());
+//		//	System.out.println();
 //		}
 //		
 //		InProceedings inproc = db.getInProceedingsById("conf/ifip5-7/Jagdev88a");
@@ -152,7 +161,7 @@ public class Main extends Application {
 //		System.out.println(db.authorDistance("1785178126", "1107451538"));
 //		// uncomment line below to enable the GUI
 //
-		launch(args);
+//		launch(args);
 //		System.out.println("PROGRAMM TERMINATED");
 
 	}
@@ -242,15 +251,6 @@ public class Main extends Application {
 
 //	}
 
-	// temporary function. just for testing until the gui works
-	public static void tempXMLImport(Database db) {
-
-		// delete db if exists already
-		db.create();
-
-		XmlImport importer = new XmlImport(db, null);
-		importer.ImportFromXML("src/main/resources/dblp_filtered.xml");
-	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {

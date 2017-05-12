@@ -15,7 +15,7 @@ import org.zoodb.jdo.ZooJdoHelper;
 import ch.ethz.globis.mtfobu.odb_project.Conference;
 import ch.ethz.globis.mtfobu.odb_project.ConferenceEdition;
 import ch.ethz.globis.mtfobu.odb_project.Config;
-import ch.ethz.globis.mtfobu.odb_project.Database;
+import ch.ethz.globis.mtfobu.odb_project.DatabaseBaseX;
 import ch.ethz.globis.mtfobu.odb_project.DomainObject;
 import ch.ethz.globis.mtfobu.odb_project.InProceedings;
 import ch.ethz.globis.mtfobu.odb_project.Person;
@@ -48,11 +48,11 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 
- 
+
 public class Controller {
 	public final int PAGE_SIZE = 20;
 	public PersistenceManager pm;
-    public Database db;
+    public DatabaseBaseX db;
     
     //mainTable DATA
     private ObservableList<Person> peopleMasterData = FXCollections.observableArrayList();
@@ -64,8 +64,14 @@ public class Controller {
     private ObservableList<ConferenceEdition> confEdMasterData = FXCollections.observableArrayList();
     private ObservableList<Series> seriesMasterData = FXCollections.observableArrayList();
     
+  //TODO task4: Class XmlImport needs this function
+    public void setImportStatus(String text) {
+    	// TODO Auto-generated method stub
+    	
+    }
+    
     public void initialize() {
-    	db = Database.getDatabase();
+    	db = DatabaseBaseX.getDatabase();
     	initAllColumns();
     	
     	
@@ -1172,6 +1178,9 @@ public class Controller {
     @FXML    private Button inProceedingChangeTitleButton;
     @FXML    private TextField inProceedingYearField;
     @FXML    private Button inProceedingChangeYearButton;
+
+    
+
     
     
     // END section for fields that reference FXML
