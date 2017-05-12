@@ -125,7 +125,7 @@ public class DatabaseBaseX {
     /**
      * Close DB
      */
-    public void close() {
+    public void closeDB() {
 	try {
 	    session.close();
 	} catch (IOException e) {
@@ -236,11 +236,6 @@ public class DatabaseBaseX {
 	}
     }
 
-    // Helper function task 1
-    public Series getSeriesByName(String name) {
-	// TODO: there is a little bit more to be done here
-	return new Series(name);
-    }
 
     // Helper function task 1
     /**
@@ -660,7 +655,7 @@ public class DatabaseBaseX {
 	return confEdits;
     }
 
-    public Series getSeriesByName(String name, boolean lazy) {
+    public Series getSeriesByName(String name) {
 	Series serie = new Series(name);
 	Set<Publication> pubs = new HashSet<>();
 	String getPublicationsFormSeriesQuery = String.format("//proceedings[series=\"%s\"]", name);
@@ -800,7 +795,7 @@ public class DatabaseBaseX {
 	try {
 	    query = session.query(allSeriesQuery);
 	    while (query.more()) {
-		series.add(getSeriesByName(query.next(), true));
+		series.add(getSeriesByName(query.next()));
 	    }
 	} catch (IOException e) {
 	    // TODO Auto-generated catch block

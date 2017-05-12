@@ -72,7 +72,7 @@ public class XmlToObject {
 				if (db != null) {
 					String series = rootNode.getChildText("series");
 					if (series != null)
-						publication.setSeries(db.getSeriesByName(series));
+						publication.setSeries(new Series(series));
 					if (pub != null) {
 						publication.setPublisher(pub);
 					} else {
@@ -169,7 +169,7 @@ public class XmlToObject {
 		if (db != null) {
 			String series = proceedingNode.getChildText("series");
 			if (series != null)
-				proceeding.setSeries(db.getSeriesByName(series));
+				proceeding.setSeries(new Series(series));
 			if (pub != null) {
 				proceeding.setPublisher(pub);
 			} else {

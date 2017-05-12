@@ -22,7 +22,7 @@ public class Main extends Application {
 	public static void main(String[] args) throws IOException {
 
 		DatabaseBaseX db = DatabaseBaseX.getDatabase();
-		db.close();
+		db.closeDB();
 //		launch(args);
 		System.out.println("PROGRAMM TERMINATED");
 
