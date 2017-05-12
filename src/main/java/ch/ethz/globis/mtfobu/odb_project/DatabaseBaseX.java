@@ -30,7 +30,7 @@ import org.jdom.input.SAXBuilder;
 
 //George: Instatiate db  only once!
 //Otherwise, creates a new server every time!
-public class DatabaseBaseX {
+public class DatabaseBaseX implements Database {
     private final String dbName;
     private ClientSession session = null;
     final String defaultHost = "localhost";
@@ -70,7 +70,7 @@ public class DatabaseBaseX {
 
     }
 
-    private boolean openDB() {
+    public boolean openDB() {
 	// try to open DB
 	try {
 	    session.execute(new Open(dbName));
@@ -236,7 +236,6 @@ public class DatabaseBaseX {
 	}
     }
 
-
     // Helper function task 1
     /**
      * 
@@ -329,6 +328,9 @@ public class DatabaseBaseX {
 
     // TASK 5:
     // Query to use: TODO: There is a bug at line 369
+    public int authorDistance(String authorIdA, String authorIdB) {
+	return 0;
+    }
     // declare function local:buildOrigin($authorName as xs:string){
     // <author><name>{string($authorName)}</name><dist>{number(0)}</dist></author>
     // };

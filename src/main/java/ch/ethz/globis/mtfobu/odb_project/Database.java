@@ -26,7 +26,7 @@ public interface Database {
 
     public boolean openDB();
 
-    public boolean closeDB();
+    public void closeDB();
 
     public InProceedings getInProceedingsById(String id);
 
@@ -94,15 +94,6 @@ public interface Database {
 
     // Task functions
 
-    // task 1
-    /**
-     * Find a publication by id
-     * 
-     * @param pubID
-     *            Id of the publication. Assumed to not be <b>null</b>
-     * @return the publication or <b>null</b> otherwise.
-     */
-    public Publication findPublicationById(String pubID);
 
     // task 2+3
     /**
