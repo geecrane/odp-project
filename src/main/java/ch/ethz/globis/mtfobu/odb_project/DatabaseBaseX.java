@@ -21,15 +21,12 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 //This is our version
-import ch.ethz.globis.mtfobu.odb_project.BaseXClient.Query;
+//import ch.ethz.globis.mtfobu.odb_project.BaseXClient.Query;
 //This version is used if the BaseX Server is also executed by the program. 
 // Since I was not able to get a proper description and because the previous 
 // version was linked on the task sheet, I used the previous one.
 
 //import org.basex.api.client.Query;
-
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Sorts.*;
 
 //George: Instatiate db  only once!
 //Otherwise, creates a new server every time!
