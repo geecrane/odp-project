@@ -22,6 +22,45 @@ public class MultiDBAccess {
 		dbZooDB = new DatabaseZooDB(Config.DATABASE_NAME);
 	}
 
+	// TASKS
+	// task 1
+	/**
+	 * Find a publication by id
+	 * 
+	 * @param pubID Id of the publication. Assumed to not be <b>null</b>
+	 * @param db
+	 *            Database to use. Has to be one of the databases given by <i>
+	 *            MultiDBAccess.Databases </i>. This parameter is assumed to
+	 *            unequal to <b>null</b>
+	 * @return the publication or <b>null</b> otherwise.
+	 */
+	public Publication findPublicationByID(String pubID, Databases db) {
+		assert db != null : "Database had not been specified";
+		assert pubID != null: "Publication id missing";
+		switch (db) {
+		case BaseX:
+			// TODO
+			if (independent)
+				break;
+		case MongoDB:
+			// TODO
+			if (independent)
+				break;
+		case ZooDB:
+			// TODO
+			if (independent)
+				break;
+
+		default:
+			if (verbose)
+				System.err.println(String.format(
+						"[ function:findPublicationByID ] Error: the given database name: %s has no candidate",
+						db.name()));
+			break;
+		}
+		return null;
+	}
+
 	// ADD functions
 	/**
 	 * Add proceeding to a specific database.
@@ -101,10 +140,14 @@ public class MultiDBAccess {
 
 	// DELETE functions
 	/**
-	 * Deletes proceeding given by its id
+	 * Delete a proceeding given by its id
 	 * 
-	 * @param procID Id of the proceeding to delete
+	 * @param procID
+	 *            Id of the proceeding to delete. If <b>null</b> nothing changes
 	 * @param db
+	 *            Database to use. Has to be one of the databases given by <i>
+	 *            MultiDBAccess.Databases </i>. This parameter is assumed to
+	 *            unequal to <b>null</b>
 	 */
 	public void deleteProceedingByID(String procID, Databases db) {
 		assert db != null : "Database had not been specified";
@@ -135,6 +178,17 @@ public class MultiDBAccess {
 
 	}
 
+	/**
+	 * Delete an inproceeding given by its id
+	 * 
+	 * @param inProcID
+	 *            Id of the inproceeding to delete. If <b>null</b> nothing
+	 *            changes
+	 * @param db
+	 *            Database to use. Has to be one of the databases given by <i>
+	 *            MultiDBAccess.Databases </i>. This parameter is assumed to
+	 *            unequal to <b>null</b>
+	 */
 	public void deleteInProceedingByID(String inProcID, Databases db) {
 		assert db != null : "Database had not been specified";
 		if (inProcID != null) {
@@ -160,7 +214,8 @@ public class MultiDBAccess {
 				break;
 			}
 		} else if (verbose)
-			System.out.println("[ function:deleteInProceedingByID() ] Ignored add request since @param inProcID was null.");
+			System.out.println(
+					"[ function:deleteInProceedingByID() ] Ignored add request since @param inProcID was null.");
 
 	}
 
