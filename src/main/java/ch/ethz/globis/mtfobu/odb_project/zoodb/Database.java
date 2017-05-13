@@ -14,6 +14,16 @@ import javax.jdo.Query;
 import org.zoodb.jdo.ZooJdoHelper;
 import org.zoodb.tools.ZooHelper;
 
+import ch.ethz.globis.mtfobu.domains.Conference;
+import ch.ethz.globis.mtfobu.domains.ConferenceEdition;
+import ch.ethz.globis.mtfobu.domains.DomainObject;
+import ch.ethz.globis.mtfobu.domains.InProceedings;
+import ch.ethz.globis.mtfobu.domains.Person;
+import ch.ethz.globis.mtfobu.domains.Proceedings;
+import ch.ethz.globis.mtfobu.domains.Publication;
+import ch.ethz.globis.mtfobu.domains.Publisher;
+import ch.ethz.globis.mtfobu.domains.Series;
+
 public class Database {
 	public final int PAGE_SIZE = 20;
 	public Database(String dbName){

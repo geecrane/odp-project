@@ -10,7 +10,8 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
 
-import ch.ethz.globis.mtfobu.odb_project.zoodb.Conference;
+import ch.ethz.globis.mtfobu.domains.Conference;
+import ch.ethz.globis.mtfobu.odb_project.db.DatabaseBaseX;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -22,8 +23,8 @@ public class Main extends Application {
 	public static void main(String[] args) throws IOException {
 
 		DatabaseBaseX db = DatabaseBaseX.getDatabase();
-		db.closeDB();
-//		launch(args);
+		//db.closeDB();
+		launch(args);
 		System.out.println("PROGRAMM TERMINATED");
 
 	}

@@ -1,5 +1,12 @@
 package ch.ethz.globis.mtfobu.odb_project;
 
+import ch.ethz.globis.mtfobu.domains.InProceedings;
+import ch.ethz.globis.mtfobu.domains.Proceedings;
+import ch.ethz.globis.mtfobu.domains.Publication;
+import ch.ethz.globis.mtfobu.odb_project.db.DatabaseBaseX;
+import ch.ethz.globis.mtfobu.odb_project.db.DatabaseMongoDB;
+import ch.ethz.globis.mtfobu.odb_project.db.DatabaseZooDB;
+
 public class MultiDBAccess {
 	// field gives information about if the different databases should be
 	// synchronized

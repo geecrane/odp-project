@@ -15,6 +15,16 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
+import ch.ethz.globis.mtfobu.domains.Conference;
+import ch.ethz.globis.mtfobu.domains.ConferenceEdition;
+import ch.ethz.globis.mtfobu.domains.InProceedings;
+import ch.ethz.globis.mtfobu.domains.Person;
+import ch.ethz.globis.mtfobu.domains.Proceedings;
+import ch.ethz.globis.mtfobu.domains.Publication;
+import ch.ethz.globis.mtfobu.domains.Publisher;
+import ch.ethz.globis.mtfobu.domains.Series;
+import ch.ethz.globis.mtfobu.odb_project.db.DatabaseBaseX;
+
 public class XmlToObject {
 	private static XMLOutputter xmOut = new XMLOutputter();
 
