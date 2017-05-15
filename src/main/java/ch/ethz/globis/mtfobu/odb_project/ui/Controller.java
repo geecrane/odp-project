@@ -73,6 +73,11 @@ public class Controller {
 
 	initAllColumns();
 
+	loadView();
+
+    }
+
+    private void loadView() {
 	new Thread(new Runnable() {
 	    public void run() {
 		loadPeople();
@@ -85,7 +90,6 @@ public class Controller {
 		loadInProceedings();
 	    }
 	}).start();
-
     }
 
     private void initAllColumns() {
@@ -216,8 +220,10 @@ public class Controller {
     // START ConferenceEditions
     private void loadConfEds() {
 	// init table data
-	List<ConferenceEdition> ps = db.getConferenceEditions();
-	tableData.get(selectedDB).confEdMasterData.addAll(ps);
+	if (tableData.get(selectedDB).confEdMasterData.isEmpty()) {
+	    List<ConferenceEdition> ps = db.getConferenceEditions();
+	    tableData.get(selectedDB).confEdMasterData.addAll(ps);
+	}
 	FilteredList<ConferenceEdition> filteredData = setTable(tableData.get(selectedDB).confEdMasterData,
 		conferenceEditionMainTable);
 
@@ -305,8 +311,10 @@ public class Controller {
     // START Conferences
     private void loadConf() {
 	// init table data
-	List<Conference> ps = db.getConferences();
-	tableData.get(selectedDB).confMasterData.addAll(ps);
+	if (tableData.get(selectedDB).confMasterData.isEmpty()) {
+	    List<Conference> ps = db.getConferences();
+	    tableData.get(selectedDB).confMasterData.addAll(ps);
+	}
 	FilteredList<Conference> filteredData = setTable(tableData.get(selectedDB).confMasterData, conferenceMainTable);
 
 	// search field
@@ -415,8 +423,11 @@ public class Controller {
     // START Publishers
     private void loadPublishers() {
 	// init table data
-	List<Publisher> ps = db.getPublishers();
-	tableData.get(selectedDB).publishersMasterData.addAll(ps);
+	if (tableData.get(selectedDB).publishersMasterData.isEmpty()) {
+	    List<Publisher> ps = db.getPublishers();
+	    tableData.get(selectedDB).publishersMasterData.addAll(ps);
+	}
+
 	FilteredList<Publisher> filteredData = setTable(tableData.get(selectedDB).publishersMasterData,
 		publisherMainTable);
 
@@ -548,8 +559,10 @@ public class Controller {
 
     private void loadPublications() {
 	// init table data
-	List<Publication> pubs = db.getPublications();
-	tableData.get(selectedDB).publicationsMasterData.addAll(pubs);
+	if (tableData.get(selectedDB).publicationsMasterData.isEmpty()) {
+	    List<Publication> pubs = db.getPublications();
+	    tableData.get(selectedDB).publicationsMasterData.addAll(pubs);
+	}
 
 	FilteredList<Publication> filteredData = setTable(tableData.get(selectedDB).publicationsMasterData,
 		publicationMainTable);
@@ -645,9 +658,10 @@ public class Controller {
 
     private void loadProceedings() {
 	// init table data
-	List<Proceedings> procs = db.getProceedings();
-	tableData.get(selectedDB).proceedingsMasterData.addAll(procs);
-
+	if (tableData.get(selectedDB).proceedingsMasterData.isEmpty()) {
+	    List<Proceedings> procs = db.getProceedings();
+	    tableData.get(selectedDB).proceedingsMasterData.addAll(procs);
+	}
 	FilteredList<Proceedings> filteredData = setTable(tableData.get(selectedDB).proceedingsMasterData,
 		proceedingMainTable);
 
@@ -683,8 +697,7 @@ public class Controller {
 		}
 
 		// TODO some conferences seem to have no name
-		if (p.getConferenceEdition() != null && 
-			p.getConferenceEdition().getConference() != null
+		if (p.getConferenceEdition() != null && p.getConferenceEdition().getConference() != null
 			&& p.getConferenceEdition().getConference().getName() == null) {
 		    System.err.println(p.getTitle());
 		}
@@ -751,8 +764,10 @@ public class Controller {
     // START people tab
     private void loadPeople() {
 	// init table data
-	List<Person> people = db.getPeople();
-	tableData.get(selectedDB).peopleMasterData.addAll(people);
+	if (tableData.get(selectedDB).peopleMasterData.isEmpty()) {
+	    List<Person> people = db.getPeople();
+	    tableData.get(selectedDB).peopleMasterData.addAll(people);
+	}
 
 	FilteredList<Person> filteredData = setTable(tableData.get(selectedDB).peopleMasterData, personMainTable);
 
@@ -769,7 +784,7 @@ public class Controller {
 	// proceedings
 	peopleProceedingsTableTitleColumn
 		.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
-	
+
 	peopleProceedingsTableConferenceColumn.setCellValueFactory(cellData -> {
 	    String name = "";
 	    Proceedings p = cellData.getValue();
@@ -897,8 +912,10 @@ public class Controller {
     // START InProceedings tab
     private void loadInProceedings() {
 	// init table data
-	List<InProceedings> inProcs = db.getInProceedings();
-	tableData.get(selectedDB).inProceedingsMasterData.addAll(inProcs);
+	if (tableData.get(selectedDB).inProceedingsMasterData.isEmpty()) {
+	    List<InProceedings> inProcs = db.getInProceedings();
+	    tableData.get(selectedDB).inProceedingsMasterData.addAll(inProcs);
+	}
 	FilteredList<InProceedings> filteredData = setTable(tableData.get(selectedDB).inProceedingsMasterData,
 		inProceedingMainTable);
 
@@ -960,11 +977,10 @@ public class Controller {
 	if (event.getClickCount() == 2) // Checking double click
 	{
 	    InProceedings selected = inProceedingMainTable.getSelectionModel().getSelectedItem();
-	    if(selected.getProceedings() != null){
+	    if (selected.getProceedings() != null) {
 		tabPane.getSelectionModel().select(1);
 		proceedingSearchField.setText(selected.getProceedings().getTitle());
 	    }
-	    
 
 	}
 
@@ -1095,6 +1111,21 @@ public class Controller {
 	db = dbm.getDB(selectedDB);
 	System.out.println(selection);
     }
+    
+    @FXML
+    private void onLoadView(ActionEvent event) {
+	System.out.println("Loading view for: "+selectedDB);
+	//set all tabs to disabled
+	personTab.setDisable(true);
+	proceedingTab.setDisable(true);
+	inProceedingTab.setDisable(true);
+	publicationTab.setDisable(true);
+	publisherTab.setDisable(true);
+	conferenceTab.setDisable(true);
+	conferenceEditionTab.setDisable(true);
+	seriesTab.setDisable(true);
+	loadView();
+    }
 
     // START section for fields that reference FXML
     @FXML
@@ -1105,6 +1136,9 @@ public class Controller {
 
     @FXML
     Button importButton;
+    
+    @FXML
+    Button loadView;
 
     // Start Series
     @FXML

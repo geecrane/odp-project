@@ -456,7 +456,7 @@
                <children>
                   <Button fx:id="importButton" layoutX="481.0" layoutY="143.0" mnemonicParsing="false" onAction="#onImport" text="Import" />
                   <Label fx:id="importStatusLabel" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="353.0" layoutY="176.0" prefHeight="272.0" prefWidth="319.0" text="Click to start import. This might take a while." textAlignment="CENTER" textFill="#0846f2" />
-                  <ComboBox fx:id="dbSelector" layoutX="437.0" layoutY="99.0" onAction="#onDbSelect" prefWidth="150.0" promptText="Select DB">
+                  <ComboBox fx:id="dbSelector" layoutX="439.0" layoutY="60.0" onAction="#onDbSelect" prefWidth="150.0" promptText="Select DB">
 	                  <items>
 					       <FXCollections fx:factory="observableArrayList">
 						      <String fx:value="BaseX" />
@@ -465,6 +465,7 @@
 					       </FXCollections>
 				   		</items>
                   </ComboBox>
+                  <Button fx:id="loadView" layoutX="481.0" layoutY="103.0" mnemonicParsing="false" onAction="#onLoadView" text="Load View" />
                   
                </children>
             </AnchorPane>
