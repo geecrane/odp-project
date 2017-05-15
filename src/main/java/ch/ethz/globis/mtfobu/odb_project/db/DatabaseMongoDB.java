@@ -181,58 +181,6 @@ public class DatabaseMongoDB implements Database {
 
     }
 
-    // Helper class to construct a function for querying or searching with
-    // paging or ranged accesses for any domain object
-    public class QueryHelper<DO extends DomainObject> {
-	private String collectionToUse;
-	private String fieldToSearch;
-	private Function<Document, DO> parser;
-
-	public QueryHelper(String collectionToUse, String fieldToSearch, Function<Document, DO> parser) {
-	    this.collectionToUse = collectionToUse;
-	    this.fieldToSearch = fieldToSearch;
-	    this.parser = parser;
-	}
-
-	public Collection<DO> queryForDomainObject(QueryParameters p) {
-	    MongoCollection<Document> collection = mongoDB.getCollection(collectionToUse);
-	    MongoCursor<Document> cursor;
-
-	    if (p.isRanged) {
-		long begin = p.rangeStart.isPresent() ? p.rangeStart.getAsLong() : 0;
-		long end = p.rangeEnd.isPresent() ? p.rangeEnd.getAsLong() : Long.MAX_VALUE;
-
-		if (p.isSearch) {
-		    cursor = collection.find(text(p.searchTerm)).sort(ascending(fieldToSearch)).skip((int) begin)
-			    .limit((int) (end - begin)).iterator();
-		} else {
-		    cursor = collection.find().sort(ascending(fieldToSearch)).skip((int) begin)
-			    .limit((int) (end - begin)).iterator();
-		}
-
-	    } else {
-
-		if (p.isSearch) {
-		    cursor = collection.find(text(p.searchTerm)).sort(ascending(fieldToSearch))
-			    .skip((p.pageNumber - 1) * Config.PAGE_SIZE).limit(Config.PAGE_SIZE).iterator();
-		} else {
-		    cursor = collection.find().sort(ascending(fieldToSearch))
-			    .skip((p.pageNumber - 1) * Config.PAGE_SIZE).iterator();
-		}
-
-	    }
-
-	    Collection<DO> coll = new ArrayList<DO>(Config.PAGE_SIZE);
-
-	    while (cursor.hasNext()) {
-		Document doc = cursor.next();
-		coll.add(parser.apply(doc));
-	    }
-
-	    return coll;
-	}
-    }
-
     // Special case for the Publications Query
     public Collection<Publication> queryForPublications(QueryParameters p) {
 	MongoCollection<Document> collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
@@ -308,22 +256,6 @@ public class DatabaseMongoDB implements Database {
 	return list;
     }
 
-    // Query Helper for Proceedings
-    public QueryHelper<ConferenceEdition> conferenceEditionQueryHelper = new QueryHelper<ConferenceEdition>(
-	    Config.CONFERENCE_EDITION_COLLECTION, Config.CONFERENCE_EDITION_YEAR, this::makeConferenceEditionObject);
-    public QueryHelper<Conference> conferenceQueryHelper = new QueryHelper<Conference>(Config.CONFERENCE_COLLECTION,
-	    Config.CONFERENCE_NAME, this::makeConferenceObject);
-    public QueryHelper<InProceedings> inProceedingsQueryHelper = new QueryHelper<InProceedings>(
-	    Config.INPROCEEDINGS_COLLECTION, Config.INPROCEEDINGS_TITLE, this::makeInProceedingsObject);
-    public QueryHelper<Person> personQueryHelper = new QueryHelper<Person>(Config.PEOPLE_COLLECTION, Config.PEOPLE_NAME,
-	    this::makePersonObject);
-    public QueryHelper<Proceedings> proceedingsQueryHelper = new QueryHelper<Proceedings>(Config.PROCEEDINGS_COLLECTION,
-	    Config.PROCEEDINGS_TITLE, this::makeProceedingsObject);
-    // No publication query handler, it's a bit of a special case
-    public QueryHelper<Publisher> publisherQueryHelper = new QueryHelper<Publisher>(Config.PUBLISHER_COLLECTION,
-	    Config.PUBLISHER_NAME, this::makePublisherObject);
-    public QueryHelper<Series> seriesQueryHelper = new QueryHelper<Series>(Config.SERIES_COLLECTION, Config.SERIES_NAME,
-	    this::makeSeriesObject);
 
     private ConferenceEdition makeConferenceEditionObject(Document doc) {
 	// TODO:implement
