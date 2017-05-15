@@ -323,14 +323,12 @@ public class DatabaseZooDB implements Database {
 
     @Override
     public List<Publication> getPublications() {
-	Collection<Publication> publs = null;
+	List<Publication> procs = (List<Publication>)(List<?>)getProceedings();
+	List<Publication> inprocs = (List<Publication>)(List<?>)getInProceedings();
+	procs.addAll(inprocs);
+	
 
-	pm.currentTransaction().setNontransactionalRead(true);
-
-	Query q = pm.newQuery(Publication.class);
-	publs = (Collection<Publication>) q.execute();
-
-	return new ArrayList(publs);
+	return procs;
     }
 
     @Override

@@ -86,7 +86,7 @@ public class Controller {
 		loadConf();
 		loadConfEds();
 		loadSeries();
-		//loadPublications();
+		loadPublications();
 		loadInProceedings();
 	    }
 	}).start();
