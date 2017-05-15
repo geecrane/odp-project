@@ -239,14 +239,14 @@ public class Proceedings extends ZooPC implements Publication {
 	}
     }
 
-    private List<Person> editors = new Vector<>();
-    private String title;
-    private Series series;
+    private String id;
+	private String title;
     private int year;
+	private List<Person> editors = new Vector<>();
+	private Series series;
     private String isbn;
     private Conference conf;
     private ConferenceEdition confEdition;
-    private String id;
     private Publisher publisher;
     private Set<InProceedings> inProceedings = new HashSet<>();
     private String volume;

@@ -50,7 +50,7 @@ import ch.ethz.globis.mtfobu.odb_project.QueryParameters;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.*;
 
-public class DatabaseMongoDB {
+public class DatabaseMongoDB implements Database {
 	private final String dbName;
 	private final MongoClient mongoClient;
 	private MongoDatabase mongoDB;
@@ -67,69 +67,61 @@ public class DatabaseMongoDB {
 
 	// George: This will drop the database if already exists,
 	// and create a new one automatically when documents are inserted
-	public void create() {
+	public boolean create() {
 		mongoDB.drop();
+		// TODO: Verify
+		return true;
 	}
 
 	// George: get inProceedings by id
 	public InProceedings getInProceedingsById(String id) {
 		MongoCollection<Document> collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
 		Document doc = collection.find(eq("_id", id)).first();
-		if (doc != null){
+		if (doc != null) {
 			InProceedings inProc = new InProceedings(doc.getString("_id"));
 			inProc.setTitle(doc.getString(Config.INPROCEEDINGS_TITLE));
 			ArrayList<String> autors = (ArrayList<String>) doc.get(Config.INPROCEEDINGS_AUTHOR_KEYS);
 			List<Person> pers = new ArrayList<>(autors.size());
-			for(String autor: autors){
-				pers.add(getPersonById(autor));
+			for (String autor : autors) {
+				pers.add(getPersonById(autor, true));
 			}
 			inProc.setAuthors(pers);
 			int year = doc.getInteger(Config.INPROCEEDINGS_YEAR, Integer.MIN_VALUE);
-			if(year>Integer.MIN_VALUE) inProc.setYear(year);
-			
+			if (year > Integer.MIN_VALUE)
+				inProc.setYear(year);
+
 			return inProc;
-			
+
 		}
 		return null;
 	}
-	
-	public Publication getPublicationById(String id){
+
+	@Override
+	public Publication getPublicationById(String id) {
 		Publication pub;
 		pub = getInProceedingsById(id);
-		if(pub==null) pub=getProceedingsById(id);
+		if (pub == null)
+			pub = getProceedingsById(id);
 		return pub;
 	}
 
-	// George: get person by id
-	public Person getPersonById(String id) {
-		MongoCollection<Document> collection = mongoDB.getCollection(Config.PEOPLE_COLLECTION);
-		Document doc = collection.find(eq("_id", id)).first();
-
-		if (doc != null) {
-			String name = doc.get(Config.PEOPLE_NAME).toString();
-			Person p = new Person(name);
-			return p;
-
-		} else {
-			return null;
-		}
-	}
-	
-	public String getPersonIdFromName(String name){
+	public String getPersonIdFromName(String name) {
 		String id;
 		MongoCollection<Document> collection = mongoDB.getCollection(Config.PEOPLE_COLLECTION);
 		MongoCursor<Document> doc = collection.find(eq(Config.PEOPLE_NAME, name)).iterator();
 		id = doc.next().getString("_id");
-		if(doc.hasNext()) System.out.println("Warning: multiple people share the same name");
+		if (doc.hasNext())
+			System.out.println("Warning: multiple people share the same name");
 		return id;
 	}
-	
-	public String getConferenceIdFromName(String name){
+
+	public String getConferenceIdFromName(String name) {
 		String id;
 		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
 		MongoCursor<Document> doc = collection.find(eq(Config.CONFERENCE_COLLECTION, name)).iterator();
 		id = doc.next().getString("_id");
-		if(doc.hasNext()) System.out.println("Warning: multiple conferences share the same name");
+		if (doc.hasNext())
+			System.out.println("Warning: multiple conferences share the same name");
 		return id;
 	}
 
@@ -374,7 +366,7 @@ public class DatabaseMongoDB {
 		ArrayList<String> editor_keys = (ArrayList<String>) doc.get(Config.PROCEEDINGS_EDITOR_KEYS);
 		ArrayList<Person> authors = new ArrayList<>();
 		for (String key : editor_keys) {
-			Person p = getPersonById(key);
+			Person p = getPersonById(key, true);
 			authors.add(p);
 		}
 		proceedings.setAuthors(authors);
@@ -398,81 +390,6 @@ public class DatabaseMongoDB {
 	private Series makeSeriesObject(Document doc) {
 		// TODO:implement
 		return null;
-	}
-
-	// get inproceedings where author (by id) appears last
-	public List<InProceedings> getInproceedingsAuthorLast(String id) {
-		/*
-		 * db.getCollection('inproceedings').aggregate([ { $project: {
-		 * author_keys: { $slice: [ "$author_keys", -1 ] } } }, { $match: {
-		 * author_keys: "1785178126" } } ])
-		 */
-		MongoCollection<Document> collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
-		ArrayList<InProceedings> results = new ArrayList<>();
-
-		Block<Document> block = new Block<Document>() {
-			@Override
-			public void apply(final Document document) {
-				System.out.println(document.toJson());
-				String id = (String) document.get("_id");
-				InProceedings inProceedings = getInProceedingsById(id);
-				if (inProceedings != null)
-					results.add(inProceedings);
-			}
-		};
-		BasicDBList author_keys = new BasicDBList();
-		author_keys.add("$author_keys");
-		author_keys.add(-1);
-
-		collection.aggregate(Arrays.asList(
-				Aggregates.project(
-						Projections.fields(new BasicDBObject("author_keys", new BasicDBObject("$slice", author_keys)))),
-				Aggregates.match(eq("author_keys", id)))).forEach(block);
-
-		return results;
-	}
-
-	// task 4
-	public List<Person> getCoAuthores(String authorId) {
-		MongoCursor<Document> cursor;
-		Set<String> foundCoAu = new HashSet<>();
-		MongoCollection<Document> col;
-
-		col = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
-		cursor = col.find(eq(Config.INPROCEEDINGS_AUTHOR_KEYS, authorId)).iterator();
-		while (cursor.hasNext()) {
-			Document doc = cursor.next();
-			@SuppressWarnings("unchecked")
-			ArrayList<String> ids = (ArrayList<String>) doc.get(Config.INPROCEEDINGS_AUTHOR_KEYS);
-			for (String i : ids) {
-				if (!foundCoAu.contains(i)) {
-					foundCoAu.add(i);
-				}
-			}
-
-		}
-		col = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
-		cursor = col.find(eq(Config.PROCEEDINGS_EDITOR_KEYS, authorId)).iterator();
-		while (cursor.hasNext()) {
-			Document doc = cursor.next();
-			@SuppressWarnings("unchecked")
-			ArrayList<String> ids = (ArrayList<String>) doc.get(Config.PROCEEDINGS_EDITOR_KEYS);
-			for (String i : ids) {
-				if (!foundCoAu.contains(i)) {
-					foundCoAu.add(i);
-				}
-			}
-
-		}
-		foundCoAu.remove(authorId);
-		ArrayList<Person> coAuthors = new ArrayList<>(foundCoAu.size());
-
-		for (String i : foundCoAu) {
-			coAuthors.add(getPersonById(i));
-		}
-
-		return coAuthors;
-
 	}
 
 	// task 5
@@ -567,24 +484,6 @@ public class DatabaseMongoDB {
 
 	}
 
-	// task 6
-	// TODO: Seems to work but PIA to verify without GUI
-	public double globalAvgAuthors() {
-		double result = 0;
-		int nInPro = 0;
-		MongoCollection<Document> col = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
-		String inProcMap = "function(){emit(this._id, " + "this." + Config.INPROCEEDINGS_AUTHOR_KEYS + ".length );}";
-		String inProcReduce = "function(key, authors){return Array.sum(authors);}"; // Array.sum(authors)
-		MapReduceIterable<Document> res = col.mapReduce(inProcMap, inProcReduce);
-		for (Document doc : res) {
-			result += doc.getDouble("value");
-			nInPro++;
-		}
-		result /= (double) nInPro;
-
-		return result;
-	}
-
 	// task 7
 	// @retrun: The hashmap takes as key the year and returns the number of
 	// publications as value
@@ -645,177 +544,6 @@ public class DatabaseMongoDB {
 		// }
 		return result;
 
-	}
-
-	// task 8
-	// @retrun: the key is the ConferenceID and the value the number of
-	// publications
-	public HashMap<String, Integer> noPublicationsPerConference() {
-		System.out.println("task 8: please look at the code. There is a bug I have not been able to find. ");
-		// TODO: Same as for task 7
-		// db.getCollection('conferences').aggregate( [
-		// {$unwind : "$edition_keys"},
-		// {$group: { _id: "$_id", pubs: {$sum: 1}}}
-		// ])
-		HashMap<String, Integer> result = new HashMap<>();
-
-		Block<Document> block = new Block<Document>() {
-			@Override
-			public void apply(final Document document) {
-				System.out.println(document.toJson());
-				String name = document.getString("_id");
-				int pubs = document.getInteger("publications");
-				result.put(name, pubs);
-			}
-		};
-		MongoCollection<Document> col = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
-
-		Bson unwind = new BasicDBObject("$unwind", "$" + Config.CONFERENCE_EDITION_KEYS);
-
-		DBObject groupFields = new BasicDBObject("_id", "$_id");
-		groupFields.put("publications", new BasicDBObject("$sum", 1));
-		Bson group = new BasicDBObject("$group", groupFields);
-
-		col.aggregate(Arrays.asList(Aggregates.unwind(Config.CONFERENCE_EDITION_KEYS), Aggregates.project(group)))
-				.forEach(block);
-
-		return result;
-
-	}
-	
-	//task 9
-	public int countEditors(String ConferenceId){
-		Set<Integer> authors = new HashSet<>();
-		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
-		Document doc = collection.find(eq("_id", ConferenceId)).first();
-		ArrayList<String> editions = (ArrayList<String>) doc.get(Config.CONFERENCE_EDITION_KEYS);
-		ArrayList<String> proceedingKeys = new ArrayList<>();
-		for(String edition: editions){
-			//It's ugly, but in comparison to the fancy functions above it works
-			collection = mongoDB.getCollection(Config.CONFERENCE_EDITION_COLLECTION);
-			FindIterable<Document> conf_editions = collection.find(eq("_id", edition));
-			
-			for(Document d: conf_editions){
-				proceedingKeys.add(d.getString(Config.CONFERENCE_EDITION_PROCEEDINGS_KEY));
-			}
-		 
-		}
-		for(String key: proceedingKeys){
-			collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
-			//This would do the job. A lookup would be even better
-//			db.getCollection('proceedings').aggregate( [
-//			                                            {$unwind : "$inproceeding_keys"},
-//			                                            {$group: { _id:"$inproceeding_keys"}}
-//			                                           ])
-			Document procs = collection.find(eq("_id", key)).first();
-			List<String> inProcs = (List<String>) procs.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
-			for(String inProc: inProcs){
-				collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
-				Document inProceedings= collection.find(eq("_id", inProc)).first();
-				List<String> thisauthors = (List<String>) inProceedings.get(Config.INPROCEEDINGS_AUTHOR_KEYS);
-				for(String d: thisauthors){
-					int authorID = Integer.parseInt(d);
-					if(!authors.contains(authorID)) authors.add(authorID);
-				}
-			}
-		}
-		
-		return authors.size();
-	}
-	
-	//task 10
-	public List<Person> allAuthorsOfConference(String ConferenceId){
-		Set<Integer> authors = new HashSet<>();
-		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
-		Document doc = collection.find(eq("_id", ConferenceId)).first();
-		if(doc == null){
-			System.out.println("Well, this donsn't seem to be a valid Conference id");
-			return null;
-		}
-		ArrayList<String> editions = (ArrayList<String>) doc.get(Config.CONFERENCE_EDITION_KEYS);
-		ArrayList<String> proceedingKeys = new ArrayList<>();
-		for(String edition: editions){
-			//It's ugly, but in comparison to the fancy functions above it works
-			collection = mongoDB.getCollection(Config.CONFERENCE_EDITION_COLLECTION);
-			FindIterable<Document> conf_editions = collection.find(eq("_id", edition));
-			
-			for(Document d: conf_editions){
-				proceedingKeys.add(d.getString(Config.CONFERENCE_EDITION_PROCEEDINGS_KEY));
-			}
-		 
-		}
-		for(String key: proceedingKeys){
-			collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
-			
-			//This would do the job. A lookup would be even better
-//			db.getCollection('proceedings').aggregate( [
-//			                                            {$unwind : "$inproceeding_keys"},
-//			                                            {$group: { _id:"$inproceeding_keys"}}
-//			                                           ])
-			Document procs = collection.find(eq("_id", key)).first();
-			List<String> editors = (List<String>) procs.get(Config.PROCEEDINGS_EDITOR_KEYS);
-			for(String editor:editors){
-				authors.add(Integer.parseInt(editor));
-			}
-			List<String> inProcs = (List<String>) procs.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
-			for(String inProc: inProcs){
-				collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
-				Document inProceedings= collection.find(eq("_id", inProc)).first();
-				List<String> thisauthors = (List<String>) inProceedings.get(Config.INPROCEEDINGS_AUTHOR_KEYS);
-				for(String d: thisauthors){
-					int authorID = Integer.parseInt(d);
-					if(!authors.contains(authorID)) authors.add(authorID);
-				}
-			}
-		}
-		List<Person> authorsAndEditors = new ArrayList<>();
-		for(Integer autorID: authors){
-			authorsAndEditors.add(getPersonById(Integer.toString(autorID)));
-		}
-		return authorsAndEditors;
-		
-	}
-	
-	//task 11
-	public List<InProceedings> allTasksFromPublication(String ConferenceId){
-		Set<String> inProceedings = new HashSet<>();
-		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
-		Document doc = collection.find(eq("_id", ConferenceId)).first();
-		if(doc == null){
-			System.out.println("Well, this donsn't seem to be a valid Conference id");
-			return null;
-		}
-		ArrayList<String> editions = (ArrayList<String>) doc.get(Config.CONFERENCE_EDITION_KEYS);
-		ArrayList<String> proceedingKeys = new ArrayList<>();
-		for(String edition: editions){
-			//It's ugly, but in comparison to the fancy functions above it works
-			collection = mongoDB.getCollection(Config.CONFERENCE_EDITION_COLLECTION);
-			FindIterable<Document> conf_editions = collection.find(eq("_id", edition));
-			for(Document d: conf_editions){
-				proceedingKeys.add(d.getString(Config.CONFERENCE_EDITION_PROCEEDINGS_KEY));
-			}
-
-		}
-		for(String key: proceedingKeys){
-			collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
-			
-			//This would do the job. A lookup would be even better
-//			db.getCollection('proceedings').aggregate( [
-//			                                            {$unwind : "$inproceeding_keys"},
-//			                                            {$group: { _id:"$inproceeding_keys"}}
-//			                                           ])
-			Document procs = collection.find(eq("_id", key)).first();
-			List<String> inProcs = (List<String>) procs.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
-			for(String inProc: inProcs){
-				inProceedings.add(inProc);
-			}
-		}
-		ArrayList<InProceedings> inprocs = new ArrayList<>();
-		for(String InProc: inProceedings){
-			inprocs.add(getInProceedingsById(InProc));
-		} 
-		return inprocs; 
-		
 	}
 
 	// George: How to query and return domain classes
@@ -1004,11 +732,6 @@ public class DatabaseMongoDB {
 
 	}
 
-	public void removeInProceedings(String id) {
-		MongoCollection<Document> collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
-		collection.deleteMany(eq("_id", id));
-	}
-
 	public void removeProceedings(String id) {
 		MongoCollection<Document> collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
 		collection.deleteMany(eq("_id", id));
@@ -1056,6 +779,543 @@ public class DatabaseMongoDB {
 		insertSeries(seriesList);
 		insertProceedings(proceedingsList);
 		insertInProceedings(inProceedingsList);
+	}
+
+	@Override
+	public List<Publisher> getPublishers() {
+		List<Publisher> pubs = new ArrayList<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.PUBLISHER_COLLECTION);
+		MongoCursor<Document> iterator = collection.find().iterator();
+		while (iterator.hasNext()) {
+			pubs.add(publisherFromDoc(iterator.next()));
+		}
+		return pubs;
+	}
+
+	public Publisher publisherFromDoc(Document doc) {
+		Publisher pub = new Publisher(doc.getString(Config.PUBLISHER_NAME));
+		return pub;
+	}
+
+	@Override
+	public <T extends Publication> List<T> getPublications() {
+		List<T> pubs = (List<T>) getProceedings();
+		pubs.addAll((Collection<T>) getInProceedings());
+		return pubs;
+	}
+
+	@Override
+	public List<Proceedings> getProceedings() {
+		List<Proceedings> procs = new ArrayList<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+		MongoCursor<Document> iterator = collection.find().iterator();
+		while (iterator.hasNext()) {
+			procs.add(proceedingFromDoc(iterator.next()));
+		}
+		return null;
+	}
+
+	public Proceedings proceedingFromDoc(Document doc) {
+		Proceedings proc = new Proceedings(doc.getString("_id"));
+		proc.setTitle(doc.getString(Config.PROCEEDINGS_TITLE));
+		proc.setYear(doc.getInteger(Config.PROCEEDINGS_YEAR));
+		{
+			String seriesKey = doc.getString(Config.PROCEEDINGS_SERIES_KEY);
+			if (seriesKey != null) {
+				// TODO: Verify
+				// It is assumed that seriesKey represents the id of the series
+				proc.setSeries(getSeriesById(seriesKey));
+			}
+		}
+		proc.setIsbn(doc.getString(Config.PROCEEDINGS_ISBN));
+		{
+			ArrayList<String> editors = (ArrayList<String>) doc.get(Config.PROCEEDINGS_EDITOR_KEYS);
+			List<Person> people = new ArrayList<>();
+			int numEdit = editors.size();
+			for (int i = 0; i < numEdit; ++i) {
+				people.add(getPersonById(editors.get(i), true));
+			}
+			proc.setAuthors(people);
+		}
+
+		{
+			// TODO: verify this. It seems that the conference name is set by
+			// this tag instead of <booktitle>
+			String confName = doc.getString(Config.PROCEEDINGS_CONFERENCE_EDITION_KEY);
+			if (confName != null) {
+				Conference conf = new Conference(confName);
+				proc.setConference(conf);
+			}
+		}
+		proc.setPublisher(getPublisherByName(doc.getString(Config.PROCEEDINGS_PUBLISHER_KEY)));
+		{
+			ArrayList<String> inProceedingIDs = (ArrayList<String>) doc.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
+			Set<InProceedings> inProcs = new HashSet<>();
+			int numInProcs = inProceedingIDs.size();
+			for (int i = 0; i < numInProcs; ++i){
+				inProcs.add(new InProceedings(inProceedingIDs.get(i)));
+			}
+			proc.setPublications(inProcs);
+		}
+		proc.setVolume(doc.getString(Config.PROCEEDINGS_VOLUME));
+		proc.setNote(doc.getString(Config.PROCEEDINGS_NOTE));
+		proc.setElectronicEdition(doc.getString(Config.PROCEEDINGS_ELECTRONIC_EDITION));
+		proc.setNumber(doc.getInteger(Config.PROCEEDINGS_NUMBER));
+		return proc;
+	}
+
+	public Set<InProceedings> getInProcForProceedingId(String procId) {
+		// TODO: implement
+		return null;
+	}
+
+	@Override
+	public List<InProceedings> getInProceedings() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Person> getPeople() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Conference> getConferences() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Series> getSeries() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ConferenceEdition> getConferenceEditions() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean openDB() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void closeDB() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void importData(HashMap<String, Proceedings> proceedingsList,
+			HashMap<String, InProceedings> inProceedingsList) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Proceedings getProceedingById(String id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Publisher getPublisherByName(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Person getPersonById(String id, boolean lazy) {
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.PEOPLE_COLLECTION);
+		Document doc = collection.find(eq("_id", id)).first();
+
+		if (doc != null) {
+			String name = doc.get(Config.PEOPLE_NAME).toString();
+			Person p = new Person(name);
+			return p;
+
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public Set<Publication> getAuthoredPublications(String personName, boolean lazy) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<Publication> getEditedPublications(String personName, boolean lazy) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Conference getConferenceByName(String confName, boolean lazy) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<ConferenceEdition> getConfEditionsForConf(Conference conference) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Series getSeriesByName(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addProceeding(Proceedings proc) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deleteProceedingById(String id) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updateProceeding(Proceedings proc) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void addInProceeding(InProceedings inProc) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deleteInProceedingById(String id) {
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+		collection.deleteMany(eq("_id", id));
+	}
+
+	@Override
+	public List<Publication> getPublicationsByFilter(String title, int begin_offset, int end_offset) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	// task 4
+	@Override
+	public List<Person> getCoAuthors(String name) {
+		// Assuming AuthorID = AuthorName
+		String authorId = name;
+		MongoCursor<Document> cursor;
+		Set<String> foundCoAu = new HashSet<>();
+		MongoCollection<Document> col;
+
+		col = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+		cursor = col.find(eq(Config.INPROCEEDINGS_AUTHOR_KEYS, authorId)).iterator();
+		while (cursor.hasNext()) {
+			Document doc = cursor.next();
+			@SuppressWarnings("unchecked")
+			ArrayList<String> ids = (ArrayList<String>) doc.get(Config.INPROCEEDINGS_AUTHOR_KEYS);
+			for (String i : ids) {
+				if (!foundCoAu.contains(i)) {
+					foundCoAu.add(i);
+				}
+			}
+
+		}
+		col = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+		cursor = col.find(eq(Config.PROCEEDINGS_EDITOR_KEYS, authorId)).iterator();
+		while (cursor.hasNext()) {
+			Document doc = cursor.next();
+			@SuppressWarnings("unchecked")
+			ArrayList<String> ids = (ArrayList<String>) doc.get(Config.PROCEEDINGS_EDITOR_KEYS);
+			for (String i : ids) {
+				if (!foundCoAu.contains(i)) {
+					foundCoAu.add(i);
+				}
+			}
+
+		}
+		foundCoAu.remove(authorId);
+		ArrayList<Person> coAuthors = new ArrayList<>(foundCoAu.size());
+
+		for (String i : foundCoAu) {
+			coAuthors.add(getPersonById(i, false));
+		}
+
+		return coAuthors;
+	}
+
+	// task 6
+	// TODO: Seems to work, but verify.
+	@Override
+	public double getAvgAuthorsInProceedings() {
+		double result = 0;
+		int nInPro = 0;
+		MongoCollection<Document> col = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+		String inProcMap = "function(){emit(this._id, " + "this." + Config.INPROCEEDINGS_AUTHOR_KEYS + ".length );}";
+		String inProcReduce = "function(key, authors){return Array.sum(authors);}"; // Array.sum(authors)
+		MapReduceIterable<Document> res = col.mapReduce(inProcMap, inProcReduce);
+		for (Document doc : res) {
+			result += doc.getDouble("value");
+			nInPro++;
+		}
+		result /= (double) nInPro;
+
+		return result;
+	}
+
+	@Override
+	public List<String> getNumberPublicationsPerYearInterval(int yearLowerBound, int yearUpperBound) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	// task 8
+	// TODO: This function does not what is asked by the task. Solve the issue
+	@Override
+	public int getNumberOfPublicationsPerConferenceByName(String conferenceName) {
+		// task 8
+		// @retrun: the key is the ConferenceID and the value the number of
+		// publications
+		// public HashMap<String, Integer> noPublicationsPerConference() {
+		// System.out.println("task 8: please look at the code. There is a bug I
+		// have not been able to find. ");
+		// // TODO: Same as for task 7
+		// // db.getCollection('conferences').aggregate( [
+		// // {$unwind : "$edition_keys"},
+		// // {$group: { _id: "$_id", pubs: {$sum: 1}}}
+		// // ])
+		// HashMap<String, Integer> result = new HashMap<>();
+		//
+		// Block<Document> block = new Block<Document>() {
+		// @Override
+		// public void apply(final Document document) {
+		// System.out.println(document.toJson());
+		// String name = document.getString("_id");
+		// int pubs = document.getInteger("publications");
+		// result.put(name, pubs);
+		// }
+		// };
+		// MongoCollection<Document> col =
+		// mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+		//
+		// Bson unwind = new BasicDBObject("$unwind", "$" +
+		// Config.CONFERENCE_EDITION_KEYS);
+		//
+		// DBObject groupFields = new BasicDBObject("_id", "$_id");
+		// groupFields.put("publications", new BasicDBObject("$sum", 1));
+		// Bson group = new BasicDBObject("$group", groupFields);
+		//
+		// col.aggregate(Arrays.asList(Aggregates.unwind(Config.CONFERENCE_EDITION_KEYS),
+		// Aggregates.project(group)))
+		// .forEach(block);
+		//
+		// return result;
+		//
+		// }
+		return 0;
+	}
+
+	// task 9
+	@Override
+	public int countEditorsAndAuthorsOfConferenceByName(String conferenceId) {
+
+		Set<Integer> authors = new HashSet<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
+		Document doc = collection.find(eq("_id", conferenceId)).first();
+		ArrayList<String> editions = (ArrayList<String>) doc.get(Config.CONFERENCE_EDITION_KEYS);
+		ArrayList<String> proceedingKeys = new ArrayList<>();
+		for (String edition : editions) {
+			// It's ugly, but in comparison to the fancy functions above it
+			// works
+			collection = mongoDB.getCollection(Config.CONFERENCE_EDITION_COLLECTION);
+			FindIterable<Document> conf_editions = collection.find(eq("_id", edition));
+
+			for (Document d : conf_editions) {
+				proceedingKeys.add(d.getString(Config.CONFERENCE_EDITION_PROCEEDINGS_KEY));
+			}
+
+		}
+		for (String key : proceedingKeys) {
+			collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+			// This would do the job. A lookup would be even better
+			// db.getCollection('proceedings').aggregate( [
+			// {$unwind : "$inproceeding_keys"},
+			// {$group: { _id:"$inproceeding_keys"}}
+			// ])
+			Document procs = collection.find(eq("_id", key)).first();
+			List<String> inProcs = (List<String>) procs.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
+			for (String inProc : inProcs) {
+				collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+				Document inProceedings = collection.find(eq("_id", inProc)).first();
+				List<String> thisauthors = (List<String>) inProceedings.get(Config.INPROCEEDINGS_AUTHOR_KEYS);
+				for (String d : thisauthors) {
+					int authorID = Integer.parseInt(d);
+					if (!authors.contains(authorID))
+						authors.add(authorID);
+				}
+			}
+		}
+
+		return authors.size();
+	}
+
+	// task 10
+	@Override
+	public List<Person> getAllAuthorsOfConferenceByName(String conferenceId) {
+
+		Set<Integer> authors = new HashSet<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
+		Document doc = collection.find(eq("_id", conferenceId)).first();
+		if (doc == null) {
+			System.out.println("Well, this donsn't seem to be a valid Conference id");
+			return null;
+		}
+		ArrayList<String> editions = (ArrayList<String>) doc.get(Config.CONFERENCE_EDITION_KEYS);
+		ArrayList<String> proceedingKeys = new ArrayList<>();
+		for (String edition : editions) {
+			// It's ugly, but in comparison to the fancy functions above it
+			// works
+			collection = mongoDB.getCollection(Config.CONFERENCE_EDITION_COLLECTION);
+			FindIterable<Document> conf_editions = collection.find(eq("_id", edition));
+
+			for (Document d : conf_editions) {
+				proceedingKeys.add(d.getString(Config.CONFERENCE_EDITION_PROCEEDINGS_KEY));
+			}
+
+		}
+		for (String key : proceedingKeys) {
+			collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+
+			// This would do the job. A lookup would be even better
+			// db.getCollection('proceedings').aggregate( [
+			// {$unwind : "$inproceeding_keys"},
+			// {$group: { _id:"$inproceeding_keys"}}
+			// ])
+			Document procs = collection.find(eq("_id", key)).first();
+			List<String> editors = (List<String>) procs.get(Config.PROCEEDINGS_EDITOR_KEYS);
+			for (String editor : editors) {
+				authors.add(Integer.parseInt(editor));
+			}
+			List<String> inProcs = (List<String>) procs.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
+			for (String inProc : inProcs) {
+				collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+				Document inProceedings = collection.find(eq("_id", inProc)).first();
+				List<String> thisauthors = (List<String>) inProceedings.get(Config.INPROCEEDINGS_AUTHOR_KEYS);
+				for (String d : thisauthors) {
+					int authorID = Integer.parseInt(d);
+					if (!authors.contains(authorID))
+						authors.add(authorID);
+				}
+			}
+		}
+		List<Person> authorsAndEditors = new ArrayList<>();
+		for (Integer autorID : authors) {
+			authorsAndEditors.add(getPersonById(Integer.toString(autorID), false));
+		}
+		return authorsAndEditors;
+
+	}
+
+	// task 11
+	@Override
+	public List<Publication> getAllPublicationsOfConferenceByName(String conferenceId) {
+		Set<String> inProceedings = new HashSet<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
+		Document doc = collection.find(eq("_id", conferenceId)).first();
+		if (doc == null) {
+			System.out.println("Well, this donsn't seem to be a valid Conference id");
+			return null;
+		}
+		ArrayList<String> editions = (ArrayList<String>) doc.get(Config.CONFERENCE_EDITION_KEYS);
+		ArrayList<String> proceedingKeys = new ArrayList<>();
+		for (String edition : editions) {
+			// It's ugly, but in comparison to the fancy functions above it
+			// works
+			collection = mongoDB.getCollection(Config.CONFERENCE_EDITION_COLLECTION);
+			FindIterable<Document> conf_editions = collection.find(eq("_id", edition));
+			for (Document d : conf_editions) {
+				proceedingKeys.add(d.getString(Config.CONFERENCE_EDITION_PROCEEDINGS_KEY));
+			}
+
+		}
+		for (String key : proceedingKeys) {
+			collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+
+			// This would do the job. A lookup would be even better
+			// db.getCollection('proceedings').aggregate( [
+			// {$unwind : "$inproceeding_keys"},
+			// {$group: { _id:"$inproceeding_keys"}}
+			// ])
+			Document procs = collection.find(eq("_id", key)).first();
+			List<String> inProcs = (List<String>) procs.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
+			for (String inProc : inProcs) {
+				inProceedings.add(inProc);
+			}
+		}
+		ArrayList<Publication> pubs = new ArrayList<>();
+		for (String InProc : inProceedings) {
+			pubs.add(getInProceedingsById(InProc));
+		}
+		return pubs;
+	}
+
+	@Override
+	public List<Person> getPeopleThatAreAuthorsAndEditors() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	// task 13
+	@Override
+	public List<InProceedings> getPublicationsWhereAuthorIsLast(String authorName) {
+		// Assume author id is equal to author name
+		String id = authorName;
+		/*
+		 * db.getCollection('inproceedings').aggregate([ { $project: {
+		 * author_keys: { $slice: [ "$author_keys", -1 ] } } }, { $match: {
+		 * author_keys: "1785178126" } } ])
+		 */
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+		ArrayList<InProceedings> results = new ArrayList<>();
+
+		Block<Document> block = new Block<Document>() {
+			@Override
+			public void apply(final Document document) {
+				System.out.println(document.toJson());
+				String id = (String) document.get("_id");
+				InProceedings inProceedings = getInProceedingsById(id);
+				if (inProceedings != null)
+					results.add(inProceedings);
+			}
+		};
+		BasicDBList author_keys = new BasicDBList();
+		author_keys.add("$author_keys");
+		author_keys.add(-1);
+
+		collection.aggregate(Arrays.asList(
+				Aggregates.project(
+						Projections.fields(new BasicDBObject("author_keys", new BasicDBObject("$slice", author_keys)))),
+				Aggregates.match(eq("author_keys", id)))).forEach(block);
+
+		return results;
+	}
+
+	@Override
+	public List<Publisher> task14(int yearLowerBound, int yearUpperBound) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
