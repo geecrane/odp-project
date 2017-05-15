@@ -14,8 +14,8 @@ public class DatabaseManager {
 
     public DatabaseManager() {
 	dbBaseX = DatabaseBaseX.getDatabase();
-	dbMongoDB = null;// new DatabaseMongoDB(Config.DATABASE_NAME);
-	dbZooDB =  DatabaseZooDB.getDatabase();
+	dbMongoDB = DatabaseMongoDB.getDatabase();
+	dbZooDB = DatabaseZooDB.getDatabase();
     }
 
     public Database getDB(DBType type) {
@@ -24,7 +24,7 @@ public class DatabaseManager {
 	case BaseX:
 	    return dbBaseX;
 	case MongoDB:
-	    break;
+	    return dbMongoDB;
 	case ZooDB:
 	    return dbZooDB;
 	default:

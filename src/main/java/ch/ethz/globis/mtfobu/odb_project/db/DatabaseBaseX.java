@@ -83,7 +83,9 @@ public class DatabaseBaseX implements Database {
     }
 
     public void importData(HashMap<String, Proceedings> proceedingsList,
-	    HashMap<String, InProceedings> inProceedingsList) {
+	    HashMap<String, InProceedings> inProceedingsList, HashMap<Integer, Series> seriesList,
+	    HashMap<String, Publisher> publishers, HashMap<String, ConferenceEdition> conferenceEditions,
+	    HashMap<String, Conference> conferences, HashMap<Integer, Person> people) {
 	// not needed for BaseX
     }
 

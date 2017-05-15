@@ -27,6 +27,7 @@ import ch.ethz.globis.mtfobu.odb_project.XmlImport;
 import ch.ethz.globis.mtfobu.odb_project.db.Database;
 import ch.ethz.globis.mtfobu.odb_project.db.DatabaseBaseX;
 import ch.ethz.globis.mtfobu.odb_project.db.DatabaseManager;
+import ch.ethz.globis.mtfobu.odb_project.db.MongoImport;
 import ch.ethz.globis.mtfobu.odb_project.db.ZooImport;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -1062,15 +1063,25 @@ public class Controller {
     // import and db selection
     @FXML
     private void onImport(ActionEvent event) {
+	final Controller parameter = this;
+	
 	switch (this.selectedDB) {
 	case BaseX:
 	    // do nothing
 	    break;
 	case MongoDB:
-	    // TODO
+	    new Thread(new Runnable() {
+		Controller c = parameter;
+		public void run() {
+		    c.importButton.setDisable(true);
+		    // db.create();
+		    MongoImport importer = new MongoImport(db, c);
+		    importer.ImportFromXML("src/main/resources/dblp_filtered.xml");
+		    c.importButton.setDisable(false);
+		}
+	    }).start();
 	    break;
 	case ZooDB:
-	    final Controller parameter = this;
 	    new Thread(new Runnable() {
 		Controller c = parameter;
 
@@ -1111,11 +1122,11 @@ public class Controller {
 	db = dbm.getDB(selectedDB);
 	System.out.println(selection);
     }
-    
+
     @FXML
     private void onLoadView(ActionEvent event) {
-	System.out.println("Loading view for: "+selectedDB);
-	//set all tabs to disabled
+	System.out.println("Loading view for: " + selectedDB);
+	// set all tabs to disabled
 	personTab.setDisable(true);
 	proceedingTab.setDisable(true);
 	inProceedingTab.setDisable(true);
@@ -1136,7 +1147,7 @@ public class Controller {
 
     @FXML
     Button importButton;
-    
+
     @FXML
     Button loadView;
 

@@ -57,9 +57,11 @@ public interface Database {
 	public void closeDB();
 
 	public boolean create();
-
+	
 	public void importData(HashMap<String, Proceedings> proceedingsList,
-			HashMap<String, InProceedings> inProceedingsList);
+		HashMap<String, InProceedings> inProceedingsList, HashMap<Integer, Series> seriesList,
+		HashMap<String, Publisher> publishers, HashMap<String, ConferenceEdition> conferenceEditions,
+		HashMap<String, Conference> conferences, HashMap<Integer, Person> people);
 
 	public InProceedings getInProceedingsById(String id);
 

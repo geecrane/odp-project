@@ -60,7 +60,7 @@ public class ZooImport {
 		
 			//commit to database 
 			setStatus("Commiting to Database...");
-			database.importData(proceedingsList, inProceedingsList);
+			database.importData(proceedingsList, inProceedingsList, null, null,null,null,null);
 			
 			//Done!
 			String output = String.format("Import Complete!\nImported succesfully:\n%s proceedings \n%s inProceedings \n%s editors \n%s publishers \n"

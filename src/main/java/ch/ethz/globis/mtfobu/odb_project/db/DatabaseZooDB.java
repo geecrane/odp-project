@@ -78,8 +78,8 @@ public class DatabaseZooDB implements Database {
     // George: Enables creation/deletion of database on demand.
     public boolean create() {
 	// George: Remove the database if it exists
-	if (ZooHelper.dbExists(dbName)){
-	    if(!ZooHelper.removeDb(dbName)){
+	if (ZooHelper.dbExists(dbName)) {
+	    if (!ZooHelper.removeDb(dbName)) {
 		System.err.println(String.format("Could not remove db: %s", dbName));
 	    }
 	}
@@ -95,7 +95,10 @@ public class DatabaseZooDB implements Database {
 
     // George: commits the imported XML data to ZooDB
     public void importData(HashMap<String, Proceedings> proceedingsList,
-	    HashMap<String, InProceedings> inProceedingsList) {
+	    HashMap<String, InProceedings> inProceedingsList, HashMap<Integer, Series> seriesList,
+	    HashMap<String, Publisher> publishers, HashMap<String, ConferenceEdition> conferenceEditions,
+	    HashMap<String, Conference> conferences, HashMap<Integer, Person> people) {
+	
 	pm.currentTransaction().begin();
 
 	// George: commit proceedings
@@ -323,10 +326,9 @@ public class DatabaseZooDB implements Database {
 
     @Override
     public List<Publication> getPublications() {
-	List<Publication> procs = (List<Publication>)(List<?>)getProceedings();
-	List<Publication> inprocs = (List<Publication>)(List<?>)getInProceedings();
+	List<Publication> procs = (List<Publication>) (List<?>) getProceedings();
+	List<Publication> inprocs = (List<Publication>) (List<?>) getInProceedings();
 	procs.addAll(inprocs);
-	
 
 	return procs;
     }
