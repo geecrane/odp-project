@@ -71,6 +71,21 @@ public class DatabaseMongoDB implements Database {
 		mongoDB = mongoClient.getDatabase(dbName);
 
 	}
+	
+
+	 private static class Singleton {
+			private static final DatabaseMongoDB instance = new DatabaseMongoDB();
+		    }
+
+		    /**
+		     * Used to retrieve the database instance. DO NOT try to instantiate the
+		     * Database class manually!
+		     * 
+		     * @return The Database instance
+		     */
+		    public static DatabaseMongoDB getDatabase() {
+			return Singleton.instance;
+		    }
 
 	@Override
 	public boolean openDB() {
@@ -928,12 +943,12 @@ public class DatabaseMongoDB implements Database {
 		return null;
 	}
 
-	@Override
-	public void importData(HashMap<String, Proceedings> proceedingsList,
-			HashMap<String, InProceedings> inProceedingsList) {
-		// TODO Auto-generated method stub
-
-	}
+//	@Override
+//	public void importData(HashMap<String, Proceedings> proceedingsList,
+//			HashMap<String, InProceedings> inProceedingsList) {
+//		// TODO Auto-generated method stub
+//
+//	}
 
 	@Override
 	public Proceedings getProceedingById(String id) {
@@ -1339,6 +1354,7 @@ public class DatabaseMongoDB implements Database {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 
 }
 
