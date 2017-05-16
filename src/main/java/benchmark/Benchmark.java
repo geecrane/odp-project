@@ -54,6 +54,7 @@ public class Benchmark {
 		String ids[] = new String[iterations];
 		// task 2+3 inputs
 		int task2and3IntervalLenght = 500;
+		int task2and3substringLength = 3;
 		String titles[] = new String[iterations];
 		int begin_offset[] = new int[iterations];
 		int end_offset[] = new int[iterations];
@@ -73,20 +74,23 @@ public class Benchmark {
 			random = ThreadLocalRandom.current().nextInt(0, pubs.size() - 1);
 			ids[i] = pubs.get(random).getId();
 			random = ThreadLocalRandom.current().nextInt(0, pubs.size() - 1);
-			titles[i] = pubs.get(random).getTitle();
-			random = ThreadLocalRandom.current().nextInt(0, Integer.max(pubs.size() - 1 - task2and3IntervalLenght, 0));
-			begin_offset[i] = random;
+			String title = pubs.get(random).getTitle();
+			int index1 = ThreadLocalRandom.current().nextInt(0, title.length()-1-task2and3substringLength);
+			int index2 = index1 + task2and3substringLength;
+			titles[i] = title.substring(index1,index2);
+			//random = ThreadLocalRandom.current().nextInt(0, Integer.min(task2and3IntervalLenght, 0));
+			begin_offset[i] = 0;
 			// random = ThreadLocalRandom.current().nextInt(random, pubs.size()
 			// - 1);
-			random = random + task2and3IntervalLenght;
+			random = task2and3IntervalLenght;
 			end_offset[i] = random;
 			random = ThreadLocalRandom.current().nextInt(0, pers.size() - 1);
 			names[i] = pers.get(random).getName();
 			// TODO: this is not optimal for task 5
 			random = ThreadLocalRandom.current().nextInt(0, pers.size() - 1);
-			authorsA[i] = pers.get(random).getId();
-			random = ThreadLocalRandom.current().nextInt(0, pers.size() - 1);
-			authorsB[i] = pers.get(random).getId();
+			Person distCoAuthors[] = getTwoAuthorsWithDist(2);
+			authorsA[i] = distCoAuthors[0].getId();
+			authorsB[i] = distCoAuthors[1].getId();
 			// task 7 14
 			random = ThreadLocalRandom.current().nextInt(1900, Integer.max(2017 - task7and14IntervalLenght, 1900));
 			yearLB[i] = random;
@@ -110,8 +114,8 @@ public class Benchmark {
 		System.out.println(String.format("Task %s inputs:%s", "2 and 3", inputs));
 		timings[2] = benchmarkTask3(titles, begin_offset, end_offset);
 		timings[3] = benchmarkTask4(names);
-		// timings[4] = benchmarkTask5(authorsA, authorsB);
-		//timings[5] = benchmarkTask6();
+		timings[4] = benchmarkTask5(authorsA, authorsB);
+		timings[5] = benchmarkTask6();
 		timings[6] = benchmarkTask7(yearLB, yearUB);
 		timings[7] = benchmarkTask8(conferences);
 		timings[8] = benchmarkTask9(conferences);
@@ -128,6 +132,25 @@ public class Benchmark {
 		for (int task = 1; task <= 14; ++task) {
 			bw.write(String.format("%d;%.8f\n", task, timings[task - 1]));
 		}
+	}
+	
+	public Person[] getTwoAuthorsWithDist(int distance){
+		Person pers[] = new Person[2];
+		List<Person> people = db.getPeople();
+		int random = ThreadLocalRandom.current().nextInt(0, people.size()-1);
+		pers[0] = db.getPersonById("267315475", false); 
+		for (int i=0; i< distance;++i){
+			int numCoAuthors = people.size();
+			if (numCoAuthors>0) random = ThreadLocalRandom.current().nextInt(0, numCoAuthors-1);
+			else {
+				System.out.println("stopped prematurly");
+				break;
+			}
+			Person per = db.getPersonById(people.get(i).getId(), false);
+			people = db.getCoAuthors(per.getName());
+			pers[1] = per;
+		}
+		return pers;
 	}
 
 	private double benchmarkTask1(String[] ids) throws Exception {
