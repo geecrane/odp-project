@@ -988,4 +988,9 @@ public class DatabaseBaseX implements Database {
 	    e.printStackTrace();
 	}
     }
+
+	@Override
+	public String getDBTechnology() {
+		return "BaseX";
+	}
 }

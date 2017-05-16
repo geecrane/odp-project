@@ -15,6 +15,7 @@ import ch.ethz.globis.mtfobu.domains.Series;
 
 public interface Database {
 
+	public String getDBTechnology();
 	// GUI Functions
 	/**
 	 * returns all the publishers in the database

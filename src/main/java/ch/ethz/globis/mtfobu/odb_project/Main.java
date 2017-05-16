@@ -10,8 +10,10 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
 
+import benchmark.Benchmark;
 import ch.ethz.globis.mtfobu.domains.Conference;
 import ch.ethz.globis.mtfobu.odb_project.db.DatabaseBaseX;
+import ch.ethz.globis.mtfobu.odb_project.db.DatabaseMongoDB;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,8 +23,15 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
 	public static void main(String[] args) throws IOException {
-
-		launch(args);
+		
+		Benchmark bch = new Benchmark(DatabaseMongoDB.getDatabase());
+		try {
+			bch.benchmark();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//launch(args);
 		System.out.println("PROGRAMM TERMINATED");
 
 	}

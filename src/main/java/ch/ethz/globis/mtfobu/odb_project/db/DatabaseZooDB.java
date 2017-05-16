@@ -32,7 +32,10 @@ import javafx.collections.ObservableList;
 public class DatabaseZooDB implements Database {
     private final String dbName;
     private PersistenceManager pm;
-
+	@Override
+	public String getDBTechnology() {
+		return "ZooDB";
+	}
     private DatabaseZooDB(String dbName) {
 	this.dbName = dbName;
 

@@ -56,7 +56,11 @@ public class DatabaseMongoDB implements Database {
 	private final MongoClient mongoClient;
 	private static MongoDatabase mongoDB;
 	public static boolean verbose = false;
-
+	
+	@Override
+	public String getDBTechnology() {
+		return "MongoDB";
+	}
 	public DatabaseMongoDB() {
 		// George: If dbName doesn't exist it will be created automatically
 		// once documents are inserted
@@ -894,12 +898,13 @@ public class DatabaseMongoDB implements Database {
 		}
 		String publisherName = doc.getString(Config.PROCEEDINGS_PUBLISHER_KEY);
 		if (verbose) {
-			System.out.println(String.format(
-					"[ function: proceedingFromDoc() ] Proceeding with id: %s has publisher: %s", proc.getId(), publisherName));
+			System.out
+					.println(String.format("[ function: proceedingFromDoc() ] Proceeding with id: %s has publisher: %s",
+							proc.getId(), publisherName));
 		}
 		proc.setPublisher(getPublisherByName(publisherName));
 		if (lazy == false) {
-			
+
 			ArrayList<String> inProceedingIDs = (ArrayList<String>) doc.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
 			Set<InProceedings> inProcs = new HashSet<>();
 			int numInProcs = inProceedingIDs.size();
@@ -916,8 +921,23 @@ public class DatabaseMongoDB implements Database {
 	}
 
 	public Set<InProceedings> getInProcForProceedingId(String procId) {
-		// TODO: implement
-		return null;
+		Set<InProceedings> inProcs = new HashSet<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+		Document doc = collection.find(eq("_id", procId)).first();
+		if (doc != null) {
+			ArrayList<String> inProceedingIDs = (ArrayList<String>) doc.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
+			int numInProcs = inProceedingIDs.size();
+			for (int i = 0; i < numInProcs; ++i) {
+				inProcs.add(getInProceedingsById(inProceedingIDs.get(i)));
+			}
+			return inProcs;
+		} else {
+			if (verbose)
+				System.out.println(String.format(
+						"[ function: getInProcForProceedingId() ] Proceeding wiht id: %s could not be found!", procId));
+			return null;
+		}
+
 	}
 
 	@Override
@@ -955,7 +975,29 @@ public class DatabaseMongoDB implements Database {
 	}
 
 	public Proceedings getProceedingForInProcID(String inProcID) {
-		// TODO: implement
+		System.out.println(
+				"Does not work. Look at the code it is written what I want to do, how the documentation says it sould be done and how it obviously fails.");
+		Proceedings proc;
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+		/*
+		 * take a look at:
+		 * https://docs.mongodb.com/manual/tutorial/query-arrays/#shell example:
+		 * "findIterable = collection.find(all("tags", asList("red", "
+		 * blank")));" what I wanna do:
+		 * db.getCollection('proceedings').find({"inproceeding_keys" : {$all:
+		 * ["conf/ijcai/Bian75"]}})
+		 */
+		// Document doc =
+		// collection.find(all(Config.PROCEEDINGS_INPROCEEDING_KEYS,
+		// asList(inProcID))).first();
+		// if (doc != null) {
+		// return proceedingFromDoc(doc, false);
+		// } else {
+		// System.out.println(
+		// String.format("[ function: getProceedingForInProcID() ] No
+		// inproceeding with id: %s", inProcID));
+		// return null;
+		// }
 		return null;
 	}
 
@@ -1031,8 +1073,26 @@ public class DatabaseMongoDB implements Database {
 
 	@Override
 	public List<ConferenceEdition> getConferenceEditions() {
-		// TODO Auto-generated method stub
-		return null;
+		List<ConferenceEdition> confEdits = new ArrayList<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_EDITION_COLLECTION);
+		MongoCursor<Document> iterator = collection.find().iterator();
+		while (iterator.hasNext()) {
+			confEdits.add(conferenceEditionFromDoc(iterator.next()));
+		}
+		return confEdits;
+	}
+
+	public ConferenceEdition conferenceEditionFromDoc(Document doc) {
+		String id = doc.getString("_id");
+		int year = doc.getInteger(Config.CONFERENCE_EDITION_YEAR);
+		Proceedings proc = getProceedingById(doc.getString(Config.CONFERENCE_EDITION_PROCEEDINGS_KEY));
+		Conference conf = proc.getConference();
+		if (verbose)
+			System.out.println(
+					String.format("[ function: conferenceEditionFromDoc() ] id: %s, year: %d, procID: %s, confId %s",
+							id, year, proc.getId(), conf.getId()));
+		assert conf != null : "function: getProceedingByID() is asserted to retrun a proceeding with the conference set";
+		return new ConferenceEdition(conf, year, proc);
 	}
 
 	// @Override
@@ -1044,8 +1104,19 @@ public class DatabaseMongoDB implements Database {
 
 	@Override
 	public Proceedings getProceedingById(String id) {
-		// TODO Auto-generated method stub
-		return null;
+		Proceedings proc;
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+		Document doc = collection.find(eq("_id", id)).first();
+		if (doc != null) {
+			proc = proceedingFromDoc(doc, false);
+			return proc;
+		} else {
+			if (verbose)
+				System.out.println(String.format(
+						"[ function: getProceedingById() ] Proceeding going by id: %s could not be found.", id));
+			return null;
+		}
+
 	}
 
 	@Override
@@ -1081,13 +1152,14 @@ public class DatabaseMongoDB implements Database {
 
 	@Override
 	public Set<Publication> getAuthoredPublications(String personName, boolean lazy) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Set<Publication> getEditedPublications(String personName, boolean lazy) {
-		// TODO Auto-generated method stub
+		Set<Publication> pubs = new HashSet<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+		MongoCursor<Document> iterator = collection.find(all(Config.PROCEEDINGS_EDITOR_KEYS), personName);
 		return null;
 	}
 

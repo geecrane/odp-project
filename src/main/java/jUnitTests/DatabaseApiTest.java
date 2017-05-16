@@ -41,16 +41,28 @@ public class DatabaseApiTest {
 	}
 
 	@Test
-	public void testGetProceedings() {
+	public void testGetProceedingsAndGetProceedingByID() {
 		// test getProceedings
 		List<Proceedings> procs = db.getProceedings();
 		assertEquals(1259, procs.size());
 		for (Proceedings proc : procs) {
 			assertNotEquals(null, proc.getId());
 			assertNotEquals(null, proc.getTitle());
-			//assertNotEquals(null, proc.getPublisher()); This assertion id wrong example: conf/ijcai/1975
+			// assertNotEquals(null, proc.getPublisher()); This assertion id
+			// wrong example: conf/ijcai/1975
 			assertNotEquals(null, proc.getPublications());
 			assertNotEquals(null, proc.getYear());
+
+			// test against function getProceedingById()
+			Proceedings procFromId = db.getProceedingById(proc.getId());
+			assertEquals(procFromId.getId(), proc.getId());
+			assertEquals(procFromId.getTitle(), proc.getTitle());
+			if (proc.getPublisher() != null) {
+				assertEquals(procFromId.getPublisher().getId(), proc.getPublisher().getId());
+			}
+			assertEquals(procFromId.getPublications().size(), proc.getPublications().size());
+			assertEquals(procFromId.getYear(), proc.getYear());
+
 		}
 	}
 }
