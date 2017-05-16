@@ -138,7 +138,9 @@ public class Benchmark {
 		Person pers[] = new Person[2];
 		List<Person> people = db.getPeople();
 		int random = ThreadLocalRandom.current().nextInt(0, people.size()-1);
+		
 		pers[0] = db.getPersonById("267315475", false); 
+		people = db.getCoAuthors(pers[0].getName());
 		for (int i=0; i< distance;++i){
 			int numCoAuthors = people.size();
 			if (numCoAuthors>0) random = ThreadLocalRandom.current().nextInt(0, numCoAuthors-1);
