@@ -20,7 +20,7 @@ import ch.ethz.globis.mtfobu.domains.Publication;
 import ch.ethz.globis.mtfobu.odb_project.db.Database;
 
 public class Benchmark {
-	String outputFileNameSuffix = "benchmark";
+	String outputFileNameSuffix = "/home/granchgen/benchmark";
 	int iterations = 5;
 	final Database db;
 
@@ -29,7 +29,7 @@ public class Benchmark {
 	}
 
 	public void benchmark() throws Exception {
-		final String filename = "benchmark " + db.getDBTechnology() + " " + LocalDateTime.now() + ".csv";
+		final String filename = outputFileNameSuffix + " " + db.getDBTechnology() + " " + LocalDateTime.now() + ".csv";
 		BufferedWriter bWriter;
 		try {
 			bWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename)));
@@ -69,16 +69,18 @@ public class Benchmark {
 		int yearLB[] = new int[iterations];
 		int yearUB[] = new int[iterations];
 		// task 8, 9, 10, 11 input
+		System.out.println("Initialization...");
 		String conferences[] = new String[iterations];
 		for (int i = 0; i < iterations; ++i) {
 			random = ThreadLocalRandom.current().nextInt(0, pubs.size() - 1);
 			ids[i] = pubs.get(random).getId();
 			random = ThreadLocalRandom.current().nextInt(0, pubs.size() - 1);
 			String title = pubs.get(random).getTitle();
-			int index1 = ThreadLocalRandom.current().nextInt(0, title.length()-1-task2and3substringLength);
+			int index1 = ThreadLocalRandom.current().nextInt(0, title.length() - 1 - task2and3substringLength);
 			int index2 = index1 + task2and3substringLength;
-			titles[i] = title.substring(index1,index2);
-			//random = ThreadLocalRandom.current().nextInt(0, Integer.min(task2and3IntervalLenght, 0));
+			titles[i] = title.substring(index1, index2);
+			// random = ThreadLocalRandom.current().nextInt(0,
+			// Integer.min(task2and3IntervalLenght, 0));
 			begin_offset[i] = 0;
 			// random = ThreadLocalRandom.current().nextInt(random, pubs.size()
 			// - 1);
@@ -90,7 +92,10 @@ public class Benchmark {
 			random = ThreadLocalRandom.current().nextInt(0, pers.size() - 1);
 			Person distCoAuthors[] = getTwoAuthorsWithDist(2);
 			authorsA[i] = distCoAuthors[0].getId();
+			if (distCoAuthors[1] != null){
 			authorsB[i] = distCoAuthors[1].getId();
+			}
+			else authorsB[i] = distCoAuthors[0].getId();
 			// task 7 14
 			random = ThreadLocalRandom.current().nextInt(1900, Integer.max(2017 - task7and14IntervalLenght, 1900));
 			yearLB[i] = random;
@@ -102,28 +107,55 @@ public class Benchmark {
 
 		}
 		String inputs = new String();
-		
+
 		timings[0] = benchmarkTask1(ids);
 		for (String id : ids)
 			inputs += " , " + id;
 		System.out.println(String.format("Task %d inputs:%s", 1, inputs));
 		timings[1] = benchmarkTask2(titles, offset);
-		inputs="";
-		for (int i =0 ; i<iterations;++i)
-			inputs+= "title: " + titles[i] + " begin_offset: " + begin_offset[i] + " end_offset: " + end_offset[i] + ", "; 
+		inputs = "";
+		for (int i = 0; i < iterations; ++i)
+			inputs += "title: " + titles[i] + " begin_offset: " + begin_offset[i] + " end_offset: " + end_offset[i]
+					+ ", ";
 		System.out.println(String.format("Task %s inputs:%s", "2 and 3", inputs));
 		timings[2] = benchmarkTask3(titles, begin_offset, end_offset);
 		timings[3] = benchmarkTask4(names);
+		inputs = "";
+		for (int i = 0; i < iterations; ++i)
+			inputs += names[i] + " , ";
+		System.out.println(String.format("Task %s inputs:%s", "4", inputs));
 		timings[4] = benchmarkTask5(authorsA, authorsB);
+		inputs = "";
+		for (int i = 0; i < iterations; ++i)
+			inputs += authorsA[i] + " and " + authorsB[i] + " , ";
+		System.out.println(String.format("Task %s inputs:%s", "5", inputs));
 		timings[5] = benchmarkTask6();
+		System.out.println(String.format("Task %s inputs: none (not required)", "6"));
 		timings[6] = benchmarkTask7(yearLB, yearUB);
+		inputs = "";
+		for (int i = 0; i < iterations; ++i)
+			inputs += "years: " + yearLB[i] +  " to " + yearUB[i] + " , ";
+		System.out.println(String.format("Task %s inputs:%s", "7", inputs));
 		timings[7] = benchmarkTask8(conferences);
+		inputs = "";
+		for (int i = 0; i < iterations; ++i)
+			inputs += conferences[i] + " , ";
+		System.out.println(String.format("Task %s inputs:%s", "8, 9, 10 and 11", inputs));
 		timings[8] = benchmarkTask9(conferences);
 		timings[9] = benchmarkTask10(conferences);
 		timings[10] = benchmarkTask11(conferences);
 		timings[11] = benchmarkTask12();
+		System.out.println(String.format("Task %s inputs: none (not required)", "12"));
 		timings[12] = benchmarkTask13(names);
+		inputs = "";
+		for (int i = 0; i < iterations; ++i)
+			inputs += names[i] + " , ";
+		System.out.println(String.format("Task %s inputs:%s", "13", inputs));
 		timings[13] = benchmarkTask14(yearLB, yearUB);
+		inputs = "";
+		for (int i = 0; i < iterations; ++i)
+			inputs += "years: " + yearLB[i] +  " to " + yearUB[i] + " , ";
+		System.out.println(String.format("Task %s inputs:%s", "14", inputs));
 		writeBenchmarkTimings(bWriter, timings);
 		bWriter.close();
 	}
@@ -133,22 +165,24 @@ public class Benchmark {
 			bw.write(String.format("%d;%.8f\n", task, timings[task - 1]));
 		}
 	}
-	
-	public Person[] getTwoAuthorsWithDist(int distance){
+
+	public Person[] getTwoAuthorsWithDist(int distance) {
 		Person pers[] = new Person[2];
 		List<Person> people = db.getPeople();
-		int random = ThreadLocalRandom.current().nextInt(0, people.size()-1);
-		
-		pers[0] = db.getPersonById("267315475", false); 
+		int random = ThreadLocalRandom.current().nextInt(0, people.size() - 1);
+
+		pers[0] = db.getPersonById("267315475", false);
 		people = db.getCoAuthors(pers[0].getName());
-		for (int i=0; i< distance;++i){
+		for (int i = 0; i < distance; ++i) {
 			int numCoAuthors = people.size();
-			if (numCoAuthors>0) random = ThreadLocalRandom.current().nextInt(0, numCoAuthors-1);
+			if (numCoAuthors > 0)
+				random = ThreadLocalRandom.current().nextInt(0, numCoAuthors - 1);
 			else {
 				System.out.println("stopped prematurly");
 				break;
 			}
 			Person per = db.getPersonById(people.get(i).getId(), false);
+			assert per != null : "getPersonById failed to retrieve valid id";
 			people = db.getCoAuthors(per.getName());
 			pers[1] = per;
 		}
