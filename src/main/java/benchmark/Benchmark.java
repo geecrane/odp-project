@@ -76,8 +76,8 @@ public class Benchmark {
 			ids[i] = pubs.get(random).getId();
 			random = ThreadLocalRandom.current().nextInt(0, pubs.size() - 1);
 			String title = pubs.get(random).getTitle();
-			int index1 = ThreadLocalRandom.current().nextInt(0, title.length() - 1 - task2and3substringLength);
-			int index2 = index1 + task2and3substringLength;
+			int index1 = ThreadLocalRandom.current().nextInt(0, title.length() - 1 - task2and3substringLength-1);
+			int index2 = index1 + task2and3substringLength +1 ;
 			titles[i] = title.substring(index1, index2);
 			// random = ThreadLocalRandom.current().nextInt(0,
 			// Integer.min(task2and3IntervalLenght, 0));
@@ -115,7 +115,7 @@ public class Benchmark {
 		timings[1] = benchmarkTask2(titles, offset);
 		inputs = "";
 		for (int i = 0; i < iterations; ++i)
-			inputs += "title: " + titles[i] + " begin_offset: " + begin_offset[i] + " end_offset: " + end_offset[i]
+			inputs += "title: " + titles[i] + "; begin_offset: " + begin_offset[i] + "; end_offset: " + end_offset[i]
 					+ ", ";
 		System.out.println(String.format("Task %s inputs:%s", "2 and 3", inputs));
 		timings[2] = benchmarkTask3(titles, begin_offset, end_offset);
@@ -173,6 +173,7 @@ public class Benchmark {
 
 		pers[0] = db.getPersonById("267315475", false);
 		people = db.getCoAuthors(pers[0].getName());
+		if (people == null) System.err.println("getCoAuthors error");
 		for (int i = 0; i < distance; ++i) {
 			int numCoAuthors = people.size();
 			if (numCoAuthors > 0)
