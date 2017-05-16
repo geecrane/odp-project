@@ -1,5 +1,0 @@
-Timings for Database: MongoDB
-Number of iterations per run: 1000
-Inputs where choosen at random
-Task;average time in milliseconds
-1;1,1880002;0,0000003;0,0000004;38,0870005;0,0000006;0,0000007;0,0000008;0,0000009;0,00000010;0,00000011;0,00000012;0,00000013;0,00000014;0,000000
