@@ -39,9 +39,18 @@ public interface Database {
 	 * 
 	 */
 	public List<Proceedings> getProceedings();
-
+	/**
+	 * returns the inproceedings in a database
+	 * @return List of {@link InProceedins} objects. The following fields are
+	 *         Initialized if possible:<br>
+	 *         {@code id, title, year, authors, note, electronicEdition}<p>
+	 *         
+	 */
 	public List<InProceedings> getInProceedings();
-
+	/**
+	 * returns list of all people in the database
+	 * @return List of {@link Person} objects. <u>Only the name and the id is initialized</u>
+	 */
 	public List<Person> getPeople();
 
 	public List<Conference> getConferences();

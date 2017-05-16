@@ -71,21 +71,20 @@ public class DatabaseMongoDB implements Database {
 		mongoDB = mongoClient.getDatabase(dbName);
 
 	}
-	
 
-	 private static class Singleton {
-			private static final DatabaseMongoDB instance = new DatabaseMongoDB();
-		    }
+	private static class Singleton {
+		private static final DatabaseMongoDB instance = new DatabaseMongoDB();
+	}
 
-		    /**
-		     * Used to retrieve the database instance. DO NOT try to instantiate the
-		     * Database class manually!
-		     * 
-		     * @return The Database instance
-		     */
-		    public static DatabaseMongoDB getDatabase() {
-			return Singleton.instance;
-		    }
+	/**
+	 * Used to retrieve the database instance. DO NOT try to instantiate the
+	 * Database class manually!
+	 * 
+	 * @return The Database instance
+	 */
+	public static DatabaseMongoDB getDatabase() {
+		return Singleton.instance;
+	}
 
 	@Override
 	public boolean openDB() {
@@ -261,7 +260,8 @@ public class DatabaseMongoDB implements Database {
 			return coll;
 		}
 	}
-	//task 2+3
+
+	// task 2+3
 	// Special case for the Publications Query
 	public Collection<Publication> queryForPublications(QueryParameters p) {
 		MongoCollection<Document> collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
@@ -836,6 +836,7 @@ public class DatabaseMongoDB implements Database {
 	}
 
 	public Publisher publisherFromDoc(Document doc) {
+		assert doc != null;
 		Publisher pub = new Publisher(doc.getString(Config.PUBLISHER_NAME));
 		return pub;
 	}
@@ -854,12 +855,12 @@ public class DatabaseMongoDB implements Database {
 		MongoCollection<Document> collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
 		MongoCursor<Document> iterator = collection.find().iterator();
 		while (iterator.hasNext()) {
-			procs.add(proceedingFromDoc(iterator.next()));
+			procs.add(proceedingFromDoc(iterator.next(), false));
 		}
 		return procs;
 	}
 
-	public Proceedings proceedingFromDoc(Document doc) {
+	public Proceedings proceedingFromDoc(Document doc, boolean lazy) {
 		Proceedings proc = new Proceedings(doc.getString("_id"));
 		proc.setTitle(doc.getString(Config.PROCEEDINGS_TITLE));
 		proc.setYear(doc.getInteger(Config.PROCEEDINGS_YEAR));
@@ -891,8 +892,14 @@ public class DatabaseMongoDB implements Database {
 				proc.setConference(conf);
 			}
 		}
-		proc.setPublisher(getPublisherByName(doc.getString(Config.PROCEEDINGS_PUBLISHER_KEY)));
-		{
+		String publisherName = doc.getString(Config.PROCEEDINGS_PUBLISHER_KEY);
+		if (verbose) {
+			System.out.println(String.format(
+					"[ function: proceedingFromDoc() ] Proceeding with id: %s has publisher: %s", proc.getId(), publisherName));
+		}
+		proc.setPublisher(getPublisherByName(publisherName));
+		if (lazy == false) {
+			
 			ArrayList<String> inProceedingIDs = (ArrayList<String>) doc.get(Config.PROCEEDINGS_INPROCEEDING_KEYS);
 			Set<InProceedings> inProcs = new HashSet<>();
 			int numInProcs = inProceedingIDs.size();
@@ -915,26 +922,111 @@ public class DatabaseMongoDB implements Database {
 
 	@Override
 	public List<InProceedings> getInProceedings() {
-		// TODO Auto-generated method stub
+		List<InProceedings> inProcs = new ArrayList<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.INPROCEEDINGS_COLLECTION);
+		MongoCursor<Document> iterator = collection.find().iterator();
+		while (iterator.hasNext()) {
+			// replace true by false if you want full initialization
+			inProcs.add(inProceedingFromDoc(iterator.next(), true));
+		}
+		return inProcs;
+	}
+
+	public InProceedings inProceedingFromDoc(Document doc, boolean lazy) {
+		InProceedings inProc = new InProceedings(doc.getString("_id"));
+		inProc.setTitle(doc.getString(Config.INPROCEEDINGS_TITLE));
+		{
+			ArrayList<String> authors = (ArrayList<String>) doc.get(Config.INPROCEEDINGS_AUTHOR_KEYS);
+			List<Person> people = new ArrayList<>();
+			int numEdit = authors.size();
+			for (int i = 0; i < numEdit; ++i) {
+				people.add(getPersonById(authors.get(i), true));
+			}
+			inProc.setAuthors(people);
+		}
+		inProc.setYear(doc.getInteger(Config.INPROCEEDINGS_YEAR));
+		inProc.setElectronicEdition(doc.getString(Config.INPROCEEDINGS_ELECTRONIC_EDITION));
+		inProc.setNote(doc.getString(Config.INPROCEEDINGS_NOTE));
+		if (lazy == false) {
+
+			inProc.setProceedings(getProceedingForInProcID(inProc.getId()));
+		}
+		return inProc;
+	}
+
+	public Proceedings getProceedingForInProcID(String inProcID) {
+		// TODO: implement
 		return null;
 	}
 
 	@Override
 	public List<Person> getPeople() {
-		// TODO Auto-generated method stub
-		return null;
+		List<Person> people = new ArrayList<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.PEOPLE_COLLECTION);
+		MongoCursor<Document> iterator = collection.find().iterator();
+		while (iterator.hasNext()) {
+			// replace true by false if you want full initialization
+			people.add(personFromDoc(iterator.next(), true));
+		}
+		return people;
+	}
+
+	public Person personFromDoc(Document doc, boolean lazy) {
+		String personName = doc.getString(Config.PEOPLE_NAME);
+		Person person = new Person(personName);
+		if (lazy == false) {
+			person.setAuthoredPublications(getAuthoredPublications(personName, true));
+			person.setEditedPublications(getEditedPublications(personName, true));
+		}
+		return person;
 	}
 
 	@Override
 	public List<Conference> getConferences() {
-		// TODO Auto-generated method stub
-		return null;
+		List<Conference> confs = new ArrayList<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.CONFERENCE_COLLECTION);
+		MongoCursor<Document> iterator = collection.find().iterator();
+		while (iterator.hasNext()) {
+			confs.add(conferenceFromDoc(iterator.next(), true));
+		}
+		return confs;
+	}
+
+	public Conference conferenceFromDoc(Document doc, boolean lazy) {
+		Conference conf = new Conference(doc.getString(Config.CONFERENCE_NAME));
+		if (lazy == false) {
+			conf.setEditions(getConfEditionsForConf(conf));
+		}
+		return conf;
 	}
 
 	@Override
 	public List<Series> getSeries() {
-		// TODO Auto-generated method stub
-		return null;
+		List<Series> seriesList = new ArrayList<>();
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.SERIES_COLLECTION);
+		MongoCursor<Document> iterator = collection.find().iterator();
+		while (iterator.hasNext()) {
+			seriesList.add(seriesFromDoc(iterator.next(), true));
+		}
+		return seriesList;
+	}
+
+	public Series seriesFromDoc(Document doc, boolean lazy) {
+		String seriesName = doc.getString(Config.SERIES_NAME);
+		Series ser = new Series(seriesName);
+		if (lazy == false) {
+			MongoCollection<Document> collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
+			MongoCursor<Document> iterator = collection.find(eq(Config.PROCEEDINGS_SERIES_KEY, doc.getString("_id")))
+					.iterator();
+			Set<Publication> pubs = new HashSet<>();
+			while (iterator.hasNext()) {
+				Proceedings proc = proceedingFromDoc(iterator.next(), true);
+				pubs.add(proc);
+			}
+			ser.setPublications(pubs);
+
+		}
+		return ser;
 	}
 
 	@Override
@@ -943,12 +1035,12 @@ public class DatabaseMongoDB implements Database {
 		return null;
 	}
 
-//	@Override
-//	public void importData(HashMap<String, Proceedings> proceedingsList,
-//			HashMap<String, InProceedings> inProceedingsList) {
-//		// TODO Auto-generated method stub
-//
-//	}
+	// @Override
+	// public void importData(HashMap<String, Proceedings> proceedingsList,
+	// HashMap<String, InProceedings> inProceedingsList) {
+	// // TODO Auto-generated method stub
+	//
+	// }
 
 	@Override
 	public Proceedings getProceedingById(String id) {
@@ -958,13 +1050,18 @@ public class DatabaseMongoDB implements Database {
 
 	@Override
 	public Publisher getPublisherByName(String name) {
+		Publisher pub = null;
 		MongoCollection<Document> collection = mongoDB.getCollection(Config.PUBLISHER_COLLECTION);
 		Document doc = collection.find(eq(Config.PUBLISHER_NAME, name)).first();
-		//It is assumed the id field is set with the name
-		Publisher pub = new Publisher(name);
-		
-
+		// It is assumed the id field is set with the name
+		if (doc != null) {
+			pub = publisherFromDoc(doc);
+		} else if (verbose == true) {
+			System.out.println(String
+					.format("[ function: getPublisherByName() ] No publisher with name: \"%s\" was found!", name));
+		}
 		return pub;
+
 	}
 
 	@Override
@@ -1008,8 +1105,9 @@ public class DatabaseMongoDB implements Database {
 
 	@Override
 	public Series getSeriesByName(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		MongoCollection<Document> collection = mongoDB.getCollection(Config.SERIES_COLLECTION);
+		Document doc = collection.find(eq(Config.SERIES_NAME, name)).first();
+		return seriesFromDoc(doc, false);
 	}
 
 	@Override
@@ -1355,7 +1453,6 @@ public class DatabaseMongoDB implements Database {
 		return null;
 	}
 
-
 }
 
 class AuthorTree {
@@ -1380,4 +1477,3 @@ class AuthorTree {
 		public int distanceFromRoot;
 	}
 }
-

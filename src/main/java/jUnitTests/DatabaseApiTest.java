@@ -48,7 +48,7 @@ public class DatabaseApiTest {
 		for (Proceedings proc : procs) {
 			assertNotEquals(null, proc.getId());
 			assertNotEquals(null, proc.getTitle());
-			assertNotEquals(null, proc.getPublisher());
+			//assertNotEquals(null, proc.getPublisher()); This assertion id wrong example: conf/ijcai/1975
 			assertNotEquals(null, proc.getPublications());
 			assertNotEquals(null, proc.getYear());
 		}
