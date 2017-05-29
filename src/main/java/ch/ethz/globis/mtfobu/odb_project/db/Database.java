@@ -1,6 +1,8 @@
 package ch.ethz.globis.mtfobu.odb_project.db;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +14,14 @@ import ch.ethz.globis.mtfobu.domains.Proceedings;
 import ch.ethz.globis.mtfobu.domains.Publication;
 import ch.ethz.globis.mtfobu.domains.Publisher;
 import ch.ethz.globis.mtfobu.domains.Series;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 public interface Database {
 
@@ -135,13 +145,72 @@ public interface Database {
 
 	// Proceedings
 	public void addProceeding(Proceedings proc);
+	/**
+	 * verifies if the given Proceeding is valid and add it to the Database if this is the case
+	 * @param proc
+	 * @return A list containing all the error messages if any. If the list is empty the Proceeding was successfully added
+	 */
+	//TODO
+	public default List<String> addProceedingValidated(Proceedings proc){
+		List<String> errorMessages = validateProceedings(proc);
+		assert errorMessages != null : "An Empty list is expected if no constraint has been violated.";
+		if(errorMessages.isEmpty()){
+			addProceeding(proc);
+		}
+		return errorMessages;
+	}
+	/**
+	 * Verifies if a given Proceeding is valid
+	 * @param proc
+	 * @return a list of constraint violation messages. If the list is empty the Proceeding enforces the constraints.
+	 */
+	public default List<String> validateProceedings(Proceedings proc){
+		List<String> constraintViolationMessages = new ArrayList<>();
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        
+        Set<ConstraintViolation<Proceedings>> violations = validator.validate(proc);
+        System.out.println(violations.size());
+        for( ConstraintViolation<Proceedings> cv : violations){
+        	constraintViolationMessages.add(cv.getMessage());
+        }
+        return constraintViolationMessages;
+		
+	}
 
 	public void deleteProceedingById(String id);
 
+
 	public void updateProceeding(Proceedings proc);
+	
+	public default List<String> updateProceedingValidated(Proceedings proc){
+		List<String> errorMessages = validateProceedings(proc);
+		assert errorMessages != null : "An Empty list is expected if no constraint has been violated.";
+		if(errorMessages.isEmpty()){
+			updateProceeding(proc);
+		}
+		return errorMessages;
+	}
 
 	// InProceedings
 	public void addInProceeding(InProceedings inProc);
+	/**
+	 * Verifies if a given inproceeding is valid
+	 * @param inProc
+	 * @return a list of constraint violation messages. If the list is empty the inproceeding enforces the constraints.
+	 */
+	public default List<String> validateInProceedings(InProceedings inProc){
+		List<String> constraintViolationMessages = new ArrayList<>();
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        
+        Set<ConstraintViolation<InProceedings>> violations = validator.validate(inProc);
+        System.out.println(violations.size());
+        for( ConstraintViolation<InProceedings> cv : violations){
+        	constraintViolationMessages.add(cv.getMessage());
+        }
+        return constraintViolationMessages;
+	}
 
 	public void deleteInProceedingById(String id);
 
@@ -252,5 +321,25 @@ public interface Database {
 
 	// task 14
 	public List<Publisher> task14(int yearLowerBound, int yearUpperBound);
+	
+	
+	
+	public class ValidationAPIUnitTest {
+
+	    public ValidationAPIUnitTest() {
+	    }
+
+	    @Test
+	    public void testMemberWithNoValues() {
+	        Proceedings member = new Proceedings();
+
+	        // validate the input
+	        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+	        Validator validator = factory.getValidator();
+	        Set<ConstraintViolation<Proceedings>> violations = validator.validate(member);
+	        assertEquals(violations.size(), 5);
+	    }
+	}
+	//</constraintviolation<member>
 
 }

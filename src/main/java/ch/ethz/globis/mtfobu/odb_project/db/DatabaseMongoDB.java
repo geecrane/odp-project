@@ -1159,7 +1159,7 @@ public class DatabaseMongoDB implements Database {
 	public Set<Publication> getEditedPublications(String personName, boolean lazy) {
 		Set<Publication> pubs = new HashSet<>();
 		MongoCollection<Document> collection = mongoDB.getCollection(Config.PROCEEDINGS_COLLECTION);
-		MongoCursor<Document> iterator = collection.find(all(Config.PROCEEDINGS_EDITOR_KEYS), personName);
+	//	MongoCursor<Document> iterator = collection.find(all(Config.PROCEEDINGS_EDITOR_KEYS), personName);
 		return null;
 	}
 

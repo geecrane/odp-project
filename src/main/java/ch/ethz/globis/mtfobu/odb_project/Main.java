@@ -12,6 +12,9 @@ import java.util.Set;
 
 import benchmark.Benchmark;
 import ch.ethz.globis.mtfobu.domains.Conference;
+import ch.ethz.globis.mtfobu.domains.InProceedings;
+import ch.ethz.globis.mtfobu.domains.Proceedings;
+import ch.ethz.globis.mtfobu.odb_project.db.Database;
 import ch.ethz.globis.mtfobu.odb_project.db.DatabaseBaseX;
 import ch.ethz.globis.mtfobu.odb_project.db.DatabaseMongoDB;
 import javafx.application.Application;
@@ -26,12 +29,28 @@ public class Main extends Application {
 		
 		Benchmark bch = new Benchmark(DatabaseMongoDB.getDatabase());
 		try {
-			bch.benchmark();
+			//bch.benchmark();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		//launch(args);
+		
+		//for testing purposes
+		Database db = new DatabaseMongoDB();
+		
+		Proceedings proc = new Proceedings();
+		InProceedings inProc = new InProceedings("/conf/some/id");
+		inProc.setProceedings(new Proceedings("conf/hmi/1987"));
+		inProc.setNote("Published");
+		inProc.setPages("45-67");
+		proc.setTitle("some title");
+		
+		List<String> cvs = db.validateInProceedings(inProc);
+		for( String cv: cvs){
+			System.out.println(cv);
+		}
+		
 		System.out.println("PROGRAMM TERMINATED");
 
 	}

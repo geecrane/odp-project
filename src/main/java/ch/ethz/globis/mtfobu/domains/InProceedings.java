@@ -3,8 +3,14 @@ package ch.ethz.globis.mtfobu.domains;
 import java.util.List;
 import java.util.Vector;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 import org.zoodb.api.impl.ZooPC;
 
+import annotations.ProceedingExists;
+//Implemented constrains: 6,7,9
+//Successfully tested constrains: 6,7,9
 /**
  * A type of article that was published as part of a conference proceedings.
  */
@@ -16,8 +22,16 @@ public class InProceedings extends ZooPC implements Publication {
 	private int year;
 	private String electronicEdition;
 	private String id;
+	// constraint 9
+		@NotNull(message = "\"Note\" may be the empty string but not null")
+		@Pattern(regexp="(Draft|Submitted|Accepted|Published|)", message = "note is must be an element of the set {Draft, Submitted, Accepted, Published}")
 	private String note;
+	//constraint 6
+		@Pattern(regexp="\\d+-\\d+", message = "Page format is invalid")
 	private String pages;
+	// constraint 7
+		@NotNull(message="Proceeding field of InProceeding can't be null")
+		@ProceedingExists
 	private Proceedings proceedings;
 	
 	//George: See comments I wrote in class Proceeding. Similar comments apply here
@@ -110,7 +124,7 @@ public class InProceedings extends ZooPC implements Publication {
 		this.note = note;
 
 	}
-
+	
 	public String getPages() {
 		zooActivateRead();
 		return pages;
@@ -121,7 +135,7 @@ public class InProceedings extends ZooPC implements Publication {
 		this.pages = pages;
 
 	}
-
+	
 	public Proceedings getProceedings() {
 		zooActivateRead();
 		return proceedings;

@@ -5,7 +5,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotBlank;
 import org.zoodb.api.impl.ZooPC;
+
+//Implemented constrains: 2,3
 
 /**
  * A specialized type of publications, represents the proceedings released at a
@@ -16,15 +23,19 @@ public class Proceedings extends ZooPC implements Publication {
     // George: NOTE that most attributes DO NOT always exist. Check first if xml
     // has that attribute.
 
-    private Proceedings() {
+    public Proceedings() {
 	// for ZooDB
     }
-
+    
     public Proceedings(String id) {
 	this.id = id;
     }
 
     @Override
+    //constraint 2
+    @NotNull(message="Title must not be empty")
+    // does not null mean that it should not be empty?
+    @NotBlank(message="Title must not be empty") 
     public String getTitle() {
 	zooActivateRead();
 	return title;
@@ -59,6 +70,9 @@ public class Proceedings extends ZooPC implements Publication {
     }
 
     @Override
+    // constraint 3
+    @Min(value = 1901, message = "Only Publications after 1900 are accepted")
+    @Max(value = 2018, message = "Only Publications before 2018 are accepted")
     public int getYear() {
 	// George: Note that the Year defines the Conference Edition
 	zooActivateRead();
