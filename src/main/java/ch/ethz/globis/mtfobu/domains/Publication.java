@@ -31,4 +31,5 @@ public interface Publication extends DomainObject {
 
     public void setElectronicEdition(String electronicEdition);
     
+    
 }

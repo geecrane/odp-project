@@ -146,13 +146,15 @@ public interface Database {
 	// Proceedings
 	public void addProceeding(Proceedings proc);
 	/**
-	 * verifies if the given Proceeding is valid and add it to the Database if this is the case
+	 * verifies if the given Proceeding is valid, if there is no redundancy regarding the id and add it to the Database if this is the case.
+	 * Use this function to add something to the database and verify if it worked.
 	 * @param proc
 	 * @return A list containing all the error messages if any. If the list is empty the Proceeding was successfully added
 	 */
-	//TODO
+	//verified add for proceeding
 	public default List<String> addProceedingValidated(Proceedings proc){
 		List<String> errorMessages = validateProceedings(proc);
+		if (proc!=null && getPublicationById(proc.getId()) != null) errorMessages.add(String.format("Can not add proceeding with id: %s. There is already a publiction with the same id.", proc.getId()));
 		assert errorMessages != null : "An Empty list is expected if no constraint has been violated.";
 		if(errorMessages.isEmpty()){
 			addProceeding(proc);
@@ -179,10 +181,16 @@ public interface Database {
 	}
 
 	public void deleteProceedingById(String id);
+	
+	//verified delete for proceeding
+	public default List<String> deleteProceedigByIdValidated(String id){
+		//TODO
+		return null;
+	}
 
 
 	public void updateProceeding(Proceedings proc);
-	
+	//verified update for proceeding
 	public default List<String> updateProceedingValidated(Proceedings proc){
 		List<String> errorMessages = validateProceedings(proc);
 		assert errorMessages != null : "An Empty list is expected if no constraint has been violated.";
@@ -194,6 +202,21 @@ public interface Database {
 
 	// InProceedings
 	public void addInProceeding(InProceedings inProc);
+	/**
+	 * Verifies if a given inproceeding is valid, if there are no <b>id</b> collisions and adds it if this is the case. Otherwise a list is returned containing the error messages
+	 * @param inProc
+	 * @return
+	 */
+	// verified add inproceeding
+	public default List<String> addInProceedingValidated(InProceedings inProc){
+		List<String> errorMessages = validateInProceedings(inProc);
+		if (getPublicationById(inProc.getId()) != null) errorMessages.add(String.format("Can not add inproceeding with id: %s. There is already a publiction with the same id.", inProc.getId()));
+		assert errorMessages != null : "An Empty list is expected if no constraint has been violated.";
+		if(errorMessages.isEmpty()){
+			addInProceeding(inProc);
+		}
+		return errorMessages;
+	}
 	/**
 	 * Verifies if a given inproceeding is valid
 	 * @param inProc
@@ -213,6 +236,16 @@ public interface Database {
 	}
 
 	public void deleteInProceedingById(String id);
+	// verifed delete inproceedings
+	public default List<String> deleteInProceedingByIdValidated(String id){
+		//TODO
+		return null;
+	}
+	// verifed update inproceedings
+	public default List<String> updateInProceedingsValidated(InProceedings inProc){
+		//TODO
+		return null;
+	}
 
 	// Task functions
 

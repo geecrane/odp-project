@@ -18,11 +18,11 @@ import ch.ethz.globis.mtfobu.domains.Constraint_7;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(value = RetentionPolicy.RUNTIME)
 @Documented
-public @interface AuthorsValid {
+public @interface IDValid {
 
 	// The message to return when the instance of MyAddress fails the
 	// validation.
-	String message() default "The authors do no exist";
+	String message() default "The id is redundant";
 
 	Class<?>[] groups() default {};
 
