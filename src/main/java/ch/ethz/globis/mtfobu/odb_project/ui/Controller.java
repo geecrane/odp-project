@@ -1,5 +1,6 @@
 package ch.ethz.globis.mtfobu.odb_project.ui;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ import ch.ethz.globis.mtfobu.odb_project.XmlImport;
 import ch.ethz.globis.mtfobu.odb_project.db.Database;
 import ch.ethz.globis.mtfobu.odb_project.db.DatabaseBaseX;
 import ch.ethz.globis.mtfobu.odb_project.db.DatabaseManager;
+import ch.ethz.globis.mtfobu.odb_project.db.DatabaseZooDB;
 import ch.ethz.globis.mtfobu.odb_project.db.MongoImport;
 import ch.ethz.globis.mtfobu.odb_project.db.ZooImport;
 import javafx.beans.property.SimpleStringProperty;
@@ -43,11 +45,12 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Paint;
 
 public class Controller {
     public final int PAGE_SIZE = 20;
     public PersistenceManager pm;
-    private Database db;
+    public static Database db;
     private DatabaseManager.DBType selectedDB;
     private final DatabaseManager dbm = new DatabaseManager();
 
@@ -716,8 +719,11 @@ public class Controller {
 	    loadProceedingsEditors(selected);
 
 	    // editable fields
+	    proceedingIdField.setText(selected.getId());
 	    proceedingTitleField.setText(selected.getTitle());
 	    proceedingIsbnField.setText(selected.getIsbn());
+	    proceedingNoteField.setText(selected.getNote());
+	    proceedingYearField.setText(String.valueOf(selected.getYear()));
 
 	}
     }
@@ -736,30 +742,60 @@ public class Controller {
 	// Button was clicked, do something...
 	String srcId = ((Button) event.getSource()).getId();
 	Proceedings selected = proceedingMainTable.getSelectionModel().getSelectedItem();
-	switch (srcId) {
-	case "proceedingChangeTitleButton":
-	    selected.setTitle(proceedingTitleField.getText());
-	    proceedingMainTable.refresh();
-	    break;
-	case "proceedingChangeIsbnButton":
-	    selected.setIsbn(proceedingIsbnField.getText());
-	    proceedingMainTable.refresh();
-	    break;
-	case "proceedingDeleteButton":
+
+	if (selectedDB == DatabaseManager.DBType.ZooDB) {
+	    ((DatabaseZooDB) db).pm.currentTransaction().begin();
+	}
+
+	List<String> errs;
+	if (srcId.equals("proceedingDeleteButton")) {
 	    tableData.get(selectedDB).proceedingsMasterData.remove(selected);
+	    db.deleteProceeding(selected);
+	    errs = new ArrayList<>();
 	    proceedingMainTable.refresh();
-	    break;
-	case "proceedingRemoveEditorButton":
+	} else {
+	    
+	   
+	    selected.setId(proceedingIdField.getText());
+	    selected.setTitle(proceedingTitleField.getText());
+
+	    selected.setNote(proceedingNoteField.getText());
+
+	    selected.setYear(Integer.parseInt(proceedingYearField.getText()));
+
+	    String oldIsbn = selected.getIsbn();
+	    selected.setIsbn(proceedingIsbnField.getText());
+	    selected.setNote("ISBN updated, old value was " + oldIsbn);
+	    
 	    Person p2 = proceedingEditorTable.getSelectionModel().getSelectedItem();
 	    selected.getAuthors().remove(p2);
+	    selected.setAuthors(selected.getAuthors());
+
+	    errs = db.updateProceeding(selected);
+	    
+	    proceedingTitleField.setText(selected.getTitle());
+	    proceedingNoteField.setText(selected.getNote());
+	    proceedingYearField.setText(String.valueOf(selected.getYear()));
+	    proceedingIsbnField.setText(selected.getIsbn());
+	    proceedingNoteField.setText(selected.getNote());
 	    loadProceedingsEditors(selected);
-	    break;
-	default:
-	    break;
+	    proceedingMainTable.refresh();
+
+	}
+
+	if (errs.isEmpty()) {
+	    proceedingStat.setTextFill(Paint.valueOf("#0000ff"));
+	    proceedingStat.setText("updated!");
+	} else {
+	    proceedingStat.setText("");
+	    for (String err : errs) {
+		proceedingStat.setTextFill(Paint.valueOf("#ff0000"));
+		proceedingStat.setText(proceedingStat.getText() + err + "; ");
+		System.out.println(err);
+	    }
 	}
 
     }
-
     // END Proceedings Tab
 
     // START people tab
@@ -996,6 +1032,7 @@ public class Controller {
 	    inProceedingTitleField.setText(selected.getTitle());
 	    inProceedingPagesField.setText(selected.getPages());
 	    inProceedingYearField.setText(String.valueOf(selected.getYear()));
+	    inproceedingNoteField.setText(selected.getNote());
 
 	}
     }
@@ -1014,30 +1051,44 @@ public class Controller {
 	// Button was clicked, do something...
 	String srcId = ((Button) event.getSource()).getId();
 	InProceedings selected = inProceedingMainTable.getSelectionModel().getSelectedItem();
-	switch (srcId) {
-	case "inProceedingChangeTitleButton":
+	if (selectedDB == DatabaseManager.DBType.ZooDB) {
+	    ((DatabaseZooDB) db).pm.currentTransaction().begin();
+	}
+	List<String> errs;
+	if(srcId.equals("inProceedingDeleteButton")){   
+	    db.deleteInProceeding(selected);
+	    errs = new ArrayList<>();
+	    tableData.get(selectedDB).inProceedingsMasterData.remove(selected);	  
+	    proceedingMainTable.refresh();
+	    inProceedingMainTable.refresh();
+	}else{
 	    selected.setTitle(inProceedingTitleField.getText());
-	    inProceedingMainTable.refresh();
-	    break;
-	case "inProceedingChangePagesButton":
 	    selected.setPages(inProceedingPagesField.getText());
-	    inProceedingMainTable.refresh();
-	    break;
-	case "inProceedingChangeYearButton":
 	    selected.setYear(Integer.parseInt(inProceedingYearField.getText()));
-	    inProceedingMainTable.refresh();
-	    break;
-	case "inProceedingDeleteButton":
-	    tableData.get(selectedDB).inProceedingsMasterData.remove(selected);
-	    inProceedingMainTable.refresh();
-	    break;
-	case "inProceedingRemoveAuthorButton":
 	    Person p = inProceedingAuthorTable.getSelectionModel().getSelectedItem();
 	    selected.getAuthors().remove(p);
+	    selected.setAuthors(selected.getAuthors());
+	    selected.setNote(inproceedingNoteField.getText());
+	    
+	    errs = db.updateInProceeding(selected);
+	    
+	    inProceedingTitleField.setText(selected.getTitle());
+	    inProceedingPagesField.setText(selected.getPages());
+	    inProceedingYearField.setText(String.valueOf(selected.getYear()));
 	    loadInProceedingsAuthors(selected);
-	    break;
-	default:
-	    break;
+	}
+	
+
+	if (errs.isEmpty()) {
+	    inproceedingStat.setTextFill(Paint.valueOf("#0000ff"));
+	    inproceedingStat.setText("updated!");
+	} else {
+	    inproceedingStat.setText("");
+	    for (String err : errs) {
+		inproceedingStat.setTextFill(Paint.valueOf("#ff0000"));
+		inproceedingStat.setText(inproceedingStat.getText() + err + "; ");
+		System.out.println(err);
+	    }
 	}
 
     }
@@ -1064,7 +1115,7 @@ public class Controller {
     @FXML
     private void onImport(ActionEvent event) {
 	final Controller parameter = this;
-	
+
 	switch (this.selectedDB) {
 	case BaseX:
 	    // do nothing
@@ -1072,6 +1123,7 @@ public class Controller {
 	case MongoDB:
 	    new Thread(new Runnable() {
 		Controller c = parameter;
+
 		public void run() {
 		    c.importButton.setDisable(true);
 		    // db.create();
@@ -1487,5 +1539,28 @@ public class Controller {
     @FXML
     private Button inProceedingChangeYearButton;
 
+    @FXML
+    private Label proceedingStat;
+
+    @FXML
+    private Button proceedingChangeNoteButton;
+    @FXML
+    private TextField proceedingNoteField;
+
+    @FXML
+    private Button proceedingChangeYearButton;
+    @FXML
+    private TextField proceedingYearField;
+
+    @FXML
+    private Button inproceedingChangeNoteButton;
+    @FXML
+    private TextField inproceedingNoteField;
+    @FXML
+    private Label inproceedingStat;
+    @FXML
+    private TextField proceedingIdField;
+    
     // END section for fields that reference FXML
+
 }

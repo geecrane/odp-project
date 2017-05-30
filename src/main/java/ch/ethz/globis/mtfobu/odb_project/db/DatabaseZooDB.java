@@ -31,7 +31,7 @@ import javafx.collections.ObservableList;
 
 public class DatabaseZooDB implements Database {
     private final String dbName;
-    private PersistenceManager pm;
+    public PersistenceManager pm;
 	@Override
 	public String getDBTechnology() {
 		return "ZooDB";
@@ -66,7 +66,7 @@ public class DatabaseZooDB implements Database {
     @Override
     public boolean openDB() {
 	this.pm = ZooJdoHelper.openDB(dbName);
-	return true;
+	return true; 
     }
 
     @Override
@@ -392,8 +392,9 @@ public class DatabaseZooDB implements Database {
 
     @Override
     public Proceedings getProceedingById(String id) {
-	// TODO Auto-generated method stub
-	return null;
+	Proceedings proc = (Proceedings) pm.newQuery(
+		 "select unique from ch.ethz.globis.mtfobu.domains.Proceedings where id == '"+id+"'").execute();
+	return proc;
     }
 
     @Override
@@ -433,15 +434,41 @@ public class DatabaseZooDB implements Database {
     }
 
     @Override
-    public void deleteProceedingById(String id) {
-	// TODO Auto-generated method stub
+    public void deleteProceeding(Proceedings proc) {
+	proc.removeReferencesFromOthers();
+	pm.deletePersistent(proc);
+	pm.currentTransaction().commit();
+
+    }
+    
+    @Override
+    public void deleteInProceeding(InProceedings inproc) {
+	// Seba: The function "removeReferencesFromOthers" is part of the
+	// "DomainObject" interface that every persistent class should implement
+	inproc.removeReferencesFromOthers();
+	pm.deletePersistent(inproc);
+	pm.currentTransaction().commit();
 
     }
 
     @Override
-    public void updateProceeding(Proceedings proc) {
-	// TODO Auto-generated method stub
-
+    public List<String> updateProceeding(Proceedings proc) {
+	List<String> errs = validateProceedings(proc);
+	if(errs.size() > 0)
+	    pm.currentTransaction().rollback();
+	else
+	    pm.currentTransaction().commit();
+	return errs;
+    }
+    
+    @Override
+    public List<String> updateInProceeding(InProceedings inproc) {
+	List<String> errs = validateInProceedings(inproc);
+	if(errs.size() > 0)
+	    pm.currentTransaction().rollback();
+	else
+	    pm.currentTransaction().commit();
+	return errs;
     }
 
     @Override
