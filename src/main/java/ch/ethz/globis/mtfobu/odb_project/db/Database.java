@@ -26,6 +26,7 @@ import static org.junit.Assert.*;
 public interface Database {
 
 	public String getDBTechnology();
+
 	// GUI Functions
 	/**
 	 * returns all the publishers in the database
@@ -42,25 +43,35 @@ public interface Database {
 	 * 
 	 * @return List of {@link Proceedins} objects. The following fields are
 	 *         Initialized if possible:<br>
-	 *         {@code id, title, year, editors, series, isbn, conf, publisher, InProceedings, volume, note, electronicEdition, number}<p>
-	 *         where the following fields are not fully initialized:<ul>
-	 *         <li>{@link InProceedings} have only {@link InProceedings#id} set </li>
-	 *         <li>{@link Person} is initialized {@linkplain #getPersonById(String, boolean) lazily}
+	 *         {@code id, title, year, editors, series, isbn, conf, publisher, InProceedings, volume, note, electronicEdition, number}
+	 *         <p>
+	 *         where the following fields are not fully initialized:
+	 *         <ul>
+	 *         <li>{@link InProceedings} have only {@link InProceedings#id} set
+	 *         </li>
+	 *         <li>{@link Person} is initialized
+	 *         {@linkplain #getPersonById(String, boolean) lazily}
 	 *         </ul>
 	 * 
 	 */
 	public List<Proceedings> getProceedings();
+
 	/**
 	 * returns the inproceedings in a database
+	 * 
 	 * @return List of {@link InProceedins} objects. The following fields are
 	 *         Initialized if possible:<br>
-	 *         {@code id, title, year, authors, note, electronicEdition}<p>
-	 *         
+	 *         {@code id, title, year, authors, note, electronicEdition}
+	 *         <p>
+	 * 
 	 */
 	public List<InProceedings> getInProceedings();
+
 	/**
 	 * returns list of all people in the database
-	 * @return List of {@link Person} objects. <u>Only the name and the id is initialized</u>
+	 * 
+	 * @return List of {@link Person} objects. <u>Only the name and the id is
+	 *         initialized</u>
 	 */
 	public List<Person> getPeople();
 
@@ -77,11 +88,11 @@ public interface Database {
 	public void closeDB();
 
 	public boolean create();
-	
+
 	public void importData(HashMap<String, Proceedings> proceedingsList,
-		HashMap<String, InProceedings> inProceedingsList, HashMap<Integer, Series> seriesList,
-		HashMap<String, Publisher> publishers, HashMap<String, ConferenceEdition> conferenceEditions,
-		HashMap<String, Conference> conferences, HashMap<Integer, Person> people);
+			HashMap<String, InProceedings> inProceedingsList, HashMap<Integer, Series> seriesList,
+			HashMap<String, Publisher> publishers, HashMap<String, ConferenceEdition> conferenceEditions,
+			HashMap<String, Conference> conferences, HashMap<Integer, Person> people);
 
 	public InProceedings getInProceedingsById(String id);
 
@@ -145,56 +156,77 @@ public interface Database {
 
 	// Proceedings
 	public void addProceeding(Proceedings proc);
+
 	/**
-	 * verifies if the given Proceeding is valid, if there is no redundancy regarding the id and add it to the Database if this is the case.
-	 * Use this function to add something to the database and verify if it worked.
+	 * verifies if the given Proceeding is valid, if there is no redundancy
+	 * regarding the id and add it to the Database if this is the case. Use this
+	 * function to add something to the database and verify if it worked.
+	 * 
 	 * @param proc
-	 * @return A list containing all the error messages if any. If the list is empty the Proceeding was successfully added
+	 * @return A list containing all the error messages if any. If the list is
+	 *         empty the Proceeding was successfully added
 	 */
-	//verified add for proceeding
-	public default List<String> addProceedingValidated(Proceedings proc){
+	// verified add for proceeding
+	public default List<String> addProceedingValidated(Proceedings proc) {
 		List<String> errorMessages = validateProceedings(proc);
-		if (proc!=null && getPublicationById(proc.getId()) != null) errorMessages.add(String.format("Can not add proceeding with id: %s. There is already a publiction with the same id.", proc.getId()));
+		if (proc != null && getPublicationById(proc.getId()) != null)
+			errorMessages.add(
+					String.format("Can not add proceeding with id: %s. There is already a publiction with the same id.",
+							proc.getId()));
 		assert errorMessages != null : "An Empty list is expected if no constraint has been violated.";
-		if(errorMessages.isEmpty()){
+		if (errorMessages.isEmpty()) {
 			addProceeding(proc);
 		}
 		return errorMessages;
 	}
+
 	/**
 	 * Verifies if a given Proceeding is valid
+	 * 
 	 * @param proc
-	 * @return a list of constraint violation messages. If the list is empty the Proceeding enforces the constraints.
+	 * @return a list of constraint violation messages. If the list is empty the
+	 *         Proceeding enforces the constraints.
 	 */
-	public default List<String> validateProceedings(Proceedings proc){
+	public default List<String> validateProceedings(Proceedings proc) {
 		List<String> constraintViolationMessages = new ArrayList<>();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        
-        Set<ConstraintViolation<Proceedings>> violations = validator.validate(proc);
-        System.out.println(violations.size());
-        for( ConstraintViolation<Proceedings> cv : violations){
-        	constraintViolationMessages.add(cv.getMessage());
-        }
-        return constraintViolationMessages;
-		
+		Validator validator = factory.getValidator();
+
+		Set<ConstraintViolation<Proceedings>> violations = validator.validate(proc);
+		System.out.println(violations.size());
+		for (ConstraintViolation<Proceedings> cv : violations) {
+			constraintViolationMessages.add(cv.getMessage());
+		}
+		return constraintViolationMessages;
+
 	}
 
 	public void deleteProceedingById(String id);
-	
-	//verified delete for proceeding
-	public default List<String> deleteProceedigByIdValidated(String id){
-		//TODO
-		return null;
+
+	// verified delete for proceeding
+	// TODO: This method can not fail, since it removes the inproceedings
+	// automatically. Should this really be done by this function?
+	public default List<String> deleteProceedigByIdValidated(String id) {
+		Proceedings proc = getProceedingById(id);
+		List<InProceedings> inProcs = (List<InProceedings>) proc.getPublications();
+		assert inProcs != null : "List of inproceedings of proceeding is missing";
+		// delete referenced inproceedings to ensure constraint 7 holds.
+		for (InProceedings inProc : inProcs) {
+			System.out.println(
+					String.format("( delete proceeding with id: %s ) Inproceeding with id: %s was deleted implicitly",
+							id, inProc.getId()));
+			deleteInProceedingByIdValidated(inProc.getId());
+		}
+		return new ArrayList<>();
 	}
 
-
 	public void updateProceeding(Proceedings proc);
-	//verified update for proceeding
-	public default List<String> updateProceedingValidated(Proceedings proc){
+
+	// verified update for proceeding
+	public default List<String> updateProceedingValidated(Proceedings proc) {
 		List<String> errorMessages = validateProceedings(proc);
 		assert errorMessages != null : "An Empty list is expected if no constraint has been violated.";
-		if(errorMessages.isEmpty()){
+		if (errorMessages.isEmpty()) {
 			updateProceeding(proc);
 		}
 		return errorMessages;
@@ -202,49 +234,68 @@ public interface Database {
 
 	// InProceedings
 	public void addInProceeding(InProceedings inProc);
+
 	/**
-	 * Verifies if a given inproceeding is valid, if there are no <b>id</b> collisions and adds it if this is the case. Otherwise a list is returned containing the error messages
+	 * Verifies if a given inproceeding is valid, if there are no <b>id</b>
+	 * collisions and adds it if this is the case. Otherwise a list is returned
+	 * containing the error messages
+	 * 
 	 * @param inProc
 	 * @return
 	 */
 	// verified add inproceeding
-	public default List<String> addInProceedingValidated(InProceedings inProc){
+	public default List<String> addInProceedingValidated(InProceedings inProc) {
 		List<String> errorMessages = validateInProceedings(inProc);
-		if (getPublicationById(inProc.getId()) != null) errorMessages.add(String.format("Can not add inproceeding with id: %s. There is already a publiction with the same id.", inProc.getId()));
+		if (getPublicationById(inProc.getId()) != null)
+			errorMessages.add(String.format(
+					"Can not add inproceeding with id: %s. There is already a publiction with the same id.",
+					inProc.getId()));
 		assert errorMessages != null : "An Empty list is expected if no constraint has been violated.";
-		if(errorMessages.isEmpty()){
+		if (errorMessages.isEmpty()) {
 			addInProceeding(inProc);
 		}
 		return errorMessages;
 	}
+
 	/**
 	 * Verifies if a given inproceeding is valid
+	 * 
 	 * @param inProc
-	 * @return a list of constraint violation messages. If the list is empty the inproceeding enforces the constraints.
+	 * @return a list of constraint violation messages. If the list is empty the
+	 *         inproceeding enforces the constraints.
 	 */
-	public default List<String> validateInProceedings(InProceedings inProc){
+	public default List<String> validateInProceedings(InProceedings inProc) {
 		List<String> constraintViolationMessages = new ArrayList<>();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        
-        Set<ConstraintViolation<InProceedings>> violations = validator.validate(inProc);
-        System.out.println(violations.size());
-        for( ConstraintViolation<InProceedings> cv : violations){
-        	constraintViolationMessages.add(cv.getMessage());
-        }
-        return constraintViolationMessages;
+		Validator validator = factory.getValidator();
+
+		Set<ConstraintViolation<InProceedings>> violations = validator.validate(inProc);
+		System.out.println(violations.size());
+		for (ConstraintViolation<InProceedings> cv : violations) {
+			constraintViolationMessages.add(cv.getMessage());
+		}
+		return constraintViolationMessages;
 	}
 
 	public void deleteInProceedingById(String id);
+
 	// verifed delete inproceedings
-	public default List<String> deleteInProceedingByIdValidated(String id){
-		//TODO
-		return null;
+	// TODO: Think again. Sure that there is nothing to care about here?
+	public default List<String> deleteInProceedingByIdValidated(String id) {
+		deleteInProceedingById(id);
+		return new ArrayList<>();
 	}
+
 	// verifed update inproceedings
-	public default List<String> updateInProceedingsValidated(InProceedings inProc){
-		//TODO
-		return null;
+	public default List<String> updateInProceedingsValidated(InProceedings inProc) {
+		List<String> errorMessages = validateInProceedings(inProc);
+		assert errorMessages != null : "An Empty list is expected if no constraint has been violated.";
+		if (errorMessages.isEmpty()) {
+			// TODO: it works but this is not how it was inteded to be done
+			deleteInProceedingById(inProc.getId());
+			addInProceeding(inProc);
+		}
+		return errorMessages;
 	}
 
 	// Task functions
@@ -354,25 +405,23 @@ public interface Database {
 
 	// task 14
 	public List<Publisher> task14(int yearLowerBound, int yearUpperBound);
-	
-	
-	
+
 	public class ValidationAPIUnitTest {
 
-	    public ValidationAPIUnitTest() {
-	    }
+		public ValidationAPIUnitTest() {
+		}
 
-	    @Test
-	    public void testMemberWithNoValues() {
-	        Proceedings member = new Proceedings();
+		@Test
+		public void testMemberWithNoValues() {
+			Proceedings member = new Proceedings();
 
-	        // validate the input
-	        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-	        Validator validator = factory.getValidator();
-	        Set<ConstraintViolation<Proceedings>> violations = validator.validate(member);
-	        assertEquals(violations.size(), 5);
-	    }
+			// validate the input
+			ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+			Validator validator = factory.getValidator();
+			Set<ConstraintViolation<Proceedings>> violations = validator.validate(member);
+			assertEquals(violations.size(), 5);
+		}
 	}
-	//</constraintviolation<member>
+	// </constraintviolation<member>
 
 }

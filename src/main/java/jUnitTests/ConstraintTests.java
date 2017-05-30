@@ -32,7 +32,7 @@ public class ConstraintTests {
 	@Test
 	public void Constraint_1(){
 		Proceedings proc = getValidProceedings();
-		proc.setId("conf/hmi/1987");
+		proc.setId("conf/hmi/1987"); //this id already exists
 		List<String> cvs = db.addProceedingValidated(proc);
 		for(String cv: cvs){
 			System.out.println(cv);

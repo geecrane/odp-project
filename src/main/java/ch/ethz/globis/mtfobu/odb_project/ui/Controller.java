@@ -1,5 +1,7 @@
 package ch.ethz.globis.mtfobu.odb_project.ui;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,10 +41,14 @@ import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
 public class Controller {
     public final int PAGE_SIZE = 20;
@@ -733,6 +739,7 @@ public class Controller {
 
     @FXML
     private void updateProceedings(ActionEvent event) {
+
 	// Button was clicked, do something...
 	String srcId = ((Button) event.getSource()).getId();
 	Proceedings selected = proceedingMainTable.getSelectionModel().getSelectedItem();
@@ -754,10 +761,35 @@ public class Controller {
 	    selected.getAuthors().remove(p2);
 	    loadProceedingsEditors(selected);
 	    break;
+	case "proceedingNewButton":
+		System.out.println("YEP");
+		break;
 	default:
+		//System.out.println(srcId + " Not supported");
 	    break;
 	}
 
+    }
+    @FXML
+    private void addProceedings(ActionEvent event){
+    	try {
+//    		FXMLLoader loader = new FXMLLoader();
+//    		URL url = getClass().getResource("/addProceeding.fxml");
+//    		loader.setLocation(url);
+//    		Parent root = loader.load();
+   		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/addProceeding.fxml"));
+			Parent root = (Parent) fxmlLoader.load();
+    		//AddProceedingController root = new AddProceedingController();
+			Stage stage = new Stage();
+			stage.setTitle("Add Proceeding");
+			stage.setScene(new Scene(root));
+			stage.show();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.err.println("Failed to open the window for adding proceedings");
+		}
+    	
     }
 
     // END Proceedings Tab
