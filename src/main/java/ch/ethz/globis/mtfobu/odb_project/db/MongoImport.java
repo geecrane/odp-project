@@ -164,7 +164,7 @@ public class MongoImport {
 	    // Pages (May not exist).
 	    Element pagesNode = nodeInProceeding.getChild("pages");
 	    if (pagesNode != null) {
-		inProceedings.setNote(pagesNode.getText());
+		inProceedings.setPages(pagesNode.getText());
 	    }
 
 	    // Proceedings (Proceeding corresponding to foreign-key may not

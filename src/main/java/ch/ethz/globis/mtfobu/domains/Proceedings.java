@@ -176,18 +176,6 @@ public class Proceedings extends ZooPC implements Publication {
 
 	public void setIsbn(String isbn) {
 		zooActivateWrite();
-		
-		// constraint 5 add message about the change to note
-		String note = getNote();
-		String isbnUpdateMessage;
-		if(this.isbn == null) isbnUpdateMessage = "ISBN set";
-		else isbnUpdateMessage = String.format("\nISBN updated, old value was %s", this.isbn);
-		
-		if (note == null || note.isEmpty())
-			note = isbnUpdateMessage;
-		else
-			note = note.concat(isbnUpdateMessage);
-		setNote(note);
 		this.isbn = isbn;
 	}
 

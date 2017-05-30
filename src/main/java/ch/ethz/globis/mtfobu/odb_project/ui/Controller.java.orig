@@ -1,7 +1,11 @@
 package ch.ethz.globis.mtfobu.odb_project.ui;
 
+<<<<<<< HEAD
 import java.io.IOException;
 import java.net.URL;
+=======
+import java.awt.Color;
+>>>>>>> 24929b32253ec7f4d771026e80f5454ae733ea6a
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,8 +53,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Paint;
+<<<<<<< HEAD
 import javafx.stage.Stage;
+=======
+import javafx.scene.paint.Paint;
+>>>>>>> 24929b32253ec7f4d771026e80f5454ae733ea6a
 
 public class Controller {
     public final int PAGE_SIZE = 20;
@@ -789,12 +796,14 @@ public class Controller {
 	    proceedingIsbnField.setText(selected.getIsbn());
 	    proceedingNoteField.setText(selected.getNote());
 	    loadProceedingsEditors(selected);
-	    proceedingMainTable.refresh();
-
-	    //THIS IS STRANGE CODE REMAINING FORM A MERGE CONFLICT
-		//System.out.println("YEP");
-		//break;
+<<<<<<< HEAD
+	    break;
+	case "proceedingNewButton":
+		System.out.println("YEP");
+		break;
+	default:
 		//System.out.println(srcId + " Not supported");
+	    break;
 	}
 
     }
@@ -818,9 +827,26 @@ public class Controller {
 			System.err.println("Failed to open the window for adding proceedings");
 		}
     	
+    }
+=======
+	    proceedingMainTable.refresh();
+
 	}
 
-   
+	if (errs.isEmpty()) {
+	    proceedingStat.setTextFill(Paint.valueOf("#0000ff"));
+	    proceedingStat.setText("updated!");
+	} else {
+	    proceedingStat.setText("");
+	    for (String err : errs) {
+		proceedingStat.setTextFill(Paint.valueOf("#ff0000"));
+		proceedingStat.setText(proceedingStat.getText() + err + "; ");
+		System.out.println(err);
+	    }
+	}
+>>>>>>> 24929b32253ec7f4d771026e80f5454ae733ea6a
+
+    }
     // END Proceedings Tab
 
     // START people tab

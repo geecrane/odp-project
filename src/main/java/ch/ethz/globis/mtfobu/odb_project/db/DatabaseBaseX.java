@@ -918,12 +918,12 @@ public class DatabaseBaseX implements Database {
     // you have to use the delete and add functions in order to create a new
     // object
     // TODO: This function is not complete
-    public void updateProceeding(Proceedings proc) {
+    public List<String> updateProceeding(Proceedings proc) {
 	Proceedings oldProc = getProceedingById(proc.getId());
 	if (oldProc == null) {
 	    System.err.println("(function \"updateProceeding()\") Warning: Proceeding with id: " + proc.getId()
 		    + " could not be updated, since it does not exist in the databse.");
-	    return;
+	    return null;
 	}
 	String queryFormat = "replace value of node //proceedings[@key=\"" + proc.getId() + "\"]/%s with %s";
 	String deleteQueryFormat = "delete node //proceedings[@key=\"" + proc.getId() + "\"]/%s";
@@ -987,10 +987,36 @@ public class DatabaseBaseX implements Database {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
+	//TODO No Idea what to return here
+	return null;
     }
 
 	@Override
 	public String getDBTechnology() {
 		return "BaseX";
+	}
+
+	@Override
+	public void deleteProceeding(Proceedings proc) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteInProceeding(InProceedings inproc) {
+		// TODO Auto-generated method stub
+		
+	}
+
+//	@Override
+//	public List<String> updateProceeding(Proceedings proc) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+
+	@Override
+	public List<String> updateInProceeding(InProceedings inproc) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

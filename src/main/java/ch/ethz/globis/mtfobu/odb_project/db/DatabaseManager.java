@@ -13,7 +13,7 @@ public class DatabaseManager {
     }
 
     public DatabaseManager() {
-	dbBaseX = DatabaseBaseX.getDatabase();
+	dbBaseX = null;//DatabaseBaseX.getDatabase();
 	dbMongoDB = DatabaseMongoDB.getDatabase();
 	dbZooDB = DatabaseZooDB.getDatabase();
     }

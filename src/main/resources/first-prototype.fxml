@@ -14,7 +14,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<TabPane fx:id="tabPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.ethz.globis.mtfobu.odb_project.ui.Controller">
+<TabPane fx:id="tabPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="848.0" minWidth="-Infinity" prefHeight="848.0" prefWidth="1024.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.ethz.globis.mtfobu.odb_project.ui.Controller">
   <tabs>
     <Tab fx:id="personTab" disable="true" text="People">
          <content>
@@ -86,7 +86,7 @@
       </Tab>
     <Tab fx:id="proceedingTab" disable="true" text="Proceedings">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="731.0" prefWidth="1024.0">
                <children>
                   <Group layoutX="14.0" layoutY="14.0">
                      <children>
@@ -105,20 +105,24 @@
                               <Group layoutX="112.0" />
                            </children>
                         </Group>
+                        <Label fx:id="proceedingStat" layoutY="-2.0" prefHeight="36.0" prefWidth="531.0" />
+                        <Group layoutX="687.0" layoutY="351.0">
+                           <children>
+                              <Group layoutX="112.0" />
+                           </children>
+                        </Group>
                      </children>
                   </Group>
-                  <Group layoutX="14.0" layoutY="401.0">
+                  <Group layoutX="14.0" layoutY="463.0">
                      <children>
                         <TextField fx:id="proceedingTitleField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Title" />
-                        <Button fx:id="proceedingChangeTitleButton" layoutX="200.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateProceedings" text="Change Title" />
                      </children>
                   </Group>
-                  <Group layoutX="14.0" layoutY="469.0">
+                  <Group layoutX="360.0" layoutY="412.0">
                      <children>
                         <Label text="Publisher" />
                         <ChoiceBox fx:id="proceedingPublisherDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button fx:id="proceedingChangePublisherButton" layoutX="168.0" layoutY="69.0" mnemonicParsing="false" text="Change Publisher" />
                         <TextField fx:id="proceedingPublisherFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
@@ -130,27 +134,18 @@
                         <TextField fx:id="proceedingSeriesFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
-                  <Group layoutX="14.0" layoutY="562.0">
+                  <Group layoutX="14.0" layoutY="525.0">
                      <children>
                         <TextField fx:id="proceedingIsbnField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="ISBN" />
-                        <Button fx:id="proceedingChangeIsbnButton" layoutX="197.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateProceedings" text="Change ISBN" />
                      </children>
                   </Group>
-                  <Group layoutX="14.0" layoutY="630.0">
+                  <Group layoutX="360.0" layoutY="683.0">
                      <children>
                         <Label text="Conference" />
                         <ChoiceBox fx:id="proceedingConferenceDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
                         <Button fx:id="proceedingChangeConferenceButton" layoutX="154.0" layoutY="69.0" mnemonicParsing="false" text="Change Conference" />
                         <TextField fx:id="proceedingConferenceFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
-                     </children>
-                  </Group>
-                  <Group layoutX="362.0" layoutY="401.0">
-                     <children>
-                        <Label text="Edition" />
-                        <ChoiceBox fx:id="proceedingEditionDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
-                        <Button fx:id="proceedingChangeEditionButton" layoutX="183.0" layoutY="69.0" mnemonicParsing="false" text="Change Edition" />
-                        <TextField fx:id="proceedingEditionFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
                      </children>
                   </Group>
                   <Group layoutX="695.0" layoutY="401.0">
@@ -170,6 +165,25 @@
                         <ChoiceBox fx:id="proceedingEditorDropdown" layoutY="43.0" prefHeight="25.0" prefWidth="300.0" />
                         <Button fx:id="proceedingAddEditorButton" layoutX="214.0" layoutY="69.0" mnemonicParsing="false" text="Add Editor" />
                         <TextField fx:id="proceedingEditorFilterField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" text="Filter" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="583.0">
+                     <children>
+                        <TextField fx:id="proceedingNoteField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Note" />
+                     </children>
+                  </Group>
+                  <Group layoutX="14.0" layoutY="633.0">
+                     <children>
+                        <TextField fx:id="proceedingYearField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Year" />
+                     </children>
+                  </Group>
+                  <Button fx:id="proceedingUpdateButton" layoutX="245.0" layoutY="703.0" mnemonicParsing="false" onAction="#updateProceedings" text="Update" />
+                  <Group layoutX="14.0" layoutY="415.0">
+                     <children>
+                        <TextField fx:id="proceedingIdField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="ID" />
                      </children>
                   </Group>
                </children></AnchorPane>
@@ -192,13 +206,13 @@
                         <Button fx:id="inProceedingDeleteButton" layoutX="152.0" layoutY="341.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Delete InProceeding" />
                         <Group layoutX="677.0" layoutY="341.0" />
                         <Button fx:id="inProceedingCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create InProceeding" />
+                        <Label fx:id="inproceedingStat" layoutY="-2.0" prefHeight="36.0" prefWidth="531.0" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="469.0">
                      <children>
                         <TextField fx:id="inProceedingPagesField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Pages" />
-                        <Button fx:id="inProceedingChangePagesButton" layoutX="189.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Change Pages" />
                      </children>
                   </Group>
                   <Group layoutX="362.0" layoutY="401.0">
@@ -232,16 +246,21 @@
                      <children>
                         <TextField fx:id="inProceedingTitleField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Title" />
-                        <Button fx:id="inProceedingChangeTitleButton" layoutX="200.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Change Title" />
                      </children>
                   </Group>
                   <Group layoutX="14.0" layoutY="537.0">
                      <children>
                         <TextField fx:id="inProceedingYearField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
                         <Label text="Year" />
-                        <Button fx:id="inProceedingChangeYearButton" layoutX="199.0" layoutY="43.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Change Year" />
                      </children>
                   </Group>
+                  <Group layoutX="10.0" layoutY="620.0">
+                     <children>
+                        <TextField fx:id="inproceedingNoteField" layoutY="17.0" prefHeight="25.0" prefWidth="300.0" />
+                        <Label text="Note" />
+                     </children>
+                  </Group>
+                  <Button fx:id="inproceedingUpdateButton" layoutX="241.0" layoutY="676.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Update" />
                </children>
             </AnchorPane>
          </content>

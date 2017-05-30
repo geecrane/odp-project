@@ -27,13 +27,13 @@ public class Main extends Application {
 
 	public static void main(String[] args) throws IOException {
 		
-		Benchmark bch = new Benchmark(DatabaseMongoDB.getDatabase());
-		try {
-			//bch.benchmark();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		Benchmark bch = new Benchmark(DatabaseMongoDB.getDatabase());
+//		try {
+//			//bch.benchmark();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		launch(args);
 		
 		//for testing purposes
