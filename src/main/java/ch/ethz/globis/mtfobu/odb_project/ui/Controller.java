@@ -53,6 +53,7 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
 public class Controller {
+	static Controller mainController;
     public final int PAGE_SIZE = 20;
     public PersistenceManager pm;
     public static Database db;
@@ -60,7 +61,7 @@ public class Controller {
     private final DatabaseManager dbm = new DatabaseManager();
 
     // mainTable DATA
-    private Hashtable<DatabaseManager.DBType, TableData> tableData = new Hashtable<>();
+    public Hashtable<DatabaseManager.DBType, TableData> tableData = new Hashtable<>();
 
     // TODO task4: Class XmlImport needs this function
     public void setImportStatus(String text) {
@@ -83,6 +84,8 @@ public class Controller {
 	initAllColumns();
 
 	loadView();
+	
+	mainController = this;
 
     }
 
@@ -812,10 +815,39 @@ public class Controller {
 			stage.setTitle("Add Proceeding");
 			stage.setScene(new Scene(root));
 			stage.show();
+			proceedingMainTable.refresh();
+			
+			//loadProceedings();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.err.println("Failed to open the window for adding proceedings");
+		}
+    	
+	}
+    
+    @FXML
+    private void addInProceedings(ActionEvent event){
+    	System.out.println("YEP");
+    	try {
+//    		FXMLLoader loader = new FXMLLoader();
+//    		URL url = getClass().getResource("/addProceeding.fxml");
+//    		loader.setLocation(url);
+//    		Parent root = loader.load();
+   		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/addInProceeding.fxml"));
+			Parent root = (Parent) fxmlLoader.load();
+    		//AddProceedingController root = new AddProceedingController();
+			Stage stage = new Stage();
+			stage.setTitle("Add Inproceeding");
+			stage.setScene(new Scene(root));
+			stage.show();
+			inProceedingMainTable.refresh();
+			
+			//loadProceedings();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.err.println("Failed to open the window for adding inproceedings");
 		}
     	
 	}

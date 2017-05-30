@@ -205,7 +205,7 @@
                         <TextField fx:id="inProceedingSearchField" layoutX="547.0" prefHeight="25.0" prefWidth="450.0" />
                         <Button fx:id="inProceedingDeleteButton" layoutX="152.0" layoutY="341.0" mnemonicParsing="false" onAction="#updateInProceedings" text="Delete InProceeding" />
                         <Group layoutX="677.0" layoutY="341.0" />
-                        <Button fx:id="inProceedingCreateButton" layoutY="341.0" mnemonicParsing="false" text="Create InProceeding" />
+                        <Button fx:id="inProceedingCreateButton" layoutY="341.0" mnemonicParsing="false" onAction="#addInProceedings" text="Create InProceeding" />
                         <Label fx:id="inproceedingStat" layoutY="-2.0" prefHeight="36.0" prefWidth="531.0" />
                      </children>
                   </Group>

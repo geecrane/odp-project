@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Text?>
+
+<SplitPane fx:id="splitPane" dividerPositions="0.8748627881448957" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="913.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.ethz.globis.mtfobu.odb_project.ui.AddInProceeding">
+  <items>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="861.0" prefWidth="598.0">
+         <children>
+            <GridPane layoutX="25.0" layoutY="25.0" prefHeight="291.0" prefWidth="544.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+              <columnConstraints>
+                <ColumnConstraints halignment="LEFT" hgrow="NEVER" maxWidth="266.0" minWidth="-Infinity" />
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" maxWidth="1.7976931348623157E308" />
+              </columnConstraints>
+              <rowConstraints>
+                  <RowConstraints fillHeight="false" maxHeight="332.0" minHeight="-Infinity" valignment="CENTER" vgrow="SOMETIMES" />
+                <RowConstraints fillHeight="false" maxHeight="332.0" minHeight="-Infinity" valignment="CENTER" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="346.0" minHeight="-Infinity" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="570.0" minHeight="-Infinity" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="603.0" minHeight="-Infinity" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="644.0" minHeight="-Infinity" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="619.0" minHeight="-Infinity" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <TextField fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                     <GridPane.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </GridPane.margin></TextField>
+                  <TextField fx:id="proceedingID" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                     <GridPane.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </GridPane.margin></TextField>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Title" GridPane.rowIndex="1" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="year" GridPane.rowIndex="4" />
+                  <TextField fx:id="note" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                     <GridPane.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </GridPane.margin></TextField>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="pages" GridPane.rowIndex="5" />
+                  <TextField fx:id="year" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                     <GridPane.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </GridPane.margin></TextField>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="proceeding id" GridPane.rowIndex="2" />
+                  <TextField fx:id="pages" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                     <GridPane.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </GridPane.margin></TextField>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="note" GridPane.rowIndex="3" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Authors" GridPane.rowIndex="6" />
+                  <GridPane GridPane.columnIndex="1" GridPane.rowIndex="6">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="619.0" minHeight="200.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="303.0" minHeight="0.0" prefHeight="46.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <GridPane prefHeight="196.0" prefWidth="436.0" GridPane.rowIndex="1">
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="NEVER" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="NEVER" minWidth="-Infinity" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints />
+                           </rowConstraints>
+                           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Author name:">
+                                 <GridPane.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </GridPane.margin>
+                              </Text>
+                              <TextField fx:id="newEditorNameField" GridPane.columnIndex="1" />
+                              <ButtonBar buttonMinWidth="100.0" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
+                                <buttons>
+                                    <Button fx:id="addEditor" mnemonicParsing="false" onAction="#addEditor" text="add" />
+                                  <Button fx:id="deleteEditor" mnemonicParsing="false" onAction="#removeEditor" text="delete" />
+                                </buttons>
+                                 <GridPane.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </GridPane.margin>
+                              </ButtonBar>
+                           </children>
+                        </GridPane>
+                        <TableView fx:id="editors" prefHeight="87.0" prefWidth="436.0">
+                          <columns>
+                            <TableColumn fx:id="editorNameColumn" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="485.0" resizable="false" text="Authors" />
+                          </columns>
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TableView>
+                     </children>
+                     <GridPane.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </GridPane.margin>
+                  </GridPane>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="ID" />
+                  <TextField fx:id="idField" GridPane.columnIndex="1">
+                     <GridPane.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </GridPane.margin>
+                  </TextField>
+               </children>
+            </GridPane>
+         </children></AnchorPane>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="34.0" prefWidth="598.0">
+         <children>
+            <GridPane layoutX="161.0" layoutY="-63.0" prefHeight="428.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <ButtonBar prefHeight="40.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.valignment="BOTTOM">
+                    <buttons>
+                      <Button fx:id="CancelButton" mnemonicParsing="false" onAction="#cancelAddInProceeding" text="Cancel" />
+                        <Button fx:id="AddButton" mnemonicParsing="false" onAction="#addInProceeding" text="Add" />
+                    </buttons>
+                  </ButtonBar>
+                  <TextArea fx:id="errorMessageArea" editable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
+               </children>
+            </GridPane>
+         </children></AnchorPane>
+  </items>
+</SplitPane>

@@ -1,15 +1,18 @@
 package ch.ethz.globis.mtfobu.odb_project.ui;
 
-import java.util.ArrayList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.ethz.globis.mtfobu.domains.Conference;
+import ch.ethz.globis.mtfobu.domains.ConferenceEdition;
 import ch.ethz.globis.mtfobu.domains.Person;
 import ch.ethz.globis.mtfobu.domains.Proceedings;
+import ch.ethz.globis.mtfobu.domains.InProceedings;
 import ch.ethz.globis.mtfobu.domains.Publisher;
 import ch.ethz.globis.mtfobu.odb_project.db.Database;
 import ch.ethz.globis.mtfobu.odb_project.db.DatabaseManager;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -24,14 +27,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
-public class AddProceedingController {
+public class AddInProceeding {
 	private DatabaseManager.DBType selectedDB;
-	private Database db;
+	private Database db; 
 	private final DatabaseManager dbm = new DatabaseManager();
 
 	@FXML
-	public void cancelAddProceeding(ActionEvent event) {
-		System.out.println("OK");
+	public void cancelAddInProceeding(ActionEvent event) {
+		System.out.println("Canceled AddInProceeding");
 		final Node source = (Node) event.getSource();
 		final Stage stage = (Stage) source.getScene().getWindow();
 		stage.close();
@@ -54,33 +57,39 @@ public class AddProceedingController {
 	}
 
 	@FXML
-	public void addProceeding(ActionEvent event) {
+	public void addInProceeding(ActionEvent event) {
 		if (idField.getText().isEmpty()) {
 			errorMessageArea.appendText("Please specify an ID\n");
 			return;
 		}
-		Proceedings proc = new Proceedings(idField.getId());
-		proc.setTitle(title.getText());
-		proc.setConference(new Conference(booktitle.getText()));
-		proc.setPublisher(new Publisher(publisher.getText()));
+		InProceedings inProc = new InProceedings(idField.getId());
+		inProc.setTitle(title.getText());
+		Proceedings proc = db.getProceedingById(proceedingID.getText());
+		if (proc == null){
+			errorMessageArea.appendText("The Proceeding ID is not valid\n");
+		}
+		inProc.setProceedings(proc);
+	//	inProc.setElectronicEdition(new ConferenceEdition(id, conference, year, proceedings));
+		
 		try {
-			proc.setYear(Integer.parseInt(year.getText()));
+			inProc.setYear(Integer.parseInt(year.getText()));
 		} catch (NumberFormatException ex) {
 			errorMessageArea.appendText("Enrty for year is not valid\n");
 		}
-		proc.setIsbn(isbn.getText());
+		inProc.setPages(pages.getText());
 
 		List<Person> authors = new ArrayList<>();
 		authors.addAll(editorList);
-		proc.setAuthors(authors);
+		inProc.setAuthors(authors);
+		inProc.setNote(note.getText());
 
-		List<String> errors = db.addProceedingValidated(proc);
+		List<String> errors = db.addInProceedingValidated(inProc);
 		if (errors.isEmpty()) {
 			// close window
 			final Node source = (Node) event.getSource();
 			final Stage stage = (Stage) source.getScene().getWindow();
 			stage.close();
-			Controller.mainController.tableData.get(selectedDB).proceedingsMasterData.add(proc);
+			Controller.mainController.tableData.get(selectedDB).inProceedingsMasterData.add(inProc);
 
 		} else {
 			for (String errorMessage : errors) {
@@ -102,6 +111,7 @@ public class AddProceedingController {
 
 	}
 
+
 	@FXML
 	private SplitPane splitPane;
 	@FXML
@@ -109,13 +119,13 @@ public class AddProceedingController {
 	@FXML
 	private TextField title;
 	@FXML
-	private TextField booktitle;
+	private TextField proceedingID;
 	@FXML
-	private TextField publisher;
+	private TextField note;
 	@FXML
 	private TextField year;
 	@FXML
-	private TextField isbn;
+	private TextField pages;
 	@FXML
 	private TableView<Person> editors;
 	@FXML
@@ -134,5 +144,4 @@ public class AddProceedingController {
 	private Button CancelButton;
 	@FXML
 	private Button AddButton;
-
 }
