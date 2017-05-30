@@ -59,7 +59,7 @@ public class AddProceedingController {
 			errorMessageArea.appendText("Please specify an ID\n");
 			return;
 		}
-		Proceedings proc = new Proceedings(idField.getId());
+		Proceedings proc = new Proceedings(idField.getText());
 		proc.setTitle(title.getText());
 		proc.setConference(new Conference(booktitle.getText()));
 		proc.setPublisher(new Publisher(publisher.getText()));

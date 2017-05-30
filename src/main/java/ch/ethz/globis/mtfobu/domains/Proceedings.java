@@ -34,10 +34,6 @@ public class Proceedings extends ZooPC implements Publication {
 	}
 
 	@Override
-	// constraint 2
-	@NotNull(message = "Title must not be null")
-	// does not null mean that it should not be empty?
-	@NotBlank(message = "Title must not be empty")
 	public String getTitle() {
 		zooActivateRead();
 		return title;
@@ -72,9 +68,6 @@ public class Proceedings extends ZooPC implements Publication {
 	}
 
 	@Override
-	// constraint 3
-	@Min(value = 1901, message = "Only Publications after 1900 are accepted")
-	@Max(value = 2018, message = "Only Publications before 2018 are accepted")
 	public int getYear() {
 		// George: Note that the Year defines the Conference Edition
 		zooActivateRead();

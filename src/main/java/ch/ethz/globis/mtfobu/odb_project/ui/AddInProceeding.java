@@ -62,7 +62,7 @@ public class AddInProceeding {
 			errorMessageArea.appendText("Please specify an ID\n");
 			return;
 		}
-		InProceedings inProc = new InProceedings(idField.getId());
+		InProceedings inProc = new InProceedings(idField.getText());
 		inProc.setTitle(title.getText());
 		Proceedings proc = db.getProceedingById(proceedingID.getText());
 		if (proc == null){

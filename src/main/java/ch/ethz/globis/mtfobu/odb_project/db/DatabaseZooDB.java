@@ -429,7 +429,9 @@ public class DatabaseZooDB implements Database {
 
     @Override
     public void addProceeding(Proceedings proc) {
-	// TODO Auto-generated method stub
+    	pm.currentTransaction().begin();
+    	pm.makePersistent(proc);
+    	pm.currentTransaction().commit();
 
     }
 
@@ -473,7 +475,9 @@ public class DatabaseZooDB implements Database {
 
     @Override
     public void addInProceeding(InProceedings inProc) {
-	// TODO Auto-generated method stub
+    	pm.currentTransaction().begin();
+    	pm.makePersistent(inProc);
+    	pm.currentTransaction().commit();
 
     }
 
