@@ -773,6 +773,10 @@ public class Controller {
 
 	    errs = db.updateProceeding(selected);
 	    
+	    if(errs.size() > 0 && selectedDB != DatabaseManager.DBType.ZooDB){
+		selected = db.getProceedingById(selected.getId());
+	    }
+	    
 	    proceedingTitleField.setText(selected.getTitle());
 	    proceedingNoteField.setText(selected.getNote());
 	    proceedingYearField.setText(String.valueOf(selected.getYear()));
@@ -1071,7 +1075,9 @@ public class Controller {
 	    selected.setNote(inproceedingNoteField.getText());
 	    
 	    errs = db.updateInProceeding(selected);
-	    
+	    if(errs.size() > 0 && selectedDB != DatabaseManager.DBType.ZooDB){
+		selected = db.getInProceedingsById(selected.getId());
+	    }
 	    inProceedingTitleField.setText(selected.getTitle());
 	    inProceedingPagesField.setText(selected.getPages());
 	    inProceedingYearField.setText(String.valueOf(selected.getYear()));
